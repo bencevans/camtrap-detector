@@ -1,0 +1,78 @@
+use std::{path::PathBuf, sync::{Mutex, atomic::{AtomicUsize, Ordering}}};
+
+use app::yolo;
+use serde::{Deserialize, Serialize};
+
+use tauri::{State, App};
+
+pub struct AppState {
+    pub root_path: String,
+}
+
+pub struct AppStateMutex(Mutex<AppState>);
+
+impl AppState {
+    pub fn new(root_path: String) -> Self {
+        AppState { root_path }
+    }
+
+    pub fn get_root_path(&self) -> &str {
+        &self.root_path
+    }
+
+    pub fn get_root_path_mut(&mut self) -> &mut String {
+        &mut self.root_path
+    }
+
+    pub fn set_root_path(&mut self, root_path: String) {
+        self.root_path = root_path;
+    }
+}
+
+
+#[tauri::command]
+async fn run_detection(base_dir: String)  {
+
+    let extentions = vec!["jpg", "png", "JPG", "PNG", "jpeg", "JPEG"];
+    let mut files = Vec::new();
+
+    println!("Enumerating files in {}", base_dir);
+
+    for entry in std::fs::read_dir(base_dir).unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+        let ext = path.to_str().unwrap().split('.').last().unwrap();
+
+        if extentions.contains(&ext) {
+            files.push(path.clone());
+        }
+    }
+
+    println!("Loading Model");
+    let mut model = yolo::load_model("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx").unwrap();
+
+    println!("Running Detection");
+
+    // let mut results = Vec::new();
+    // let mut count = 0;
+
+    for file in files {
+        yolo::infer(&mut model, &file.to_str().unwrap(), &0.5, 0.4).unwrap();
+        println!("{}", file.to_str().unwrap());
+        
+    }
+
+}
+
+// #![cfg_attr(
+//   all(not(debug_assertions), target_os = "windows"),
+//   windows_subsystem = "windows"
+// )]
+
+fn main() {
+    tauri::Builder::default()
+        .manage(AppStateMutex(Mutex::new(AppState::new(String::from(".")))))
+        .invoke_handler(tauri::generate_handler!(run_detection))
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
