@@ -1,12 +1,12 @@
 {
   "build": {
-    "beforeBuildCommand": "",
-    "beforeDevCommand": "",
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm start",
     "devPath": "http://localhost:3000",
     "distDir": "../build"
   },
   "package": {
-    "productName": "camtrap-detector",
+    "productName": "CamTrap Detector",
     "version": "0.1.0"
   },
   "tauri": {

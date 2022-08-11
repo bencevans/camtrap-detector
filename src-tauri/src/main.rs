@@ -1,6 +1,7 @@
 use std::sync::Mutex;
 
 use app::yolo;
+use tauri::Window;
 
 pub struct AppState {
     pub root_path: String,
@@ -27,7 +28,7 @@ impl AppState {
 }
 
 #[tauri::command]
-async fn run_detection(base_dir: String) {
+async fn run_detection(base_dir: String, window: Window) {
     let extentions = vec!["jpg", "png", "JPG", "PNG", "jpeg", "JPEG"];
     let mut files = Vec::new();
 
@@ -54,19 +55,19 @@ async fn run_detection(base_dir: String) {
     };
 
     #[cfg(not(feature = "builtin"))]
-    let mut model = {
-        yolo::load_model("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx").unwrap()
-    };
+    let mut model = { yolo::load_model("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx").unwrap() };
 
     println!("Running Detection");
 
     // let mut results = Vec::new();
-    // let mut count = 0;
+    // let mut progress = 0.0;
 
-    for file in files {
+    for (index, file) in files.iter().enumerate() {
         let detections = yolo::infer(&mut model, file.to_str().unwrap(), &0.5, 0.4).unwrap();
         println!("{:?}", detections);
         println!("{}", file.to_str().unwrap());
+
+        window.emit("progress", format!("{}", index)).unwrap();
     }
 }
 

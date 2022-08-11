@@ -1,6 +1,6 @@
 use opencv::{
   core::{Scalar, CV_32F, Vector},
-  dnn::{read_net_from_onnx, read_net_from_onnx_str, read_net_from_onnx_buffer},
+  dnn::{read_net_from_onnx, read_net_from_onnx_buffer},
   prelude::{Mat, MatTraitConst, NetTrait, NetTraitConst},
   Error,
 };
