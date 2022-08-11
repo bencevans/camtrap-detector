@@ -9,6 +9,9 @@ default-run = "app"
 edition = "2021"
 rust-version = "1.57"
 
+# [target.arm64-apple-darwin]
+# rustflags = ["-C", "link-args=-weak_framework Metal"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
@@ -18,7 +21,7 @@ tauri-build = { version = "1.0.4", features = [] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.0.5", features = ["api-all"] }
-opencv = { version = "0.66.0", features = ["rgb"] }
+opencv = { version = "0.66.0", default-features = false, features = ["dnn", "imgcodecs"] }
 
 [features]
 # by default Tauri runs in production mode
@@ -27,3 +30,5 @@ default = [ "custom-protocol" ]
 # this feature is used used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
+
+builtin = []

@@ -13,18 +13,6 @@ impl AppState {
     pub fn new(root_path: String) -> Self {
         AppState { root_path }
     }
-
-    pub fn get_root_path(&self) -> &str {
-        &self.root_path
-    }
-
-    pub fn get_root_path_mut(&mut self) -> &mut String {
-        &mut self.root_path
-    }
-
-    pub fn set_root_path(&mut self, root_path: String) {
-        self.root_path = root_path;
-    }
 }
 
 #[tauri::command]
@@ -48,8 +36,11 @@ async fn run_detection(base_dir: String, window: Window) {
 
     #[cfg(feature = "builtin")]
     let mut model = {
-        let model_bytes = include_bytes!("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx");
-        let MODEL_VECTOR: opencv::core::Vector<u8> = model_bytes.iter().cloned().collect();
+        let MODEL_VECTOR: opencv::core::Vector<u8> =
+            include_bytes!("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx")
+                .iter()
+                .cloned()
+                .collect();
 
         yolo::load_model_from_bytes(&MODEL_VECTOR).unwrap()
     };
@@ -58,9 +49,6 @@ async fn run_detection(base_dir: String, window: Window) {
     let mut model = { yolo::load_model("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx").unwrap() };
 
     println!("Running Detection");
-
-    // let mut results = Vec::new();
-    // let mut progress = 0.0;
 
     for (index, file) in files.iter().enumerate() {
         let detections = yolo::infer(&mut model, file.to_str().unwrap(), &0.5, 0.4).unwrap();
@@ -71,11 +59,10 @@ async fn run_detection(base_dir: String, window: Window) {
     }
 }
 
-// #![cfg_attr(
-//   all(not(debug_assertions), target_os = "windows"),
-//   windows_subsystem = "windows"
-// )]
 
+// #[cfg(target_os = "macos")]
+// #[link(name = "OpenCL", kind = "framework")]
+// #[link(name = "Accelerate", kind = "framework")]
 fn main() {
     tauri::Builder::default()
         .manage(AppStateMutex(Mutex::new(AppState::new(String::from(".")))))

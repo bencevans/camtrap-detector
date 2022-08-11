@@ -1758,7 +1758,6 @@ dependencies = [
  "once_cell",
  "opencv-binding-generator",
  "pkg-config",
- "rgb",
  "semver 1.0.13",
  "shlex",
  "vcpkg",
@@ -2320,15 +2319,6 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "windows 0.37.0",
-]
-
-[[package]]
-name = "rgb"
-version = "0.8.33"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3b221de559e4a29df3b957eec92bc0de6bc8eaf6ca9cfed43e5e1d67ff65a34"
-dependencies = [
- "bytemuck",
 ]
 
 [[package]]
