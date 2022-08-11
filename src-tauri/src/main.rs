@@ -1,9 +1,6 @@
-use std::{path::PathBuf, sync::{Mutex, atomic::{AtomicUsize, Ordering}}};
+use std::sync::Mutex;
 
 use app::yolo;
-use serde::{Deserialize, Serialize};
-
-use tauri::{State, App};
 
 pub struct AppState {
     pub root_path: String,
@@ -29,10 +26,8 @@ impl AppState {
     }
 }
 
-
 #[tauri::command]
-async fn run_detection(base_dir: String)  {
-
+async fn run_detection(base_dir: String) {
     let extentions = vec!["jpg", "png", "JPG", "PNG", "jpeg", "JPEG"];
     let mut files = Vec::new();
 
@@ -49,7 +44,19 @@ async fn run_detection(base_dir: String)  {
     }
 
     println!("Loading Model");
-    let mut model = yolo::load_model("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx").unwrap();
+
+    #[cfg(feature = "builtin")]
+    let mut model = {
+        let model_bytes = include_bytes!("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx");
+        let MODEL_VECTOR: opencv::core::Vector<u8> = model_bytes.iter().cloned().collect();
+
+        yolo::load_model_from_bytes(&MODEL_VECTOR).unwrap()
+    };
+
+    #[cfg(not(feature = "builtin"))]
+    let mut model = {
+        yolo::load_model("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx").unwrap()
+    };
 
     println!("Running Detection");
 
@@ -57,11 +64,10 @@ async fn run_detection(base_dir: String)  {
     // let mut count = 0;
 
     for file in files {
-        yolo::infer(&mut model, &file.to_str().unwrap(), &0.5, 0.4).unwrap();
+        let detections = yolo::infer(&mut model, file.to_str().unwrap(), &0.5, 0.4).unwrap();
+        println!("{:?}", detections);
         println!("{}", file.to_str().unwrap());
-        
     }
-
 }
 
 // #![cfg_attr(

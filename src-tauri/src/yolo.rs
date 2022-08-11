@@ -1,6 +1,6 @@
 use opencv::{
-  core::{Scalar, CV_32F},
-  dnn::read_net_from_onnx,
+  core::{Scalar, CV_32F, Vector},
+  dnn::{read_net_from_onnx, read_net_from_onnx_str, read_net_from_onnx_buffer},
   prelude::{Mat, MatTraitConst, NetTrait, NetTraitConst},
   Error,
 };
@@ -14,6 +14,12 @@ pub struct BoxDetection {
   pub h: f64,
   pub confidence: f64,
   pub class_id: f64,
+}
+
+
+
+pub fn load_model_from_bytes(vector: &Vector<u8>) -> Result<opencv::dnn::Net, Error> {
+  read_net_from_onnx_buffer(vector)
 }
 
 pub fn load_model(model_path: &str) -> Result<opencv::dnn::Net, Error> {

@@ -28,7 +28,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "io.bluechimp.camtrap-detector",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
