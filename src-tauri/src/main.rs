@@ -1,7 +1,7 @@
-use std::{sync::Mutex, path::Path};
+use std::{sync::Mutex, path::{Path}};
 
-use app::yolo;
-use serde::{Serialize, Deserialize};
+use app::{yolo, utils::find_files, structures::{MegaDetectorFile, MegaDetectorBatchOutput}};
+
 use tauri::Window;
 
 pub struct AppState {
@@ -16,34 +16,7 @@ impl AppState {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct MDBatchFile {
-    pub path: String,
-    pub detections: Vec<yolo::BoxDetection>,
-}
 
-fn find_files(root_path: &Path, extentions: &[&str], recursive_search: bool) -> Vec<String> {
-    let mut files = Vec::new();
-
-    for entry in std::fs::read_dir(root_path).unwrap() {
-
-        let entry = entry.unwrap();
-        let path = entry.path();
-
-        if path.is_file() {
-            let ext = path.extension();
-            if let Some(ext) = ext {
-                if extentions.contains(&ext.to_str().unwrap()) {
-                    files.push(path.to_str().unwrap().to_string());
-                }
-            }
-        } else if path.is_dir() && recursive_search {
-            files.append(&mut find_files(&path, extentions, recursive_search));
-        }
-    }
-
-    files
-}
 
 fn load_model() -> opencv::dnn::Net {
     #[cfg(feature = "builtin")]
@@ -78,13 +51,19 @@ async fn run_detection(base_dir: String, relative_paths: bool, output_json: Stri
     let mut file_detections = vec![];
 
     for (index, file) in files.iter().enumerate() {
-        let detections = yolo::infer(&mut model, file.as_str(), &0.5, 0.4).unwrap();
-        println!("{:?}", detections);
-        println!("{}", file.as_str());
+        let detections = yolo::infer(&mut model, file.as_str(), &0.1, 0.45).unwrap();
 
-        file_detections.push(MDBatchFile {
-            path: file.as_str().to_string(),
-            detections,
+
+        let file_path = if relative_paths {
+            file.as_str().replace(&base_dir, "")
+        } else {
+            file.as_str().to_string()
+        };
+
+        file_detections.push(MegaDetectorFile {
+            file: file_path,
+            detections: Some(detections),
+            error: None,
         });
 
         let percent = ((index + 1) as f32 / files.len() as f32) * 100.0;
@@ -94,14 +73,29 @@ async fn run_detection(base_dir: String, relative_paths: bool, output_json: Stri
 
     window.emit("progress", "Saving JSON").unwrap();
 
-    println!("{:?}", file_detections);
 
-    let output_path = format!("{}/output.json", &base_dir);
-    let output_file = std::fs::File::create(output_path).unwrap();
-    let mut output_writer = std::io::BufWriter::new(output_file);
-    serde_json::to_writer_pretty(&mut output_writer, &file_detections).unwrap();
+
+    if !output_json.is_empty() {
+        let output = MegaDetectorBatchOutput {
+            images: file_detections,
+            detection_categories: None,
+            info: None,
+        };
+        output.save_json(Path::new(&output_json));
+    }
 
     window.emit("progress", "Done").unwrap();
+
+
+    // create new dir with images containing detections
+    let animal_dir = format!("{}/animal", base_dir);
+    std::fs::create_dir_all(animal_dir.as_str()).unwrap();
+
+    for image_file in files {
+        let output_file = format!("{}/animal/{}", base_dir, image_file);
+        std::fs::copy(image_file.as_str(), output_file.as_str()).unwrap();
+
+    }
 
 }
 

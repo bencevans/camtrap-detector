@@ -32,7 +32,9 @@ function App() {
       setBaseDir(chosenPath);
 
       invoke('run_detection', {
-        baseDir: chosenPath
+        baseDir: chosenPath,
+        relativePaths: false,
+        outputJson: chosenPath + '/output2.json',
       })
 
       setIsProcessing(true);

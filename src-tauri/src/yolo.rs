@@ -4,19 +4,8 @@ use opencv::{
   prelude::{Mat, MatTraitConst, NetTrait, NetTraitConst},
   Error,
 };
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BoxDetection {
-  pub x: f64,
-  pub y: f64,
-  pub w: f64,
-  pub h: f64,
-  pub confidence: f64,
-  pub class_id: f64,
-}
-
-
+use crate::structures::Detection;
 
 pub fn load_model_from_bytes(vector: &Vector<u8>) -> Result<opencv::dnn::Net, Error> {
   read_net_from_onnx_buffer(vector)
@@ -31,7 +20,7 @@ pub fn infer(
   image_path: &str,
   min_confidence: &f32,
   nms_threshold: f64,
-) -> Result<Vec<BoxDetection>, Error> {
+) -> Result<Vec<Detection>, Error> {
   let image = opencv::imgcodecs::imread(image_path, opencv::imgcodecs::IMREAD_COLOR)?;
   let image_width = image.cols();
   let image_height = image.rows();
@@ -61,7 +50,7 @@ pub fn infer(
 
   let rows = *outputs.mat_size().get(1).unwrap();
 
-  let mut detections: Vec<BoxDetection> = vec![];
+  let mut detections: Vec<Detection> = vec![];
 
   for i in 0..rows {
       let cx: &f32 = outputs.at_3d(0, i, 0)?;
@@ -93,49 +82,49 @@ pub fn infer(
           continue;
       }
 
-      let detection = BoxDetection {
-          x: x_min as f64,
-          y: y_min as f64,
-          w: width as f64,
-          h: height as f64,
-          confidence: *sc as f64,
-          class_id: 0.0,
+      let detection = Detection {
+          category: "-1".to_string(),
+          conf: *sc as f32,
+          bbox: [x_min as f32, y_min as f32, width as f32, height as f32],
+
       };
 
       detections.push(detection);
   }
 
-  // Non Max Suppression
-  let mut nms_detections: Vec<BoxDetection> = vec![];
+  // // Non Max Suppression
+  // let mut nms_detections: Vec<Detection> = vec![];
 
-  for i in 0..detections.len() {
-      let mut keep = true;
-      for j in 0..nms_detections.len() {
-          if i != j && keep {
-              let i_x = detections[i].x;
-              let i_y = detections[i].y;
-              let i_w = detections[i].w;
-              let i_h = detections[i].h;
-              let _i_conf = detections[i].confidence;
-              let j_x = detections[j].x;
-              let j_y = detections[j].y;
-              let j_w = detections[j].w;
-              let j_h = detections[j].h;
-              let _j_conf = detections[j].confidence;
-              let i_area = i_w * i_h;
-              let j_area = j_w * j_h;
-              let area = i_area + j_area;
-              let union = (i_x - j_x).powi(2) + (i_y - j_y).powi(2);
-              let iou = area - union / area;
-              if iou > nms_threshold {
-                  keep = false;
-              }
-          }
-      }
-      if keep {
-          nms_detections.push(detections[i].clone());
-      }
-  }
+  // for i in 0..detections.len() {
+  //     let mut keep = true;
+  //     for j in 0..nms_detections.len() {
+  //         if i != j && keep {
+  //             let i_x = detections[i].x;
+  //             let i_y = detections[i].y;
+  //             let i_w = detections[i].w;
+  //             let i_h = detections[i].h;
+  //             let _i_conf = detections[i].confidence;
+  //             let j_x = detections[j].x;
+  //             let j_y = detections[j].y;
+  //             let j_w = detections[j].w;
+  //             let j_h = detections[j].h;
+  //             let _j_conf = detections[j].confidence;
+  //             let i_area = i_w * i_h;
+  //             let j_area = j_w * j_h;
+  //             let area = i_area + j_area;
+  //             let union = (i_x - j_x).powi(2) + (i_y - j_y).powi(2);
+  //             let iou = area - union / area;
+  //             if iou > nms_threshold {
+  //                 keep = false;
+  //             }
+  //         }
+  //     }
+  //     if keep {
+  //         nms_detections.push(detections[i].clone());
+  //     }
+  // }
 
-  Ok(nms_detections)
+  // Ok(nms_detections)
+
+  Ok(detections)
 }
