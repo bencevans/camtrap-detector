@@ -33,6 +33,7 @@ async fn run_detection(base_dir: String, window: Window) {
     }
 
     println!("Loading Model");
+    window.emit("progress", "Loading Model").unwrap();
 
     #[cfg(feature = "builtin")]
     let mut model = {
@@ -48,6 +49,8 @@ async fn run_detection(base_dir: String, window: Window) {
     #[cfg(not(feature = "builtin"))]
     let mut model = { yolo::load_model("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx").unwrap() };
 
+    window.emit("progress", "Model Loaded").unwrap();
+
     println!("Running Detection");
 
     for (index, file) in files.iter().enumerate() {
@@ -55,14 +58,13 @@ async fn run_detection(base_dir: String, window: Window) {
         println!("{:?}", detections);
         println!("{}", file.to_str().unwrap());
 
-        window.emit("progress", format!("{}", index)).unwrap();
+        let percent = ((index + 1) as f32 / files.len() as f32) * 100.0;
+
+        window.emit("progress", format!("{}%", percent)).unwrap();
     }
 }
 
 
-// #[cfg(target_os = "macos")]
-// #[link(name = "OpenCL", kind = "framework")]
-// #[link(name = "Accelerate", kind = "framework")]
 fn main() {
     tauri::Builder::default()
         .manage(AppStateMutex(Mutex::new(AppState::new(String::from(".")))))

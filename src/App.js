@@ -11,8 +11,6 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  console.log("Hello World")
-
   useEffect(() => {
     listen('progress', (data) => {
       console.log(data)
@@ -22,14 +20,10 @@ function App() {
     }).finally(() => {
       console.log('done');
     })
-
-    console.log('listening for progress')
-
   }, []);
   
 
   async function selectDir() {
-    console.log('selecting dir')
     const chosenPath = await open({
       directory: true,
     });
