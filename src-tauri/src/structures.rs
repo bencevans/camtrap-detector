@@ -1,6 +1,6 @@
-use std::{collections::HashMap, path::Path};
 use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, path::Path};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct MegaDetectorBatchOutput {
@@ -22,7 +22,11 @@ impl MegaDetectorBatchOutput {
     pub fn save_json_relative(&self, base_path: &String, file_path: &Path) {
         let rel_self = &mut (*self).clone();
         for image in rel_self.images.iter_mut() {
-            image.file = diff_paths(&image.file, base_path).unwrap().to_str().unwrap().to_string();
+            image.file = diff_paths(&image.file, base_path)
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string();
         }
         rel_self.save_json(file_path);
     }

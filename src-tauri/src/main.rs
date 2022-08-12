@@ -43,9 +43,15 @@ fn load_model() -> opencv::dnn::Net {
 async fn run_detection(
     base_dir: String,
     relative_paths: bool,
-    output_json: String,
+    output_json: Option<String>,
+    output_csv: Option<String>,
+    output_animals_folder: Option<String>,
     window: Window,
-) {
+) -> Result<(), String> {
+    if output_json.is_none() && output_csv.is_none() && output_animals_folder.is_none() {
+        return Err("Expected at least one output format".to_string());
+    }
+
     let extentions = vec!["jpg", "png", "JPG", "PNG", "jpeg", "JPEG"];
 
     // Search for all images with known extentions
@@ -62,7 +68,7 @@ async fn run_detection(
 
     for (index, file) in files.iter().enumerate() {
         let result = yolo::infer(&mut model, file.as_str(), &0.1, 0.45);
-        
+
         let file_path = if relative_paths {
             file.as_str().replace(&base_dir, "")
         } else {
@@ -92,36 +98,48 @@ async fn run_detection(
         window.emit("progress", format!("{}%", percent)).unwrap();
     }
 
-    window.emit("progress", "Saving JSON").unwrap();
-
-    if !output_json.is_empty() {
+    // JSON Output
+    if output_json.is_some() && !output_json.as_ref().unwrap().is_empty() {
+        window.emit("progress", "Saving JSON").unwrap();
         let output = MegaDetectorBatchOutput {
             images: file_detections,
             detection_categories: None,
             info: None,
         };
-        output.save_json_relative(&base_dir, Path::new(&output_json));
+        output.save_json_relative(&base_dir, Path::new(&output_json.unwrap()));
+        window.emit("progress", "JSON Saved").unwrap();
+    }
+
+    // CSV Output
+    if output_csv.is_some() && !output_csv.as_ref().unwrap().is_empty() {
+        //    todo
+    }
+
+    // Filterd Images Output
+
+    if output_animals_folder.is_some() && !output_animals_folder.as_ref().unwrap().is_empty() {
+        window.emit("progress", "Saving Animals").unwrap();
+        // create new dir with images containing detections
+
+        for image_file in files {
+            let output_file = Path::new(&output_animals_folder.as_ref().unwrap()).join(
+                diff_paths(Path::new(image_file.as_str()), Path::new(&base_dir))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            );
+
+            let output_dir = output_file.parent().unwrap();
+
+            std::fs::create_dir_all(output_dir).unwrap();
+            std::fs::copy(image_file.as_str(), output_file).unwrap();
+        }
+        window.emit("progress", "Animals Saved").unwrap();
     }
 
     window.emit("progress", "Done").unwrap();
 
-    // create new dir with images containing detections
-    let animal_dir = format!("{}/animals", base_dir);
-
-    for image_file in files {
-        let output_file = format!(
-            "{}/animal/{}",
-            base_dir,
-            diff_paths(&image_file, &base_dir)
-                .unwrap()
-                .to_str()
-                .unwrap()
-        );
-        let output_dir = Path::new(&output_file);
-        let output_dir = output_dir.parent().unwrap();
-        std::fs::create_dir_all(output_dir).unwrap();
-        std::fs::copy(image_file.as_str(), output_file.as_str()).unwrap();
-    }
+    Ok(())
 }
 
 fn main() {

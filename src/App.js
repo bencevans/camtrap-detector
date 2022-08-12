@@ -6,20 +6,20 @@ import { listen } from "@tauri-apps/api/event";
 
 function App() {
   const [baseDir, setBaseDir] = useState(null);
+  const [csvOuputActive, setCsvOuputActive] = useState(false);
+  const [filteredAnimalsOutputActive, setFilteredAnimalsOutputActive] =
+    useState(false);
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     listen("progress", (data) => {
-      console.log(data);
       setProgress(data.payload);
     })
       .catch((err) => {
-        console.log(err);
+        setProgress(err);
       })
-      .finally(() => {
-        console.log("done");
-      });
   }, []);
 
   async function selectDir() {
@@ -29,19 +29,20 @@ function App() {
 
     if (chosenPath) {
       setBaseDir(chosenPath);
-
-      // invoke('run_detection', {
-      //   baseDir: chosenPath,
-      //   relativePaths: false,
-      //   outputJson: chosenPath + '/output2.json',
-      // })
-
-      // setIsProcessing(true);
     }
   }
 
   if (isProcessing) {
-    return <div>Processing... {progress}</div>;
+    return <div style={{
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      justifyContent: "center",
+      flexDirection: "column",
+      alignItems: "center",
+      // space-between",
+      
+    }}>Processing... {progress}</div>;
   } else {
     return (
       <div className="App">
@@ -53,33 +54,26 @@ function App() {
             width: "100%",
           }}
         >
-          <div style={{
-            backgroundColor: "#010101",
-            width: "100%",
-            padding: "10px",
-          }}>
+          <div
+            style={{
+              backgroundColor: "#010101",
+              width: "100%",
+              padding: "10px",
+            }}
+          >
             <b>Images</b>
           </div>
           <div style={{ padding: 10 }}>
             <button onClick={selectDir}>Choose Folder</button> {baseDir}
           </div>
 
-          {/* <div style={{
-            backgroundColor: "#010101",
-            width: "100%",
-            padding: "10px",
-          }}>
-            <b>Model</b>
-          </div>
-          <div style={{ padding: 10 }}>
-            <p>MegaDetector v5.0 ONNX Converted</p>
-          </div> */}
-
-          <div style={{
-            backgroundColor: "#010101",
-            width: "100%",
-            padding: "10px",
-          }}>
+          <div
+            style={{
+              backgroundColor: "#010101",
+              width: "100%",
+              padding: "10px",
+            }}
+          >
             <b>Outputs</b>
           </div>
           <div style={{ padding: 10 }}>
@@ -90,35 +84,93 @@ function App() {
                 margin: 0,
               }}
             >
-              <li>
+              <li style={{ paddingBottom: 10 }}>
                 <input
                   id="output-json-enabled"
                   type="checkbox"
                   checked={true}
+                  disabled={true}
+                  readOnly={true}
                 />{" "}
-                <label for="output-json-enabled">JSON Batch File</label>
-                <div>
-                  <button>Change Location</button>
-                  {baseDir + "/output.json"}
+                <label htmlFor="output-json-enabled">JSON File</label>
+                <div
+                  style={{
+                    paddingLeft: 20,
+                    fontFamily: "monospace",
+                    fontSize: 12,
+                  }}
+                >
+                  {/* <button>Change Location</button> */}
+                  {baseDir + "/camtrap-detector.0.1.0.json"}
+                </div>
+              </li>
+              <li style={{ paddingBottom: 10 }}>
+                <input
+                  id="output-csv-enabled"
+                  type="checkbox"
+                  checked={csvOuputActive}
+                  onClick={() => {
+                    setCsvOuputActive(!csvOuputActive);
+                  }}
+                />{" "}
+                <label htmlFor="output-csv-enabled">CSV File</label>
+                <div
+                  style={{
+                    paddingLeft: 20,
+                    fontFamily: "monospace",
+                    fontSize: 12,
+                  }}
+                >
+                  {/* <button>Change Location</button> */}
+                  {baseDir + "/camtrap-detector.0.1.0.csv"}
                 </div>
               </li>
               <li>
-                <input id="output-csv-enabled" type="checkbox" />{" "}
-                <label for="output-csv-enabled">CSV File</label>
-                <div>
-                  <button>Change Location</button>
-                  {baseDir + "/output.csv"}
-                </div>
-              </li>
-              <li>
-                <input id="output-filtereddir-enabled" type="checkbox" />{" "}
-                <label for="output-filtereddir-enabled">Filtered Images</label>
-                <div>
-                  <button>Change Location</button>
+                <input
+                  id="output-filtereddir-enabled"
+                  type="checkbox"
+                  checked={filteredAnimalsOutputActive}
+                  onClick={() => {
+                    setFilteredAnimalsOutputActive(
+                      !filteredAnimalsOutputActive
+                    );
+                  }}
+                />{" "}
+                <label htmlFor="output-filtereddir-enabled">Filtered Images</label>
+                <div
+                  style={{
+                    paddingLeft: 20,
+                    fontFamily: "monospace",
+                    fontSize: 12,
+                  }}
+                >
+                  {/* <button>Change Location</button> */}
                   {baseDir + "/../filtered"}
                 </div>
               </li>
             </ul>
+          </div>
+          <div
+            style={{
+              padding: 10,
+            }}
+          >
+            <button
+              style={{ width: "100%" }}
+              disabled={!baseDir}
+              onClick={() => {
+                setIsProcessing(true);
+                invoke("run_detection", {
+                  baseDir: baseDir,
+                  relativePaths: false,
+                  outputJson: baseDir + "/camtrap-detector.0.1.0.json",
+                  outputCsv: baseDir + "/camtrap-detector.0.1.0.csv",
+                  outputAnimalsFolder: baseDir + "/../filtered",
+                });
+              }}
+            >
+              Begin Processing
+            </button>
           </div>
         </div>
       </div>
