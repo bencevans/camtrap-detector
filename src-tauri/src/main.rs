@@ -93,6 +93,9 @@ async fn run_detection(base_dir: String, relative_paths: bool, output_json: Stri
 
     for image_file in files {
         let output_file = format!("{}/animal/{}", base_dir, image_file);
+        let output_dir = Path::new(&output_file);
+        let output_dir = output_dir.parent().unwrap();
+        std::fs::create_dir_all(output_dir).unwrap();
         std::fs::copy(image_file.as_str(), output_file.as_str()).unwrap();
 
     }

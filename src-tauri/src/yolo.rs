@@ -59,6 +59,25 @@ pub fn infer(
       let h: &f32 = outputs.at_3d(0, i, 3)?;
       let sc: &f32 = outputs.at_3d(0, i, 4)?;
 
+      let mat_size = outputs.mat_size();
+      let classes = *mat_size.get(2).unwrap() - 5;
+      let mut classes_confidences = vec![];
+
+      for j in 5..5 + classes {
+          let confidence: &f32 = outputs.at_3d(0, i, j)?;
+          classes_confidences.push(confidence);
+      }
+
+
+      let mut max_index = 0;
+      let mut max_confidence = 0.0;
+      for (index, confidence) in classes_confidences.iter().enumerate() {
+          if *confidence > &max_confidence {
+              max_index = index;
+              max_confidence = **confidence;
+          }
+      }
+
       let mut x_min = *cx - *w / 2.0;
       let mut y_min = *cy - *h / 2.0;
 
@@ -83,10 +102,9 @@ pub fn infer(
       }
 
       let detection = Detection {
-          category: "-1".to_string(),
+          category: (max_index as u32 + 1).to_string(),
           conf: *sc as f32,
           bbox: [x_min as f32, y_min as f32, width as f32, height as f32],
-
       };
 
       detections.push(detection);
