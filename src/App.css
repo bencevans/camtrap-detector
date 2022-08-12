@@ -13,9 +13,22 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  padding: 20px;
+  cursor: default;
 }
 
+button, input, label, select, textarea {
+
+  cursor: pointer;
+
+}
+::-moz-selection { 
+	color: inherit; 
+	background-color: transparent;
+	}
+::selection { 
+	color: inherit;
+	background-color: transparent; 
+	}
 button {
   font-size: 14px;
   /* padding: 4px 8px;
@@ -37,4 +50,6 @@ html,
 body {
   position: fixed;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
 }

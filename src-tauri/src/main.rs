@@ -1,7 +1,12 @@
-use std::{sync::Mutex, path::{Path}};
+use std::{path::Path, sync::Mutex};
 
-use app::{yolo, utils::find_files, structures::{MegaDetectorFile, MegaDetectorBatchOutput}};
+use app::{
+    structures::{MegaDetectorBatchOutput, MegaDetectorFile},
+    utils::find_files,
+    yolo,
+};
 
+use pathdiff::diff_paths;
 use tauri::Window;
 
 pub struct AppState {
@@ -16,8 +21,6 @@ impl AppState {
     }
 }
 
-
-
 fn load_model() -> opencv::dnn::Net {
     #[cfg(feature = "builtin")]
     {
@@ -31,11 +34,18 @@ fn load_model() -> opencv::dnn::Net {
     }
 
     #[cfg(not(feature = "builtin"))]
-    { yolo::load_model("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx").unwrap() }
+    {
+        yolo::load_model("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx").unwrap()
+    }
 }
 
 #[tauri::command]
-async fn run_detection(base_dir: String, relative_paths: bool, output_json: String,  window: Window) {
+async fn run_detection(
+    base_dir: String,
+    relative_paths: bool,
+    output_json: String,
+    window: Window,
+) {
     let extentions = vec!["jpg", "png", "JPG", "PNG", "jpeg", "JPEG"];
 
     // Search for all images with known extentions
@@ -51,13 +61,24 @@ async fn run_detection(base_dir: String, relative_paths: bool, output_json: Stri
     let mut file_detections = vec![];
 
     for (index, file) in files.iter().enumerate() {
-        let detections = yolo::infer(&mut model, file.as_str(), &0.1, 0.45).unwrap();
-
-
+        let result = yolo::infer(&mut model, file.as_str(), &0.1, 0.45);
+        
         let file_path = if relative_paths {
             file.as_str().replace(&base_dir, "")
         } else {
             file.as_str().to_string()
+        };
+
+        let detections = if let Ok(i) = result {
+            i
+        } else {
+            file_detections.push(MegaDetectorFile {
+                file: file_path,
+                detections: None,
+                error: Some("Unable to read as image".to_string()),
+            });
+
+            continue;
         };
 
         file_detections.push(MegaDetectorFile {
@@ -73,8 +94,6 @@ async fn run_detection(base_dir: String, relative_paths: bool, output_json: Stri
 
     window.emit("progress", "Saving JSON").unwrap();
 
-
-
     if !output_json.is_empty() {
         let output = MegaDetectorBatchOutput {
             images: file_detections,
@@ -86,22 +105,24 @@ async fn run_detection(base_dir: String, relative_paths: bool, output_json: Stri
 
     window.emit("progress", "Done").unwrap();
 
-
     // create new dir with images containing detections
-    let animal_dir = format!("{}/animal", base_dir);
-    std::fs::create_dir_all(animal_dir.as_str()).unwrap();
+    let animal_dir = format!("{}/animals", base_dir);
 
     for image_file in files {
-        let output_file = format!("{}/animal/{}", base_dir, image_file);
+        let output_file = format!(
+            "{}/animal/{}",
+            base_dir,
+            diff_paths(&image_file, &base_dir)
+                .unwrap()
+                .to_str()
+                .unwrap()
+        );
         let output_dir = Path::new(&output_file);
         let output_dir = output_dir.parent().unwrap();
         std::fs::create_dir_all(output_dir).unwrap();
         std::fs::copy(image_file.as_str(), output_file.as_str()).unwrap();
-
     }
-
 }
-
 
 fn main() {
     tauri::Builder::default()
@@ -110,7 +131,6 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -126,6 +146,5 @@ mod tests {
 
         let files = super::find_files(root_path, &extentions, true);
         assert_eq!(files.len(), 262);
-
     }
 }
