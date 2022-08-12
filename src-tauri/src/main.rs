@@ -21,13 +21,13 @@ impl AppState {
 fn load_model() -> opencv::dnn::Net {
     #[cfg(feature = "builtin")]
     {
-        let MODEL_VECTOR: opencv::core::Vector<u8> =
+        let model_vector: opencv::core::Vector<u8> =
             include_bytes!("/Users/ben/Projects/yolov5-rs/md_v5a.0.0.onnx")
                 .iter()
                 .cloned()
                 .collect();
 
-        yolo::load_model_from_bytes(&MODEL_VECTOR).unwrap()
+        yolo::load_model_from_bytes(&model_vector).unwrap()
     }
 
     #[cfg(not(feature = "builtin"))]
@@ -81,7 +81,7 @@ async fn run_detection(base_dir: String, relative_paths: bool, output_json: Stri
             detection_categories: None,
             info: None,
         };
-        output.save_json(Path::new(&output_json));
+        output.save_json_relative(&base_dir, Path::new(&output_json));
     }
 
     window.emit("progress", "Done").unwrap();

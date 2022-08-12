@@ -1,5 +1,5 @@
 use std::{collections::HashMap, path::Path};
-
+use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -19,10 +19,10 @@ impl MegaDetectorBatchOutput {
         serde_json::to_writer_pretty(&mut file, &self).unwrap();
     }
 
-    pub fn save_json_relative(&self, base_path: String, file_path: &Path) {
+    pub fn save_json_relative(&self, base_path: &String, file_path: &Path) {
         let rel_self = &mut (*self).clone();
         for image in rel_self.images.iter_mut() {
-            image.file = image.file.replace(&base_path, "");
+            image.file = diff_paths(&image.file, base_path).unwrap().to_str().unwrap().to_string();
         }
         rel_self.save_json(file_path);
     }
