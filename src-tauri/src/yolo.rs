@@ -19,7 +19,7 @@ pub fn infer(
   model: &mut opencv::dnn::Net,
   image_path: &str,
   min_confidence: &f32,
-  nms_threshold: f64,
+  nms_threshold: f32,
 ) -> Result<Vec<Detection>, Error> {
   let image = opencv::imgcodecs::imread(image_path, opencv::imgcodecs::IMREAD_COLOR)?;
   let image_width = image.cols();
@@ -92,39 +92,37 @@ pub fn infer(
       detections.push(detection);
   }
 
-  // // Non Max Suppression
-  // let mut nms_detections: Vec<Detection> = vec![];
+  // Non Max Suppression
+  let mut nms_detections: Vec<Detection> = vec![];
 
-  // for i in 0..detections.len() {
-  //     let mut keep = true;
-  //     for j in 0..nms_detections.len() {
-  //         if i != j && keep {
-  //             let i_x = detections[i].x;
-  //             let i_y = detections[i].y;
-  //             let i_w = detections[i].w;
-  //             let i_h = detections[i].h;
-  //             let _i_conf = detections[i].confidence;
-  //             let j_x = detections[j].x;
-  //             let j_y = detections[j].y;
-  //             let j_w = detections[j].w;
-  //             let j_h = detections[j].h;
-  //             let _j_conf = detections[j].confidence;
-  //             let i_area = i_w * i_h;
-  //             let j_area = j_w * j_h;
-  //             let area = i_area + j_area;
-  //             let union = (i_x - j_x).powi(2) + (i_y - j_y).powi(2);
-  //             let iou = area - union / area;
-  //             if iou > nms_threshold {
-  //                 keep = false;
-  //             }
-  //         }
-  //     }
-  //     if keep {
-  //         nms_detections.push(detections[i].clone());
-  //     }
-  // }
+  for i in 0..detections.len() {
+      let mut keep = true;
+      for j in 0..nms_detections.len() {
+          if i != j && keep {
+              let i_x = detections[i].bbox[0];
+              let i_y = detections[i].bbox[1];
+              let i_w = detections[i].bbox[2];
+              let i_h = detections[i].bbox[3];
+              let _i_conf = detections[i].conf;
+              let j_x = detections[j].bbox[0];
+              let j_y = detections[j].bbox[1];
+              let j_w = detections[j].bbox[2];
+              let j_h = detections[j].bbox[3];
+              let _j_conf = detections[j].conf;
+              let i_area = i_w * i_h;
+              let j_area = j_w * j_h;
+              let area = i_area + j_area;
+              let union = (i_x - j_x).powi(2) + (i_y - j_y).powi(2);
+              let iou = area - union / area;
+              if iou > nms_threshold {
+                  keep = false;
+              }
+          }
+      }
+      if keep {
+          nms_detections.push(detections[i].clone());
+      }
+  }
 
-  // Ok(nms_detections)
-
-  Ok(detections)
+  Ok(nms_detections)
 }
