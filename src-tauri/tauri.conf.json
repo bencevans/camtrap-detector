@@ -15,8 +15,8 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
+      "category": "Utilities",
+      "copyright": "Blue Chimp Limited",
       "deb": {
         "depends": []
       },
