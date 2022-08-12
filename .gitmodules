@@ -1,0 +1,3 @@
+[submodule "src-tauri/vendor/opencv"]
+	path = src-tauri/vendor/opencv
+	url = https://github.com/opencv/opencv.git
