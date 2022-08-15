@@ -14,6 +14,8 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: setup node
         uses: actions/setup-node@v2
         with:
@@ -23,6 +25,8 @@ jobs:
         with:
           toolchain: stable
       - run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
+      - name: Build OpenCV
+        run: mkdir src-tauri/vendor/opencv/build && cd src-tauri/vendor/opencv/build && cmake -DBUILD_SHARED_LIBS=off -DBUILD_LIST=core,dnn,imgcodecs -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=RELEASE -DWITH_OPENEXR=off -DWITH_TIFF=off -DWITH_WEBP=off -DWITH_OPENJPEG=off -DWITH_JASPER=off ..  && cmake --build . -j 8 && make install
       - name: install app dependencies and build it
         run: npm install && npm run tauri build
       - uses: tauri-apps/tauri-action@v0
