@@ -1,15 +1,15 @@
 fn main() {
-    println!("cargo:rustc-link-arg=-Lvendor/opencv/build/3rdparty/lib");
-    println!("cargo:rustc-link-arg=-littnotify");
-    println!("cargo:rustc-link-arg=-llibjpeg-turbo");
-    println!("cargo:rustc-link-arg=-llibpng");
-    println!("cargo:rustc-link-arg=-llibprotobuf");
-    println!("cargo:rustc-link-arg=-ltegra_hal");
-    println!("cargo:rustc-link-arg=-lzlib");
+    println!("cargo:rustc-link-search=vendor/opencv/build/3rdparty/lib");
+    println!("cargo:rustc-link-lib=ittnotify");
+    println!("cargo:rustc-link-lib=libjpeg-turbo");
+    println!("cargo:rustc-link-lib=libpng");
+    println!("cargo:rustc-link-lib=libprotobuf");
+    println!("cargo:rustc-link-lib=tegra_hal");
+    println!("cargo:rustc-link-lib=zlib");
 
     if cfg!(target_os = "macos") {
-        println!("cargo:rustc-link-arg=-lframework=OpenCL");
-        println!("cargo:rustc-link-arg=-lframework=Accelerate");
+        println!("cargo:rustc-link-lib=framework=OpenCL");
+        println!("cargo:rustc-link-lib=framework=Accelerate");
     }
 
     println!("cargo:rustc-env=OPENCV_DISABLE_PROBES=1");
