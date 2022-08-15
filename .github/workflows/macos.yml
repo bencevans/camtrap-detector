@@ -11,7 +11,7 @@ jobs:
       matrix:
         platform: [macos-latest]
 
-    runs-on: ${{ matrix.platform }}
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
         with:
