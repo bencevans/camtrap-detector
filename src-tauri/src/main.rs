@@ -25,7 +25,7 @@ fn load_model() -> opencv::dnn::Net {
     #[cfg(feature = "builtin")]
     {
         let model_vector: opencv::core::Vector<u8> =
-            include_bytes!("../md_v5a.0.0.onnx")
+            include_bytes!("../../md_v5a.0.0.onnx")
                 .iter()
                 .cloned()
                 .collect();

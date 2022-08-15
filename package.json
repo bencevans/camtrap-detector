@@ -18,7 +18,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "dev": "tauri dev",
-    "tauri": "tauri"
+    "tauri": "OPENCV_DISABLE_PROBES=1 OPENCV_LINK_PATHS=\"$(pwd)/src-tauri/vendor/install/lib/opencv4/3rdparty/lib,$(pwd)/src-tauri/vendor/opencv/build/install/lib\" OPENCV_LINK_LIBS=opencv_core,opencv_imgproc,opencv_imgcodecs,opencv_dnn OPENCV_INCLUDE_PATHS=\"$(pwd)/src-tauri/vendor/opencv/build/install/include/opencv4\" tauri"
   },
   "eslintConfig": {
     "extends": [

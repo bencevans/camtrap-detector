@@ -24,9 +24,36 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
+
+      - name: Cache Model
+        id: cache-model
+        uses: actions/cache@v3
+        with:
+          path: md_v5a.0.0.onnx
+          key: model
+      - name: Download Model
+        run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
+        if: steps.cache-model.outputs.cache-hit != 'true'
+      
+      
+      - name: Cache OpenCV
+        id: cache-opencv
+        uses: actions/cache@v3
+        with:
+          path: src-tauri/vendor/opencv/build
+          key: ${{ runner.os }}-opencv
       - name: Build OpenCV
         run: mkdir src-tauri/vendor/opencv/build && cd src-tauri/vendor/opencv/build && cmake -DBUILD_SHARED_LIBS=off -DBUILD_LIST=core,dnn,imgcodecs -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=RELEASE -DWITH_OPENEXR=off -DWITH_TIFF=off -DWITH_WEBP=off -DWITH_OPENJPEG=off -DWITH_JASPER=off ..  && cmake --build . -j 8 && make install
-      - name: install app dependencies and build it
-        run: npm install && npm run tauri build
-      - uses: tauri-apps/tauri-action@v0
+        if: steps.cache-opencv.outputs.cache-hit != 'true'
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Build App
+        run: npm install && npm run tauri build -- --features builtin
+
+      # - uses: tauri-apps/tauri-action@v0
