@@ -56,4 +56,9 @@ jobs:
       - name: Build App
         run: npm install && npm run tauri build -- --features builtin
 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: MacOS App
+          path: src-tauri/target/release/bundle/dmg/*.dmg
+
       # - uses: tauri-apps/tauri-action@v0
