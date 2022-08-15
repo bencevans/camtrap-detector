@@ -22,7 +22,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - run: wget https://static.bencevans.io/md_v5a.0.0.onnx
+      - run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
       - name: install app dependencies and build it
         run: yarn && yarn build
       - uses: tauri-apps/tauri-action@v0
