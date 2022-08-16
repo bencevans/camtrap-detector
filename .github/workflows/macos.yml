@@ -10,8 +10,10 @@ jobs:
       fail-fast: false
       matrix:
         platform: [macos-latest]
+        arch: [Intel]
 
-    runs-on: self-hosted
+    runs-on: ${{ matrix.platform }}
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -58,7 +60,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: MacOS App
+          name: CamTrap Detector MacOS Intel.dmg
           path: src-tauri/target/release/bundle/dmg/*.dmg
 
       # - uses: tauri-apps/tauri-action@v0
