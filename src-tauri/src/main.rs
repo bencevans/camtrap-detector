@@ -1,4 +1,4 @@
-use std::{path::Path, sync::Mutex};
+use std::path::Path;
 
 use app::{
     structures::{MegaDetectorBatchOutput, MegaDetectorFile},
@@ -8,18 +8,6 @@ use app::{
 
 use pathdiff::diff_paths;
 use tauri::Window;
-
-pub struct AppState {
-    pub root_path: String,
-}
-
-pub struct AppStateMutex(Mutex<AppState>);
-
-impl AppState {
-    pub fn new(root_path: String) -> Self {
-        AppState { root_path }
-    }
-}
 
 fn load_model() -> opencv::dnn::Net {
     #[cfg(feature = "builtin")]
@@ -128,7 +116,6 @@ async fn run_detection(
         // create new dir with images containing detections
 
         for file in file_detections {
-
             if file.detections.is_none() {
                 continue;
             }
@@ -167,7 +154,6 @@ async fn run_detection(
 
 fn main() {
     tauri::Builder::default()
-        .manage(AppStateMutex(Mutex::new(AppState::new(String::from(".")))))
         .invoke_handler(tauri::generate_handler!(run_detection))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
