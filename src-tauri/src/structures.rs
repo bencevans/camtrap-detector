@@ -3,6 +3,46 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::Path};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct CSVOutput {
+    pub file: String,
+    pub error: Option<String>,
+    pub detection_category: Option<String>,
+    pub detection_confidence: Option<f32>,
+    pub detection_x: Option<f32>,
+    pub detection_y: Option<f32>,
+    pub detection_width: Option<f32>,
+    pub detection_height: Option<f32>,
+}
+
+impl CSVOutput {
+    pub fn new_empty(file: String) -> CSVOutput {
+        CSVOutput {
+            file,
+            error: None,
+            detection_category: Some("Empty".to_string()),
+            detection_confidence: None,
+            detection_x: None,
+            detection_y: None,
+            detection_width: None,
+            detection_height: None,
+        }
+    }
+
+    pub fn new_error(file: String, error: String) -> CSVOutput {
+        CSVOutput {
+            file,
+            error: Some(error),
+            detection_category: None,
+            detection_confidence: None,
+            detection_x: None,
+            detection_y: None,
+            detection_width: None,
+            detection_height: None,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct MegaDetectorBatchOutput {
     pub images: Vec<MegaDetectorFile>,
 
@@ -29,6 +69,57 @@ impl MegaDetectorBatchOutput {
                 .to_string();
         }
         rel_self.save_json(file_path);
+    }
+
+    pub fn save_csv(&self, file_path: &Path) {
+        let file = std::fs::File::create(file_path).unwrap();
+        let mut wtr = csv::Writer::from_writer(file);
+        for image in self.images.iter() {
+            if image.error.is_some() {
+                wtr.serialize(CSVOutput::new_error(
+                    image.file.clone(),
+                    image.error.as_ref().unwrap().clone(),
+                ))
+                .unwrap();
+            } else if image.detections.is_none()
+                || (image.detections.is_some() && image.detections.as_ref().unwrap().is_empty())
+            {
+                wtr.serialize(CSVOutput::new_empty(image.file.clone()))
+                    .unwrap();
+            } else {
+                for detection in image.detections.as_ref().unwrap().iter() {
+                    wtr.serialize(CSVOutput {
+                        file: image.file.clone(),
+                        error: None,
+                        detection_category: match detection.category.as_str() {
+                            "1" => Some("animal".to_string()),
+                            "2" => Some("human".to_string()),
+                            "3" => Some("vehicle".to_string()),
+                            _ => Some("unknown".to_string()),
+                        },
+                        detection_confidence: Some(detection.conf),
+                        detection_x: Some(detection.bbox[0]),
+                        detection_y: Some(detection.bbox[1]),
+                        detection_width: Some(detection.bbox[2]),
+                        detection_height: Some(detection.bbox[3]),
+                    })
+                    .unwrap();
+                }
+            }
+        }
+        wtr.flush().unwrap();
+    }
+
+    pub fn save_csv_relative(&self, base_path: &String, file_path: &Path) {
+        let rel_self = &mut (*self).clone();
+        for image in rel_self.images.iter_mut() {
+            image.file = diff_paths(&image.file, base_path)
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string();
+        }
+        rel_self.save_csv(file_path);
     }
 }
 

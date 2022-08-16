@@ -24,11 +24,10 @@ impl AppState {
 fn load_model() -> opencv::dnn::Net {
     #[cfg(feature = "builtin")]
     {
-        let model_vector: opencv::core::Vector<u8> =
-            include_bytes!("../../md_v5a.0.0.onnx")
-                .iter()
-                .cloned()
-                .collect();
+        let model_vector: opencv::core::Vector<u8> = include_bytes!("../../md_v5a.0.0.onnx")
+            .iter()
+            .cloned()
+            .collect();
 
         yolo::load_model_from_bytes(&model_vector).unwrap()
     }
@@ -102,7 +101,7 @@ async fn run_detection(
     if output_json.is_some() && !output_json.as_ref().unwrap().is_empty() {
         window.emit("progress", "Saving JSON").unwrap();
         let output = MegaDetectorBatchOutput {
-            images: file_detections,
+            images: file_detections.clone(),
             detection_categories: None,
             info: None,
         };
@@ -112,7 +111,14 @@ async fn run_detection(
 
     // CSV Output
     if output_csv.is_some() && !output_csv.as_ref().unwrap().is_empty() {
-        //    todo
+        window.emit("progress", "Saving CSV").unwrap();
+        let output = MegaDetectorBatchOutput {
+            images: file_detections.clone(),
+            detection_categories: None,
+            info: None,
+        };
+        output.save_csv_relative(&base_dir, Path::new(&output_csv.unwrap()));
+        window.emit("progress", "CSV Saved").unwrap();
     }
 
     // Filterd Images Output

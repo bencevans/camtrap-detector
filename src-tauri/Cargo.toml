@@ -23,6 +23,7 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.0.5", features = ["api-all"] }
 opencv = { version = "0.66.0", default-features = false, features = ["dnn", "imgcodecs"] }
 pathdiff = "0.2.1"
+csv = "1.1.6"
 
 [features]
 # by default Tauri runs in production mode
