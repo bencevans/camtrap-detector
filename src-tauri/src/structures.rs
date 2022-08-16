@@ -19,7 +19,7 @@ impl CSVOutput {
         CSVOutput {
             file,
             error: None,
-            detection_category: Some("Empty".to_string()),
+            detection_category: Some("empty".to_string()),
             detection_confidence: None,
             detection_x: None,
             detection_y: None,
