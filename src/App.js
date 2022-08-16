@@ -3,6 +3,7 @@ import { open } from "@tauri-apps/api/dialog";
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
+import { exit } from "@tauri-apps/api/process";
 
 function App() {
   const [baseDir, setBaseDir] = useState(null);
@@ -42,7 +43,20 @@ function App() {
       alignItems: "center",
       // space-between",
       
-    }}>Processing... {progress}</div>;
+    }}>
+      <div>Processing... {progress}</div>
+      {progress === 'Done' && <div>
+        <br/>
+      <button onClick={() => {
+          window.location.reload();
+        }}>New Project</button>
+        <button onClick={() => {
+          exit();
+        }}>Quit</button>
+
+      </div>}
+    
+    </div>;
   } else {
     return (
       <div className="App">
