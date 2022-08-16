@@ -127,9 +127,26 @@ async fn run_detection(
         window.emit("progress", "Saving Animals").unwrap();
         // create new dir with images containing detections
 
-        for image_file in files {
+        for file in file_detections {
+
+            if file.detections.is_none() {
+                continue;
+            }
+
+            let mut has_animal = false;
+            for detection in file.detections.as_ref().unwrap() {
+                if detection.category == "1" {
+                    has_animal = true;
+                    break;
+                }
+            }
+
+            if !has_animal {
+                continue;
+            }
+
             let output_file = Path::new(&output_animals_folder.as_ref().unwrap()).join(
-                diff_paths(Path::new(image_file.as_str()), Path::new(&base_dir))
+                diff_paths(Path::new(file.file.as_str()), Path::new(&base_dir))
                     .unwrap()
                     .to_str()
                     .unwrap(),
@@ -138,7 +155,7 @@ async fn run_detection(
             let output_dir = output_file.parent().unwrap();
 
             std::fs::create_dir_all(output_dir).unwrap();
-            std::fs::copy(image_file.as_str(), output_file).unwrap();
+            std::fs::copy(file.file.as_str(), output_file).unwrap();
         }
         window.emit("progress", "Animals Saved").unwrap();
     }
