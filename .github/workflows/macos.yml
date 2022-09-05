@@ -14,6 +14,8 @@ jobs:
 
     # runs-on: [self-hosted, macOS, X64]
     runs-on: ${{ matrix.platform }}
+    
+    environment: Signing
 
     steps:
       - uses: actions/checkout@v2
