@@ -8,8 +8,11 @@ fn main() {
     println!("cargo:rustc-link-lib=libjpeg-turbo");
     println!("cargo:rustc-link-lib=libpng");
     println!("cargo:rustc-link-lib=libprotobuf");
-    //println!("cargo:rustc-link-lib=tegra_hal");
     println!("cargo:rustc-link-lib=zlib");
+
+    if cfg!(target_arch = "aarch64") {
+        println!("cargo:rustc-link-lib=tegra_hal");
+    }
 
     if cfg!(target_os = "macos") {
         println!("cargo:rustc-link-lib=framework=OpenCL");
