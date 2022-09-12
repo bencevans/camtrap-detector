@@ -12,8 +12,8 @@ jobs:
         platform: [macos-latest]
         arch: [Intel]
 
-    # runs-on: [self-hosted, macOS, X64]
-    runs-on: ${{ matrix.platform }}
+    runs-on: [self-hosted, macOS, X64]
+#     runs-on: ${{ matrix.platform }}
     
     environment: Signing
 
