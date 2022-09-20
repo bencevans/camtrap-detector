@@ -12,6 +12,14 @@ function process(path, recursive) {
   });
 }
 
+function friendlyEta(secondsRemaining) {
+  const hours = Math.trunc(secondsRemaining / 3600);
+  const minutes = Math.trunc(secondsRemaining / 60) % 60;
+  const seconds = Math.trunc(secondsRemaining / 1) % 60;
+
+  return `${hours}h ${minutes}m ${seconds}s`;
+}
+
 const formatTypes = [
   {
     id: "ct-csv",
@@ -251,17 +259,17 @@ function App() {
                   marginTop: 20,
                 }}
               >
-                <div>ETA {processingStatus.eta % 60}s</div>
-                <div>{processingStatus.current} / {processingStatus.total} Images</div>
+                <div>ETA {friendlyEta(processingStatus.eta)}</div>
+                <div>
+                  {processingStatus.current} / {processingStatus.total} Images
+                </div>
               </div>
 
               <p
                 style={{
                   textAlign: "right",
                 }}
-              >
-                
-              </p>
+              ></p>
             </div>
           ) : null}
         </>
