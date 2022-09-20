@@ -68,3 +68,11 @@ pub fn render_detections(
 
     Ok(())
 }
+
+
+pub fn is_cuda_available() -> bool {
+    match opencv::core::get_cuda_enabled_device_count() {
+        Ok(count) => count > 0,
+        Err(_) => false,
+    }
+}
