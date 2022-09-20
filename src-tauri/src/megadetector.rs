@@ -8,3 +8,5 @@ pub fn load_model() -> YoloModel {
 
     YoloModel::new_from_buffer(&model_vector, (640, 640)).unwrap()
 }
+
+pub const CATEGORIES: [&str; 4] = ["Empty", "Animal", "Human", "Vehicle"];

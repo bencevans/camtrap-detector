@@ -1,11 +1,16 @@
 import { window } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/tauri";
 import { LogicalSize } from "@tauri-apps/api/window";
 import { useEffect } from "react";
 import "./ExportDialog.css";
 
+function createExport(format) {
+  return invoke('export', {format})
+}
+
 const formatTypes = [
   {
-    id: "ct-csv",
+    id: "csv",
     name: "CamTrap CSV",
     pathType: "file",
     defaultPath: "ct.5.1.0a.csv",
@@ -14,7 +19,7 @@ const formatTypes = [
       "Comma Separated Values (CSV) file containing a row for each detection from each in the dataset. Recommended for use with Excel, R, etc.",
   },
   {
-    id: "ct-json",
+    id: "json",
     name: "CamTrap JSON",
     pathType: "file",
     defaultPath: "ct.5.1.0a.json",
@@ -169,7 +174,9 @@ export default function ExportDialog() {
               paddingLeft: 10,
             }}
           >
-            <button>Export</button>
+            <button onClick={() => {
+              createExport(format.id)
+            }} >Export</button>
           </div>
         </div>
       ))}

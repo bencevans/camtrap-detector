@@ -1,8 +1,11 @@
-use std::path::PathBuf;
-
-use app::{megadetector::load_model, structures::CamTrapImageDetections};
-use tauri::{Window};
-use eta::{Eta,TimeAcc};
+use app::{
+    exports::csv::CamTrapCSVDetection,
+    megadetector::load_model,
+    structures::{self, CamTrapImageDetections},
+};
+use eta::{Eta, TimeAcc};
+use std::{path::PathBuf, sync::Mutex};
+use tauri::Window;
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -16,37 +19,115 @@ struct Progress {
     total: usize,
     percent: f64,
     message: String,
-    eta: usize
+    eta: usize,
+}
+
+pub struct AppState(Mutex<App>);
+
+#[derive(Default)]
+struct App {
+    results: Vec<structures::CamTrapImageDetections>,
+}
+
+fn export_csv(results: Vec<structures::CamTrapImageDetections>) {
+    tauri::api::dialog::FileDialogBuilder::new()
+        .set_file_name("blahblah.csv")
+        .save_file(|file_path| {
+            if let Some(file_path) = file_path {
+                let mut writer = csv::Writer::from_path(file_path).unwrap();
+                for result in results {
+                    if let Some(error) = result.error {
+                        writer
+                            .serialize(CamTrapCSVDetection::new_error(result.file, error))
+                            .unwrap();
+                    } else if result.detections.is_empty() {
+                        writer
+                            .serialize(CamTrapCSVDetection::new_empty(result.file))
+                            .unwrap();
+                    } else {
+                        for detection in result.detections {
+                            writer
+                                .serialize(CamTrapCSVDetection::new_detection(
+                                    result.file.clone(),
+                                    result.image_width.unwrap(),
+                                    result.image_height.unwrap(),
+                                    &detection,
+                                ))
+                                .unwrap();
+                        }
+                    }
+                }
+
+                writer.flush().unwrap();
+            } else {
+                // user canceled
+            }
+        })
+}
+
+fn export_json() {
+    tauri::api::dialog::FileDialogBuilder::new()
+        .set_file_name("blahblah.json")
+        .save_file(|file_path| {
+            if let Some(file_path) = file_path {
+            } else {
+                // user canceled
+            }
+        })
 }
 
 #[tauri::command]
-async fn process(path: String, recursive: bool, window: Window) {
+fn export(format: String, state: tauri::State<'_, AppState>) {
+    match format.as_str() {
+        "csv" => export_csv(state.0.lock().unwrap().results.clone()),
+        "json" => export_json(),
+        _ => panic!("Unknown export format"),
+    }
+}
+
+#[tauri::command]
+async fn process(
+    path: String,
+    recursive: bool,
+    window: Window,
+    state: tauri::State<'_, AppState>,
+) -> Result<(), ()> {
     let files = yolov5cv::helpers::enumerate_images(PathBuf::from(path), recursive);
     let files_n = files.len();
 
     let mut eta = Eta::new(files_n, TimeAcc::SEC);
 
-    window.emit("progress", Progress {
-        current: 0,
-        total: files_n,
-        percent: 0.0,
-        message: String::from("Loading MegaDetector model..."),
-        eta: eta.time_remaining()
-    }).unwrap();
+    window
+        .emit(
+            "progress",
+            Progress {
+                current: 0,
+                total: files_n,
+                percent: 0.0,
+                message: String::from("Loading MegaDetector model..."),
+                eta: eta.time_remaining(),
+            },
+        )
+        .unwrap();
 
     let mut model = load_model();
     let mut results: Vec<CamTrapImageDetections> = vec![];
 
     for (i, file) in files.iter().enumerate() {
-        window.emit("progress", Progress {
-            current: i,
-            total: files_n,
-            percent: eta.progress() * 100.0,
-            eta: eta.time_remaining(),
-            message: String::from("Processing {:?}...").replace("{:?}", file.to_str().unwrap())
-        }).unwrap();
+        window
+            .emit(
+                "progress",
+                Progress {
+                    current: i,
+                    total: files_n,
+                    percent: eta.progress() * 100.0,
+                    eta: eta.time_remaining(),
+                    message: String::from("Processing {:?}...")
+                        .replace("{:?}", file.to_str().unwrap()),
+                },
+            )
+            .unwrap();
         eta.step();
-        
 
         let result = model.detect(file.to_str().unwrap(), 0.1, 0.1);
         let result_handled = match result {
@@ -63,18 +144,28 @@ async fn process(path: String, recursive: bool, window: Window) {
         results.push(result_handled);
     }
 
-    window.emit("progress", Progress {
-        current: files_n,
-        total: files_n,
-        percent: 100.0,
-        message: String::from("Processing Complete"),
-        eta: 0
-    }).unwrap();
+    state.0.lock().unwrap().results = results;
+
+    window
+        .emit(
+            "progress",
+            Progress {
+                current: files_n,
+                total: files_n,
+                percent: 100.0,
+                message: String::from("Processing Complete"),
+                eta: 0,
+            },
+        )
+        .unwrap();
+
+    Ok(())
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![is_dir, process])
+        .manage(AppState(Default::default()))
+        .invoke_handler(tauri::generate_handler![is_dir, process, export])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

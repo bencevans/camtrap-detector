@@ -46,7 +46,7 @@ function App() {
         />
       ) : (
         <>
-          {processingStatus.percent < 100 ? (
+          {processingStatus !== null && processingStatus.percent < 100 ? (
             <ProgressDialog processingStatus={processingStatus} />
           ) : (
             <ExportDialog />
