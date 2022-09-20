@@ -84,8 +84,9 @@ export default function TauriDropzone({ onDrop }) {
               multiple: false,
             })
               .then((res) => {
-                console.log("Dropped (selector internal)", res);
-                onDrop(res);
+                if (res !== null) {
+                  onDrop(res);
+                }
               })
               .catch((err) => {
                 console.log(err);
