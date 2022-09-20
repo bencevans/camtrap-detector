@@ -1,10 +1,13 @@
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/api/dialog";
 import { useEffect, useState } from "react";
-import { readDir } from "@tauri-apps/api/fs";
+import { invoke } from "@tauri-apps/api/tauri";
 
-export default function TauriDropzone() {
-  const [files, setFiles] = useState([]);
+async function isDir(path) {
+  return await invoke("is_dir", { path });
+}
+
+export default function TauriDropzone({ onDrop }) {
   const [isDragActive, setIsDragActive] = useState(false);
 
   useEffect(() => {
@@ -23,19 +26,23 @@ export default function TauriDropzone() {
 
       let file = files[0];
 
-      readDir(file)
-        .then((files) => {
-          console.log(files);
+      isDir(file)
+        .then((isDir) => {
+          if (isDir) {
+            console.log("Dropped (internal)", file);
+            onDrop(file);
+          } else {
+            alert("Only folders are supported");
+          }
+
           setIsDragActive(false);
         })
         .catch((err) => {
-          console.error(err);
           setIsDragActive(false);
         });
     });
 
     listen("tauri://file-drop-hover", (event) => {
-      console.log(event);
       setIsDragActive(true);
     });
 
@@ -74,10 +81,11 @@ export default function TauriDropzone() {
           onClick={() => {
             open({
               directory: true,
+              multiple: false,
             })
               .then((res) => {
-                console.log(res);
-                setFiles(res);
+                console.log("Dropped (selector internal)", res);
+                onDrop(res);
               })
               .catch((err) => {
                 console.log(err);

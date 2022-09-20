@@ -30,3 +30,34 @@ body {
   padding: 20px;
   box-sizing: border-box;
 }
+
+.card-container {
+  display: flex;   
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  width: calc(50% - 20px);
+  margin: 10px;
+  font-size: 12px;
+  /* min-height: 200px; */
+}
+
+/* .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+} */
+
+.card-header input {
+  margin-right: 10px;
+}
