@@ -50,7 +50,7 @@ export default function TauriDropzone({ onDrop }) {
       console.log("canceled", event);
       setIsDragActive(false);
     });
-  }, []);
+  });
 
   return (
     <div
