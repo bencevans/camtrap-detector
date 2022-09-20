@@ -3,6 +3,7 @@ import "./App.css";
 import TauriDropzone from "./TauriDropZone";
 import { appWindow, LogicalSize } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/tauri";
+import { listen } from "@tauri-apps/api/event";
 
 function process(path, recursive) {
   return invoke("process", {
@@ -189,12 +190,19 @@ function App() {
   const [path, setPath] = useState(null);
   const [includeSubfolders, setIncludeSubfolders] = useState(null);
   const [isProcessing, setIsProcessing] = useState(true);
+  const [processingStatus, setProcessingStatus] = useState(null);
+
+  useEffect(() => {
+    listen("progress", (event) => {
+      setProcessingStatus(event.payload);
+    });
+  }, []);
 
   useEffect(() => {
     if (path && includeSubfolders) {
       setIsProcessing(true);
       process(path, includeSubfolders).finally(() => {
-        setIsProcessing(false)
+        setIsProcessing(false);
       });
     }
   }, [path, includeSubfolders]);
@@ -214,7 +222,49 @@ function App() {
           }}
         />
       ) : (
-        <div>Processing: {JSON.stringify(isProcessing)}</div>
+        <>
+          {processingStatus ? (
+            <div>
+              <p>{processingStatus.message}</p>
+
+              <div
+                style={{
+                  backgroundColor: "#2a2a2a",
+                  padding: 10,
+                }}
+              >
+                <div
+                  style={{
+                    width: `${processingStatus.percent}%`,
+                    height: 10,
+                    backgroundColor: "#00bfff",
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  width: "100%",
+                  justifyContent: "space-between",
+                  marginTop: 20,
+                }}
+              >
+                <div>ETA {processingStatus.eta % 60}s</div>
+                <div>{processingStatus.current} / {processingStatus.total} Images</div>
+              </div>
+
+              <p
+                style={{
+                  textAlign: "right",
+                }}
+              >
+                
+              </p>
+            </div>
+          ) : null}
+        </>
       )}
     </div>
   );

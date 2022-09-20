@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 
 use app::{megadetector::load_model, structures::CamTrapImageDetections};
+use tauri::{Window};
+use eta::{Eta,TimeAcc};
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -8,12 +10,44 @@ fn is_dir(path: String) -> bool {
     path.is_dir()
 }
 
-#[tauri::command]
-async fn process(path: String, recursive: bool) {
-    let files = yolov5cv::helpers::enumerate_images(PathBuf::from(path), recursive);
-    let mut model = load_model();
+#[derive(serde::Serialize, Clone)]
+struct Progress {
+    current: usize,
+    total: usize,
+    percent: f64,
+    message: String,
+    eta: usize
+}
 
-    for file in files {
+#[tauri::command]
+async fn process(path: String, recursive: bool, window: Window) {
+    let files = yolov5cv::helpers::enumerate_images(PathBuf::from(path), recursive);
+    let files_n = files.len();
+
+    let mut eta = Eta::new(files_n, TimeAcc::SEC);
+
+    window.emit("progress", Progress {
+        current: 0,
+        total: files_n,
+        percent: 0.0,
+        message: String::from("Loading MegaDetector model..."),
+        eta: eta.time_remaining()
+    }).unwrap();
+
+    let mut model = load_model();
+    let mut results: Vec<CamTrapImageDetections> = vec![];
+
+    for (i, file) in files.iter().enumerate() {
+        window.emit("progress", Progress {
+            current: i,
+            total: files_n,
+            percent: eta.progress() * 100.0,
+            eta: eta.time_remaining(),
+            message: String::from("Processing {:?}...").replace("{:?}", file.to_str().unwrap())
+        }).unwrap();
+        eta.step();
+        
+
         let result = model.detect(file.to_str().unwrap(), 0.1, 0.1);
         let result_handled = match result {
             Ok(result) => result.into(),
@@ -26,8 +60,16 @@ async fn process(path: String, recursive: bool) {
             },
         };
 
-        println!("{:?}", result_handled);
+        results.push(result_handled);
     }
+
+    window.emit("progress", Progress {
+        current: files_n,
+        total: files_n,
+        percent: 100.0,
+        message: String::from("Processing Complete"),
+        eta: 0
+    }).unwrap();
 }
 
 fn main() {

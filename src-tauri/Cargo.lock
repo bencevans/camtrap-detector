@@ -64,6 +64,7 @@ name = "app"
 version = "0.1.0"
 dependencies = [
  "csv",
+ "eta",
  "opencv",
  "pathdiff",
  "serde",
@@ -822,6 +823,12 @@ name = "encode_unicode"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a357d28ed41a50f9c765dbfe56cbc04a64e53e5fc58ba79fbc34c10ef3df831f"
+
+[[package]]
+name = "eta"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1c85a216bf5d8aa93731c899611308e25b2dd54309dde76f5f98535364ce619"
 
 [[package]]
 name = "exr"
