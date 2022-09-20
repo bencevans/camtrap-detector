@@ -3,13 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@tauri-apps/api": "^1.0.2",
+    "@tauri-apps/api": "^1.1.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.2",
     "react-scripts": "5.0.1",
+    "styled-components": "^5.3.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -18,7 +20,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "dev": "tauri dev",
-    "tauri": "OPENCV_DISABLE_PROBES=1 OPENCV_LINK_PATHS=\"$(pwd)/src-tauri/vendor/opencv/build/install/lib/opencv4/3rdparty,$(pwd)/src-tauri/vendor/opencv/build/install/lib\" OPENCV_LINK_LIBS=opencv_core,opencv_imgproc,opencv_imgcodecs,opencv_dnn OPENCV_INCLUDE_PATHS=\"$(pwd)/src-tauri/vendor/opencv/build/install/include/opencv4\" tauri"
+    "tauri": "tauri"
   },
   "eslintConfig": {
     "extends": [
@@ -39,6 +41,6 @@
     ]
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.0.5"
+    "@tauri-apps/cli": "^1.1.0"
   }
 }

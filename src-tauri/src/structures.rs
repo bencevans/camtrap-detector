@@ -1,6 +1,46 @@
 use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
+use yolov5cv::YoloImageDetections;
 use std::{collections::HashMap, path::Path};
+
+pub struct MegaDetectorBatch {
+    images: Vec<MegaDetectorBatchImage>,
+    detection_categories: Option<Vec<String>>,
+    info: Option<HashMap<String, String>>,
+}
+
+pub struct MegaDetectorBatchImage {
+    file: String,
+    image_width: u32,
+    image_height: u32,
+    detections: Option<Vec<MegaDetectorBatchDetection>>,
+}
+
+pub struct MegaDetectorBatchDetection {
+    bbox: Vec<f32>,
+    category: String,
+    confidence: f32,
+}
+
+impl From<YoloImageDetections> for MegaDetectorBatchImage {
+    fn from(yolo_image_detections: YoloImageDetections) -> Self {
+        let mut detections = Vec::new();
+        for detection in yolo_image_detections.detections {
+            detections.push(MegaDetectorBatchDetection {
+                bbox: vec![detection.x, detection.y, detection.width, detection.height],
+                category: detection.class_index.to_string(),
+                confidence: detection.confidence,
+            });
+        }
+
+        MegaDetectorBatchImage {
+            file: yolo_image_detections.file,
+            image_width: yolo_image_detections.image_width,
+            image_height: yolo_image_detections.image_height,
+            detections: Some(detections),
+        }
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct CSVOutput {
@@ -132,6 +172,9 @@ pub struct MegaDetectorFile {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
+
+    pub image_width: Option<u32>,
+    pub image_height: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]

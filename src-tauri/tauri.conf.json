@@ -55,10 +55,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 300,
         "resizable": false,
         "title": "CamTrap Detector",
-        "width": 600
+        "width": 500
       }
     ]
   }
