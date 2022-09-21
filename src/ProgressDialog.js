@@ -1,3 +1,6 @@
+import { appWindow, LogicalSize } from "@tauri-apps/api/window";
+import { useEffect } from "react";
+
 function friendlyEta(secondsRemaining) {
   const hours = Math.trunc(secondsRemaining / 3600);
   const minutes = Math.trunc(secondsRemaining / 60) % 60;
@@ -6,9 +9,11 @@ function friendlyEta(secondsRemaining) {
   return `${hours}h ${minutes}m ${seconds}s`;
 }
 
-export default function ProgressDialog({
-  processingStatus,
-}) {
+export default function ProgressDialog({ processingStatus }) {
+  useEffect(() => {
+    appWindow.setSize(new LogicalSize(500, 220));
+  });
+
   return (
     <div>
       <p>{processingStatus.message}</p>

@@ -1,11 +1,11 @@
-import { window } from "@tauri-apps/api";
+import { appWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/tauri";
 import { LogicalSize } from "@tauri-apps/api/window";
 import { useEffect } from "react";
 import "./ExportDialog.css";
 
 function createExport(format) {
-  return invoke('export', {format})
+  return invoke("export", { format });
 }
 
 const formatTypes = [
@@ -58,7 +58,7 @@ const formatTypes = [
 
 export default function ExportDialog() {
   useEffect(() => {
-    window.appWindow.setSize(new LogicalSize(600, 600));
+    appWindow.setSize(new LogicalSize(600, 600));
   });
 
   return (
@@ -174,9 +174,13 @@ export default function ExportDialog() {
               paddingLeft: 10,
             }}
           >
-            <button onClick={() => {
-              createExport(format.id)
-            }} >Export</button>
+            <button
+              onClick={() => {
+                createExport(format.id);
+              }}
+            >
+              Export
+            </button>
           </div>
         </div>
       ))}
