@@ -37,7 +37,7 @@ function App() {
         display: "flex",
       }}
     >
-      {path === null && includeSubfolders === null ? (
+      {(processingStatus == null ? (
         <FolderSelectDialog
           onDrop={(dirPath, recursive) => {
             setPath(dirPath);
@@ -46,13 +46,13 @@ function App() {
         />
       ) : (
         <>
-          {processingStatus !== null && processingStatus.percent < 100 ? (
+          {processingStatus.percent < 100 ? (
             <ProgressDialog processingStatus={processingStatus} />
           ) : (
             <ExportDialog />
           )}
         </>
-      )}
+      ))}
     </div>
   );
 }
