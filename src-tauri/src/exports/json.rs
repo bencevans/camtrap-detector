@@ -1,10 +1,40 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{structures, megadetector::CATEGORIES};
+use crate::{megadetector::CATEGORIES, structures};
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CamTrapJSONContainer {
+    pub images: Vec<CamTrapJSONImageDetections>,
+    pub categories: Vec<CamTrapJSONCategory>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CamTrapJSONCategory {
+    pub name: String,
+    pub id: usize,
+}
+
+impl CamTrapJSONContainer {
+    pub fn new(images: Vec<CamTrapJSONImageDetections>) -> Self {
+        CamTrapJSONContainer {
+            images,
+            categories: CATEGORIES
+                .iter()
+                .enumerate()
+                .map(|(i, c)| CamTrapJSONCategory {
+                    name: c.to_string(),
+                    id: i,
+                })
+                .collect(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CamTrapJSONImageDetections {
     pub file: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
 
     pub image_width: Option<u32>,
@@ -19,7 +49,7 @@ pub struct CamTrapJSONDetection {
     pub y: f32,
     pub width: f32,
     pub height: f32,
-    pub category: String,
+    pub category: u32,
     pub confidence: f32,
 }
 
@@ -30,7 +60,7 @@ impl From<structures::CamTrapDetection> for CamTrapJSONDetection {
             y: yolo.y,
             width: yolo.width,
             height: yolo.height,
-            category: CATEGORIES.get(yolo.class_index as usize).unwrap().to_string(),
+            category: yolo.class_index + 1,
             confidence: yolo.confidence,
         }
     }

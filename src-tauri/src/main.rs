@@ -1,9 +1,10 @@
 use app::{
-    exports::csv::CamTrapCSVDetection,
+    exports::{self, csv::CamTrapCSVDetection},
     megadetector::load_model,
     structures::{self, CamTrapImageDetections},
 };
 use eta::{Eta, TimeAcc};
+
 use std::{path::PathBuf, sync::Mutex};
 use tauri::Window;
 
@@ -65,11 +66,17 @@ fn export_csv(results: Vec<structures::CamTrapImageDetections>) {
         })
 }
 
-fn export_json() {
+fn export_json(results: Vec<structures::CamTrapImageDetections>) {
     tauri::api::dialog::FileDialogBuilder::new()
         .set_file_name("ct.0.1.0.json")
-        .save_file(|file_path| {
+        .save_file(move |file_path| {
             if let Some(file_path) = file_path {
+                let mut writer = std::fs::File::create(file_path).unwrap();
+                let json_images: Vec<exports::json::CamTrapJSONImageDetections> =
+                    results.into_iter().map(|d| d.into()).collect();
+                let json_container = exports::json::CamTrapJSONContainer::new(json_images);
+
+                serde_json::to_writer_pretty(&mut writer, &json_container).unwrap();
             } else {
                 // user canceled
             }
@@ -80,7 +87,7 @@ fn export_json() {
 fn export(format: String, state: tauri::State<'_, AppState>) {
     match format.as_str() {
         "csv" => export_csv(state.0.lock().unwrap().results.clone()),
-        "json" => export_json(),
+        "json" => export_json(state.0.lock().unwrap().results.clone()),
         _ => panic!("Unknown export format"),
     }
 }
