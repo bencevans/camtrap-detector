@@ -31,7 +31,7 @@ struct App {
 
 fn export_csv(results: Vec<structures::CamTrapImageDetections>) {
     tauri::api::dialog::FileDialogBuilder::new()
-        .set_file_name("blahblah.csv")
+        .set_file_name("ct.0.1.0.csv")
         .save_file(|file_path| {
             if let Some(file_path) = file_path {
                 let mut writer = csv::Writer::from_path(file_path).unwrap();
@@ -67,7 +67,7 @@ fn export_csv(results: Vec<structures::CamTrapImageDetections>) {
 
 fn export_json() {
     tauri::api::dialog::FileDialogBuilder::new()
-        .set_file_name("blahblah.json")
+        .set_file_name("ct.0.1.0.json")
         .save_file(|file_path| {
             if let Some(file_path) = file_path {
             } else {
