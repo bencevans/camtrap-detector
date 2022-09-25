@@ -17,8 +17,6 @@ pub struct FilterCriteria {
 }
 
 fn match_criteria(image: &CamTrapImageDetections, criteria: &FilterCriteria) -> bool {
-    let mut should_include = false;
-
     let mut has_animals = false;
     let mut has_humans = false;
     let mut has_vehicles = false;
@@ -33,34 +31,43 @@ fn match_criteria(image: &CamTrapImageDetections, criteria: &FilterCriteria) -> 
         }
     }
 
-    match criteria.animals {
-        IncludeCriteria::Include => should_include = should_include || has_animals,
-        IncludeCriteria::Union => {},
-        IncludeCriteria::Exclude => should_include = should_include && !has_animals,
+    let should_include = if let IncludeCriteria::Include = criteria.animals {
+        has_animals
+    } else {
+        false
+    } || if let IncludeCriteria::Include = criteria.humans {
+        has_humans
+    } else {
+        false
+    } || if let IncludeCriteria::Include = criteria.vehicles {
+        has_vehicles
+    } else {
+        false
+    } || if let IncludeCriteria::Include = criteria.empty {
+        has_empty
+    } else {
+        false
     };
 
-    match criteria.humans {
-        IncludeCriteria::Include => should_include = should_include || has_humans,
-        IncludeCriteria::Union => {},
-        IncludeCriteria::Exclude => should_include = should_include && !has_humans,
+    let should_exclude = if let IncludeCriteria::Exclude = criteria.animals {
+        has_animals
+    } else {
+        false
+    } || if let IncludeCriteria::Exclude = criteria.humans {
+        has_humans
+    } else {
+        false
+    } || if let IncludeCriteria::Exclude = criteria.vehicles {
+        has_vehicles
+    } else {
+        false
+    } || if let IncludeCriteria::Exclude = criteria.empty {
+        has_empty
+    } else {
+        false
     };
 
-    match criteria.vehicles {
-        IncludeCriteria::Include => should_include = should_include || has_vehicles,
-        IncludeCriteria::Union => {},
-        IncludeCriteria::Exclude => should_include = should_include && !has_vehicles,
-    };
-
-    match criteria.empty {
-        IncludeCriteria::Include => should_include = should_include || has_empty,
-        IncludeCriteria::Union => {},
-        IncludeCriteria::Exclude => should_include = should_include && !has_empty,
-    };
-
-    should_include
-
-    // all but empty: has(animal) || has(human) || has(vehicle)
-    // animals but none with humans: has(animal) && no(humans)
+    should_include && !should_exclude
 }
 
 pub struct DrawCriteria {
@@ -104,60 +111,35 @@ pub fn export_image(
 mod tests {
     use super::*;
 
+    fn create_image(class_indexes: Vec<u32>) -> CamTrapImageDetections {
+        CamTrapImageDetections {
+            file: String::from("test.jpg"),
+            detections: class_indexes.iter().map(|i| CamTrapDetection {
+                class_index: *i,
+                x: 0.0,
+                y: 0.0,
+                width: 0.0,
+                height: 0.0,
+                confidence: 1.0,
+            }).collect(),
+            error: None,
+            image_width: None,
+            image_height: None,
+        }
+    }
+
+
     #[test]
     fn test_match_criteria() {
-        let human_only_image = CamTrapImageDetections {
-            file: String::from("test.jpg"),
-            detections: vec![CamTrapDetection {
-                class_index: 1,
-                confidence: 0.9,
-                x: 0.0,
-                y: 0.0,
-                width: 0.0,
-                height: 0.0,
-            }],
-            error: None,
-            image_width: None,
-            image_height: None,
-        };
+        let animal_only_image = create_image(vec![0]);
+        let human_only_image = create_image(vec![1]);
+        let vehicle_only_image = create_image(vec![2]);
+        let empty_image = create_image(vec![]);
 
-        let animal_only_image = CamTrapImageDetections {
-            file: String::from("test.jpg"),
-            detections: vec![CamTrapDetection {
-                class_index: 0,
-                confidence: 0.9,
-                x: 0.0,
-                y: 0.0,
-                width: 0.0,
-                height: 0.0,
-            }],
-            error: None,
-            image_width: None,
-            image_height: None,
-        };
-
-        let vehicle_only_image = CamTrapImageDetections {
-            file: String::from("test.jpg"),
-            detections: vec![CamTrapDetection {
-                class_index: 2,
-                confidence: 0.9,
-                x: 0.0,
-                y: 0.0,
-                width: 0.0,
-                height: 0.0,
-            }],
-            error: None,
-            image_width: None,
-            image_height: None,
-        };
-
-        let empty_image = CamTrapImageDetections {
-            file: String::from("test.jpg"),
-            detections: vec![],
-            error: None,
-            image_width: None,
-            image_height: None,
-        };
+        let animal_and_human_image = create_image(vec![0, 1]);
+        let animal_and_vehicle_image = create_image(vec![0, 2]);
+        let human_and_vehicle_image = create_image(vec![1, 2]);
+        let animal_human_and_vehicle_image = create_image(vec![0, 1, 2]);
 
         // Include Everything
         let criteria = FilterCriteria {
@@ -171,7 +153,10 @@ mod tests {
         assert!(match_criteria(&animal_only_image, &criteria));
         assert!(match_criteria(&vehicle_only_image, &criteria));
         assert!(match_criteria(&empty_image, &criteria));
-
+        assert!(match_criteria(&animal_and_human_image, &criteria));
+        assert!(match_criteria(&animal_and_vehicle_image, &criteria));
+        assert!(match_criteria(&human_and_vehicle_image, &criteria));
+        assert!(match_criteria(&animal_human_and_vehicle_image, &criteria));
 
         // Exclude Everything
         let criteria = FilterCriteria {
@@ -185,8 +170,12 @@ mod tests {
         assert!(!match_criteria(&animal_only_image, &criteria));
         assert!(!match_criteria(&vehicle_only_image, &criteria));
         assert!(!match_criteria(&empty_image, &criteria));
+        assert!(!match_criteria(&animal_and_human_image, &criteria));
+        assert!(!match_criteria(&animal_and_vehicle_image, &criteria));
+        assert!(!match_criteria(&human_and_vehicle_image, &criteria));
+        assert!(!match_criteria(&animal_human_and_vehicle_image, &criteria));
 
-        // All Animals Only
+        // All Animals
         let criteria = FilterCriteria {
             animals: IncludeCriteria::Include,
             humans: IncludeCriteria::Union,
@@ -198,6 +187,10 @@ mod tests {
         assert!(match_criteria(&animal_only_image, &criteria));
         assert!(!match_criteria(&vehicle_only_image, &criteria));
         assert!(!match_criteria(&empty_image, &criteria));
+        assert!(match_criteria(&animal_and_human_image, &criteria));
+        assert!(match_criteria(&animal_and_vehicle_image, &criteria));
+        assert!(!match_criteria(&human_and_vehicle_image, &criteria));
+        assert!(match_criteria(&animal_human_and_vehicle_image, &criteria));
 
         // Animals and Empty
         let criteria = FilterCriteria {
@@ -211,10 +204,27 @@ mod tests {
         assert!(match_criteria(&animal_only_image, &criteria));
         assert!(!match_criteria(&vehicle_only_image, &criteria));
         assert!(match_criteria(&empty_image, &criteria));
+        assert!(match_criteria(&animal_and_human_image, &criteria));
+        assert!(match_criteria(&animal_and_vehicle_image, &criteria));
+        assert!(!match_criteria(&human_and_vehicle_image, &criteria));
+        assert!(match_criteria(&animal_human_and_vehicle_image, &criteria));
 
 
+        // Animals but none with humans
+        let criteria = FilterCriteria {
+            animals: IncludeCriteria::Include,
+            humans: IncludeCriteria::Exclude,
+            vehicles: IncludeCriteria::Union,
+            empty: IncludeCriteria::Union,
+        };
 
-
-
+        assert!(!match_criteria(&human_only_image, &criteria));
+        assert!(match_criteria(&animal_only_image, &criteria));
+        assert!(!match_criteria(&vehicle_only_image, &criteria));
+        assert!(!match_criteria(&empty_image, &criteria));
+        assert!(!match_criteria(&animal_and_human_image, &criteria));
+        assert!(match_criteria(&animal_and_vehicle_image, &criteria));
+        assert!(!match_criteria(&human_and_vehicle_image, &criteria));
+        assert!(!match_criteria(&animal_human_and_vehicle_image, &criteria));
     }
 }
