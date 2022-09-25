@@ -1,14 +1,17 @@
 use image;
-use std::{fmt::Error, path::PathBuf};
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 use crate::structures::{CamTrapDetection, CamTrapImageDetections};
 
+#[derive(Serialize, Deserialize)]
 pub enum IncludeCriteria {
     Include,
     Union,
     Exclude,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct FilterCriteria {
     animals: IncludeCriteria,
     humans: IncludeCriteria,
@@ -70,36 +73,79 @@ fn match_criteria(image: &CamTrapImageDetections, criteria: &FilterCriteria) -> 
     should_include && !should_exclude
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct DrawCriteria {
     animals: bool,
     humans: bool,
     vehicles: bool,
 }
 
-// fn should_draw(image: &mut CamTrapDetection, criteria: &FilterCriteria) -> bool {
-
-// }
+fn should_draw(detection: &CamTrapDetection, criteria: &DrawCriteria) -> bool {
+    match detection.class_index {
+        0 => criteria.animals,
+        1 => criteria.humans,
+        2 => criteria.vehicles,
+        _ => false,
+    }
+}
 
 pub fn export_image(
     results: Vec<CamTrapImageDetections>,
+    base_dir: PathBuf,
     output_dir: PathBuf,
     filter_criteria: FilterCriteria,
-) -> Result<(), Error> {
+    draw_criteria: DrawCriteria,
+) -> Result<(), ()> {
     for image in results {
         if !match_criteria(&image, &filter_criteria) {
             continue;
         }
 
-        // let in_image_path = image.file;
+        let img_result = image::open(&image.file);
 
-        // let out_image_path = output_dir.join(&image.file);
-        // let out_image_dir = out_image_path.parent().unwrap();
+        if img_result.is_err() {
+            continue;
+        }
 
-        // // Create directory / parents if they don't exist
-        // std::fs::create_dir_all(&out_image_dir).unwrap();
+        let mut img = img_result.unwrap();
 
-        // image::open(&in_image_path)?
-        //     .save(&out_image_path)?;
+        for detection in image.detections {
+            if should_draw(&detection, &draw_criteria) {
+                let rect = imageproc::rect::Rect::at(
+                    (detection.x * img.width() as f32) as i32,
+                    (detection.y * img.height() as f32) as i32,
+                )
+                .of_size(
+                    (detection.width * img.width() as f32) as u32,
+                    (detection.height * img.height() as f32) as u32,
+                );
+
+                let color = match detection.class_index {
+                    0 => image::Rgba([0, 255, 0, 255]),
+                    1 => image::Rgba([255, 0, 0, 255]),
+                    2 => image::Rgba([0, 0, 255, 255]),
+                    _ => image::Rgba([0, 0, 0, 255]),
+                };
+
+                imageproc::drawing::draw_hollow_rect_mut(&mut img, rect, color);
+            }
+        }
+
+        // let in_image_path = &image.file;
+
+        let image_rel_path = pathdiff::diff_paths(&image.file, &base_dir).unwrap();
+
+        let out_image_path = output_dir.join(image_rel_path);
+        let out_image_dir = out_image_path.parent().unwrap();
+
+        // Create directory / parents if they don't exist
+        std::fs::create_dir_all(&out_image_dir).unwrap();
+
+        let save_result = img.save(out_image_path);
+
+        if save_result.is_err() {
+            continue;
+        }
 
         // Read image
     }
@@ -114,20 +160,22 @@ mod tests {
     fn create_image(class_indexes: Vec<u32>) -> CamTrapImageDetections {
         CamTrapImageDetections {
             file: String::from("test.jpg"),
-            detections: class_indexes.iter().map(|i| CamTrapDetection {
-                class_index: *i,
-                x: 0.0,
-                y: 0.0,
-                width: 0.0,
-                height: 0.0,
-                confidence: 1.0,
-            }).collect(),
+            detections: class_indexes
+                .iter()
+                .map(|i| CamTrapDetection {
+                    class_index: *i,
+                    x: 0.0,
+                    y: 0.0,
+                    width: 0.0,
+                    height: 0.0,
+                    confidence: 1.0,
+                })
+                .collect(),
             error: None,
             image_width: None,
             image_height: None,
         }
     }
-
 
     #[test]
     fn test_match_criteria() {
@@ -208,7 +256,6 @@ mod tests {
         assert!(match_criteria(&animal_and_vehicle_image, &criteria));
         assert!(!match_criteria(&human_and_vehicle_image, &criteria));
         assert!(match_criteria(&animal_human_and_vehicle_image, &criteria));
-
 
         // Animals but none with humans
         let criteria = FilterCriteria {

@@ -1,12 +1,19 @@
 use app::{
-    exports::{self, csv::CamTrapCSVDetection},
+    exports::{
+        self,
+        csv::CamTrapCSVDetection,
+        image::{export_image, DrawCriteria, FilterCriteria},
+    },
     megadetector::load_model,
     structures::{self, CamTrapImageDetections},
 };
 use eta::{Eta, TimeAcc};
 
 use std::{path::PathBuf, sync::Mutex};
-use tauri::Window;
+use tauri::{
+    api::dialog,
+    Window,
+};
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -27,10 +34,11 @@ pub struct AppState(Mutex<App>);
 
 #[derive(Default)]
 struct App {
+    base_dir: PathBuf,
     results: Vec<structures::CamTrapImageDetections>,
 }
 
-fn export_csv(results: Vec<structures::CamTrapImageDetections>) {
+fn export_csv(results: Vec<structures::CamTrapImageDetections>) -> Result<(), String> {
     tauri::api::dialog::FileDialogBuilder::new()
         .set_file_name("ct.0.1.0.csv")
         .save_file(|file_path| {
@@ -63,10 +71,12 @@ fn export_csv(results: Vec<structures::CamTrapImageDetections>) {
             } else {
                 // user canceled
             }
-        })
+        });
+
+        Ok(())
 }
 
-fn export_json(results: Vec<structures::CamTrapImageDetections>) {
+fn export_json(results: Vec<structures::CamTrapImageDetections>) -> Result<(), String> {
     tauri::api::dialog::FileDialogBuilder::new()
         .set_file_name("ct.0.1.0.json")
         .save_file(move |file_path| {
@@ -80,15 +90,39 @@ fn export_json(results: Vec<structures::CamTrapImageDetections>) {
             } else {
                 // user canceled
             }
-        })
+        });
+
+        Ok(())
 }
 
 #[tauri::command]
-fn export(format: String, state: tauri::State<'_, AppState>) {
+async fn export_image_set(
+    state: tauri::State<'_, AppState>,
+    filter_criteria: FilterCriteria,
+    draw_criteria: DrawCriteria,
+) -> Result<(), ()> {
+    let results = state.0.lock().unwrap().results.clone();
+    let base_dir = state.0.lock().unwrap().base_dir.clone();
+
+    dialog::FileDialogBuilder::new().pick_folder(|folder_path| {
+        if folder_path.is_none() {
+            return;
+        }
+
+        let folder_path = folder_path.unwrap();
+
+        export_image(results, base_dir, folder_path, filter_criteria, draw_criteria).unwrap();
+    });
+
+    Ok(())
+}
+
+#[tauri::command]
+fn export(format: String, state: tauri::State<'_, AppState>) -> Result<(), String> {
     match format.as_str() {
         "csv" => export_csv(state.0.lock().unwrap().results.clone()),
         "json" => export_json(state.0.lock().unwrap().results.clone()),
-        _ => panic!("Unknown export format"),
+        _ => Err("Unknown export format".to_string()),
     }
 }
 
@@ -99,7 +133,7 @@ async fn process(
     window: Window,
     state: tauri::State<'_, AppState>,
 ) -> Result<(), ()> {
-    let files = yolov5cv::helpers::enumerate_images(PathBuf::from(path), recursive);
+    let files = yolov5cv::helpers::enumerate_images(PathBuf::from(&path), recursive);
     let files_n = files.len();
 
     let mut eta = Eta::new(files_n, TimeAcc::SEC);
@@ -151,6 +185,7 @@ async fn process(
         results.push(result_handled);
     }
 
+    state.0.lock().unwrap().base_dir = PathBuf::from(&path);
     state.0.lock().unwrap().results = results;
 
     window
@@ -172,7 +207,12 @@ async fn process(
 fn main() {
     tauri::Builder::default()
         .manage(AppState(Default::default()))
-        .invoke_handler(tauri::generate_handler![is_dir, process, export])
+        .invoke_handler(tauri::generate_handler![
+            is_dir,
+            process,
+            export,
+            export_image_set
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

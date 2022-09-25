@@ -1,17 +1,10 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
-import FolderSelectDialog from "./FolderSelectDialog";
-import ProgressDialog from "./ProgressDialog";
-import ExportDialog from "./ExportDialog";
-
-function process(path, recursive) {
-  return invoke("process", {
-    path,
-    recursive,
-  });
-}
+import FolderSelectDialog from "./components/FolderSelectDialog";
+import ProgressDialog from "./components/ProgressDialog";
+import ExportDialog from "./components/ExportDialog";
+import { process } from "./api";
 
 function App() {
   const [path, setPath] = useState(null);
@@ -37,7 +30,7 @@ function App() {
         display: "flex",
       }}
     >
-      {(processingStatus == null ? (
+      {processingStatus == null ? (
         <FolderSelectDialog
           onDrop={(dirPath, recursive) => {
             setPath(dirPath);
@@ -52,7 +45,7 @@ function App() {
             <ExportDialog />
           )}
         </>
-      ))}
+      )}
     </div>
   );
 }

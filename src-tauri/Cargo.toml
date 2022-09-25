@@ -27,6 +27,7 @@ csv = "1.1.6"
 yolov5cv = { path = "../yolov5cv" }
 eta = "0.2.2"
 image = { version = "0.24.3", features = ["rgb"] }
+imageproc = "0.23.0"
 
 [features]
 # by default Tauri runs in production mode

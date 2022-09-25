@@ -66,6 +66,7 @@ dependencies = [
  "csv",
  "eta",
  "image",
+ "imageproc",
  "opencv",
  "pathdiff",
  "serde",
