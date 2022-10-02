@@ -7,8 +7,8 @@ export function process(path, recursive) {
   });
 }
 
-export function createExport(format) {
-  return invoke("export", { format });
+export function createExport(format, outputPath) {
+  return invoke("export", { format, outputPath });
 }
 
 export const IncludeCriteria = {
@@ -34,8 +34,9 @@ export function createDrawCriteria(animals, humans, vehicles) {
   };
 }
 
-export function exportImageSet(filterCriteria, drawCriteria) {
+export function exportImageSet(outputPath, filterCriteria, drawCriteria) {
   return invoke("export_image_set", {
+    outputPath,
     filterCriteria: filterCriteria,
     drawCriteria: drawCriteria,
   });

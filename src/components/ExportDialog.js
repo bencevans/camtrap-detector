@@ -1,6 +1,8 @@
+import { dialog } from "@tauri-apps/api";
 import { appWindow } from "@tauri-apps/api/window";
 import { LogicalSize } from "@tauri-apps/api/window";
 import { useEffect, useState } from "react";
+import { PulseLoader } from "react-spinners";
 import {
   createDrawCriteria,
   createExport,
@@ -68,6 +70,8 @@ export default function ExportDialog() {
   const [imageExportVehicleFilter, setImageExportVehicleFilter] =
     useState("Union");
   const [imageExportEmptyFilter, setImageExportEmptyFilter] = useState("Union");
+
+  const [exportInProgress, setExportInProgress] = useState([]);
 
   return (
     <div>
@@ -272,25 +276,73 @@ export default function ExportDialog() {
               paddingLeft: 10,
             }}
           >
-            <button
-              onClick={() => {
-                if (format.id === "image-dir") {
-                  exportImageSet(
-                    createFilterCriteria(
-                      imageExportAnimalFilter,
-                      imageExportHumanFilter,
-                      imageExportVehicleFilter,
-                      imageExportEmptyFilter
-                    ),
-                    createDrawCriteria(true, true, true)
-                  );
-                } else {
-                  createExport(format.id);
-                }
-              }}
-            >
-              Export
-            </button>
+            {exportInProgress.includes(format.id) ? (
+              <PulseLoader size={11} color={"#00bfff"} />
+            ) : (
+              <button
+                onClick={() => {
+                  if (format.id === "image-dir") {
+                    dialog
+                      .open({
+                        directory: true,
+                      })
+                      .then((outputPath) => {
+                        if (outputPath === null) {
+                          return;
+                        }
+
+                        exportInProgress.push(format.id);
+                        setExportInProgress([...exportInProgress]);
+                        console.log("Exporting", format.id);
+
+                        exportImageSet(
+                          outputPath,
+                          createFilterCriteria(
+                            imageExportAnimalFilter,
+                            imageExportHumanFilter,
+                            imageExportVehicleFilter,
+                            imageExportEmptyFilter
+                          ),
+                          createDrawCriteria(true, true, true)
+                        ).finally(() => {
+                          console.log("Exported", format.id);
+                          exportInProgress.splice(
+                            exportInProgress.indexOf(format.id),
+                            1
+                          );
+                          setExportInProgress([...exportInProgress]);
+                        });
+                      });
+                  } else {
+                    let defaultFileName = format.id === "json" ? "ct.0.1.0.json" : "ct.0.1.0.csv";
+                    dialog
+                      .save({
+                        defaultPath: defaultFileName
+                      })
+                      .then((outputPath) => {
+                        if (outputPath === null) {
+                          return;
+                        }
+
+                        exportInProgress.push(format.id);
+                        setExportInProgress([...exportInProgress]);
+                        console.log("Exporting", format.id);
+
+                        createExport(format.id, outputPath).finally(() => {
+                          console.log("Exported", format.id);
+                          exportInProgress.splice(
+                            exportInProgress.indexOf(format.id),
+                            1
+                          );
+                          setExportInProgress([...exportInProgress]);
+                        });
+                      });
+                  }
+                }}
+              >
+                Export
+              </button>
+            )}
           </div>
         </div>
       ))}

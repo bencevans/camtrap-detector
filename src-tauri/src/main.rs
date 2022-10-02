@@ -10,10 +10,7 @@ use app::{
 use eta::{Eta, TimeAcc};
 
 use std::{path::PathBuf, sync::Mutex};
-use tauri::{
-    api::dialog,
-    Window,
-};
+use tauri::{api::dialog, Window};
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -38,92 +35,118 @@ struct App {
     results: Vec<structures::CamTrapImageDetections>,
 }
 
-fn export_csv(results: Vec<structures::CamTrapImageDetections>) -> Result<(), String> {
-    tauri::api::dialog::FileDialogBuilder::new()
-        .set_file_name("ct.0.1.0.csv")
-        .save_file(|file_path| {
-            if let Some(file_path) = file_path {
-                let mut writer = csv::Writer::from_path(file_path).unwrap();
-                for result in results {
-                    if let Some(error) = result.error {
-                        writer
-                            .serialize(CamTrapCSVDetection::new_error(result.file, error))
-                            .unwrap();
-                    } else if result.detections.is_empty() {
-                        writer
-                            .serialize(CamTrapCSVDetection::new_empty(result.file))
-                            .unwrap();
-                    } else {
-                        for detection in result.detections {
-                            writer
-                                .serialize(CamTrapCSVDetection::new_detection(
-                                    result.file.clone(),
-                                    result.image_width.unwrap(),
-                                    result.image_height.unwrap(),
-                                    &detection,
-                                ))
-                                .unwrap();
-                        }
-                    }
-                }
-
-                writer.flush().unwrap();
-            } else {
-                // user canceled
+fn export_csv(
+    results: Vec<structures::CamTrapImageDetections>,
+    output_path: PathBuf,
+) -> Result<(), String> {
+    let mut writer = csv::Writer::from_path(output_path).unwrap();
+    for result in results {
+        if let Some(error) = result.error {
+            writer
+                .serialize(CamTrapCSVDetection::new_error(result.file, error))
+                .unwrap();
+        } else if result.detections.is_empty() {
+            writer
+                .serialize(CamTrapCSVDetection::new_empty(result.file))
+                .unwrap();
+        } else {
+            for detection in result.detections {
+                writer
+                    .serialize(CamTrapCSVDetection::new_detection(
+                        result.file.clone(),
+                        result.image_width.unwrap(),
+                        result.image_height.unwrap(),
+                        &detection,
+                    ))
+                    .unwrap();
             }
-        });
-
-        Ok(())
-}
-
-fn export_json(results: Vec<structures::CamTrapImageDetections>) -> Result<(), String> {
-    tauri::api::dialog::FileDialogBuilder::new()
-        .set_file_name("ct.0.1.0.json")
-        .save_file(move |file_path| {
-            if let Some(file_path) = file_path {
-                let mut writer = std::fs::File::create(file_path).unwrap();
-                let json_images: Vec<exports::json::CamTrapJSONImageDetections> =
-                    results.into_iter().map(|d| d.into()).collect();
-                let json_container = exports::json::CamTrapJSONContainer::new(json_images);
-
-                serde_json::to_writer_pretty(&mut writer, &json_container).unwrap();
-            } else {
-                // user canceled
-            }
-        });
-
-        Ok(())
-}
-
-#[tauri::command]
-async fn export_image_set(
-    state: tauri::State<'_, AppState>,
-    filter_criteria: FilterCriteria,
-    draw_criteria: DrawCriteria,
-) -> Result<(), ()> {
-    let results = state.0.lock().unwrap().results.clone();
-    let base_dir = state.0.lock().unwrap().base_dir.clone();
-
-    dialog::FileDialogBuilder::new().pick_folder(|folder_path| {
-        if folder_path.is_none() {
-            return;
         }
+    }
 
-        let folder_path = folder_path.unwrap();
+    writer.flush().unwrap();
 
-        export_image(results, base_dir, folder_path, filter_criteria, draw_criteria).unwrap();
-    });
+    Ok(())
+}
+
+fn export_json(
+    results: Vec<structures::CamTrapImageDetections>,
+    output_path: PathBuf,
+) -> Result<(), String> {
+    let mut writer = std::fs::File::create(output_path).unwrap();
+    let json_images: Vec<exports::json::CamTrapJSONImageDetections> =
+        results.into_iter().map(|d| d.into()).collect();
+    let json_container = exports::json::CamTrapJSONContainer::new(json_images);
+
+    serde_json::to_writer_pretty(&mut writer, &json_container).unwrap();
 
     Ok(())
 }
 
 #[tauri::command]
-fn export(format: String, state: tauri::State<'_, AppState>) -> Result<(), String> {
-    match format.as_str() {
-        "csv" => export_csv(state.0.lock().unwrap().results.clone()),
-        "json" => export_json(state.0.lock().unwrap().results.clone()),
-        _ => Err("Unknown export format".to_string()),
+async fn export_image_set(
+    state: tauri::State<'_, AppState>,
+    output_path: PathBuf,
+    filter_criteria: FilterCriteria,
+    draw_criteria: DrawCriteria,
+    window: Window,
+) -> Result<(), ()> {
+    let results = state.0.lock().unwrap().results.clone();
+    let base_dir = state.0.lock().unwrap().base_dir.clone();
+
+    // Ensure it's not the same folder as the raw images
+    if output_path == base_dir {
+        dialog::message(
+            Some(&window),
+            "Export Error",
+            &"The export folder cannot be the same as the raw images folder.",
+        );
+        return Err(());
     }
+
+    export_image(
+        results,
+        base_dir,
+        output_path,
+        filter_criteria,
+        draw_criteria,
+    )
+    .unwrap();
+
+    dialog::message(
+        Some(&window),
+        "Image Export Complete",
+        &"The image export has completed.",
+    );
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn export(
+    format: String,
+    output_path: PathBuf,
+    state: tauri::State<'_, AppState>,
+    window: Window,
+) -> Result<(), String> {
+    let r = match format.as_str() {
+        "csv" => export_csv(state.0.lock().unwrap().results.clone(), output_path),
+        "json" => export_json(state.0.lock().unwrap().results.clone(), output_path),
+        _ => Err("Unknown export format".to_string()),
+    };
+
+    let format_name = match format.as_str() {
+        "csv" => "CSV",
+        "json" => "JSON",
+        _ => "Unknown",
+    };
+
+    dialog::message(
+        Some(&window),
+        "Export Complete",
+        &format!("The {} export has completed.", format_name),
+    );
+
+    r
 }
 
 #[tauri::command]
