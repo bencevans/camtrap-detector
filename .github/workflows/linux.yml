@@ -55,7 +55,7 @@ jobs:
           path: src-tauri/vendor/opencv/build
           key: ${{ runner.os }}-{{runner.arch}}-opencv-ippoff
       - name: Build OpenCV
-        run: mkdir -p src-tauri/vendor/opencv/build && cd src-tauri/vendor/opencv/build && cmake -DBUILD_SHARED_LIBS=off -DWITH_IPP=OFF -DBUILD_LIST=core,dnn,imgcodecs -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=RELEASE -DWITH_OPENEXR=off -DWITH_TIFF=off -DWITH_WEBP=off -DWITH_OPENJPEG=off -DWITH_JASPER=off ..  && cmake --build . -j 8 && make install
+        run: mkdir -p src-tauri/vendor/opencv/build && cd src-tauri/vendor/opencv/build && cmake -DBUILD_SHARED_LIBS=off -DWITH_IPP=OFF -DBUILD_LIST=core,dnn,imgcodecs -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=RELEASE -DWITH_OPENEXR=off -DWITH_TIFF=off -DWITH_WEBP=off -DWITH_OPENJPEG=off -DWITH_JASPER=off -DBUILD_PNG=on -DBUILD_JPEG=on -DBUILD_ZLIB=on .. && cmake --build . -j 8 && make install
         if: steps.cache-opencv.outputs.cache-hit != 'true'
 
       - uses: actions/cache@v2
