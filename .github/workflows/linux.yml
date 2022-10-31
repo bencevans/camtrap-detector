@@ -1,0 +1,93 @@
+name: "Build Linux"
+on:
+  push:
+    branches:
+      - linux
+      - main
+
+jobs:
+  publish-tauri:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest]
+        arch: [Intel]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Tauri dependencies
+        run: >-
+          sudo apt-get update &&
+          sudo apt-get install -y
+          libgtk-3-dev
+          libayatana-appindicator3-dev
+          libwebkit2gtk-4.0-dev
+          webkit2gtk-driver
+          xvfb
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: install Rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Cache Model
+        id: cache-model
+        uses: actions/cache@v3
+        with:
+          path: md_v5a.0.0.onnx
+          key: model
+      - name: Download Model
+        run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
+        if: steps.cache-model.outputs.cache-hit != 'true'
+
+      - name: Cache OpenCV
+        id: cache-opencv
+        uses: actions/cache@v3
+        with:
+          path: src-tauri/vendor/opencv/build
+          key: ${{ runner.os }}-{{runner.arch}}-opencv-ippoff
+      - name: Build OpenCV
+        run: mkdir -p src-tauri/vendor/opencv/build && cd src-tauri/vendor/opencv/build && cmake -DBUILD_SHARED_LIBS=off -DWITH_IPP=OFF -DBUILD_LIST=core,dnn,imgcodecs -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=RELEASE -DWITH_OPENEXR=off -DWITH_TIFF=off -DWITH_WEBP=off -DWITH_OPENJPEG=off -DWITH_JASPER=off ..  && cmake --build . -j 8 && make install
+        if: steps.cache-opencv.outputs.cache-hit != 'true'
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-{{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Build App
+        run: npm install && npm run tauri build -- --features builtin
+
+      # - uses: actions/upload-artifact@v3
+      #   if: ${{ env.ACTIONS_RUNNER_DEBUG }}
+      #   with:
+      #     name: CamTrap Detector MacOS Intel.dmg
+      #     path: src-tauri/target/release/bundle/dmg/*.dmg
+
+      # - uses: tauri-apps/tauri-action@v0
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     ENABLE_CODE_SIGNING: ${{ secrets.APPLE_CERTIFICATE }}
+      #     APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      #     APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      #     APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      #     APPLE_ID: ${{ secrets.APPLE_ID }}
+      #     APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+      #   with:
+      #     tauriScript: npm run tauri --
+      #     args: --features builtin
+      #     tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
+      #     releaseName: 'App v__VERSION__'
+      #     releaseBody: 'See the assets to download this version and install.'
+      #     releaseDraft: true
+      #     prerelease: false
