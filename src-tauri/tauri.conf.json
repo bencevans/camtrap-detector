@@ -37,7 +37,9 @@
         "providerShortName": null,
         "signingIdentity": null
       },
-      "resources": [],
+      "resources": [
+        "../md_v5a.0.0.onnx"
+      ],
       "shortDescription": "",
       "targets": "all",
       "windows": {
@@ -50,7 +52,7 @@
       "csp": null
     },
     "updater": {
-      "active": true,
+      "active": false,
       "endpoints": [
           "https://releases.camtrap.net/detector/{{target}}/{{current_version}}"
       ],
