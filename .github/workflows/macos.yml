@@ -1,5 +1,6 @@
 name: "Build MacOS"
 on:
+  pull_request:
   push:
     branches:
       - main
