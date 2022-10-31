@@ -52,7 +52,7 @@
       "csp": null
     },
     "updater": {
-      "active": true,
+      "active": false,
       "endpoints": [
           "https://releases.camtrap.net/detector/{{target}}/{{current_version}}"
       ],
