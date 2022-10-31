@@ -54,6 +54,9 @@ jobs:
         with:
           path: src-tauri/vendor/opencv/build
           key: ${{ runner.os }}-{{runner.arch}}-opencv-ippoff
+          restore-keys:
+            - ${{ runner.os }}-{{runner.arch}}-opencv-
+
       - name: Build OpenCV
         run: mkdir -p src-tauri/vendor/opencv/build && cd src-tauri/vendor/opencv/build && cmake -DBUILD_SHARED_LIBS=off -DWITH_IPP=OFF -DBUILD_LIST=core,dnn,imgcodecs -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=RELEASE -DWITH_OPENEXR=off -DWITH_TIFF=off -DWITH_WEBP=off -DWITH_OPENJPEG=off -DWITH_JASPER=off -DBUILD_PNG=on -DBUILD_JPEG=on -DBUILD_ZLIB=on -DBUILD_OPENJPEG=on .. && cmake --build . -j 8 && make install
         if: steps.cache-opencv.outputs.cache-hit != 'true'
@@ -65,6 +68,9 @@ jobs:
             ~/.cargo/git
             src-tauri/target
           key: ${{ runner.os }}-{{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys:
+            - ${{ runner.os }}-{{runner.arch}}-cargo-
+
       - name: Build App
         run: npm install && npm run tauri build -- --features builtin
 
