@@ -13,7 +13,7 @@
     "react-scripts": "5.0.1",
     "react-spinners": "^0.13.6",
     "styled-components": "^5.3.5",
-    "web-vitals": "^3.0.2"
+    "web-vitals": "^3.0.4"
   },
   "scripts": {
     "start": "BROWSER=none react-scripts start",
