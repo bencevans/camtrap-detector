@@ -155,6 +155,7 @@ async fn process(
     recursive: bool,
     window: Window,
     state: tauri::State<'_, AppState>,
+    handle: tauri::AppHandle,
 ) -> Result<(), ()> {
     let files = yolov5cv::helpers::enumerate_images(PathBuf::from(&path), recursive);
     let files_n = files.len();
@@ -174,7 +175,14 @@ async fn process(
         )
         .unwrap();
 
-    let mut model = load_model();
+    let mut model = load_model(
+        handle
+            .path_resolver()
+            .resolve_resource("../md_v5a.0.0.onnx")
+            .unwrap()
+            .to_str().unwrap(),
+    );
+
     let mut results: Vec<CamTrapImageDetections> = vec![];
 
     for (i, file) in files.iter().enumerate() {

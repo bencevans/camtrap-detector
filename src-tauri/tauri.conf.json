@@ -37,7 +37,9 @@
         "providerShortName": null,
         "signingIdentity": null
       },
-      "resources": [],
+      "resources": [
+        "../md_v5a.0.0.onnx"
+      ],
       "shortDescription": "",
       "targets": "all",
       "windows": {
