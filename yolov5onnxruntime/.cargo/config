@@ -1,2 +1,0 @@
-[target.aarch64-apple-darwin]
-rustflags = ["-C", "link-args=-Wl,-rpath,/Users/ben/Projects/onnxruntime-sys/onnxruntime-osx-arm64-1.12.1/lib"]

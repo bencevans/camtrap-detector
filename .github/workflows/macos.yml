@@ -19,11 +19,11 @@ jobs:
     environment: Signing
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
       - name: install Rust stable
@@ -62,7 +62,7 @@ jobs:
             src-tauri/target
           key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-{{runner.arch}}-cargo-
+            ${{ runner.os }}-${{runner.arch}}-cargo-
 
       - name: Build App
         run: npm install && npm run tauri build -- --features builtin
