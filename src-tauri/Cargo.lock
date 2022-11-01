@@ -67,7 +67,6 @@ dependencies = [
  "eta",
  "image",
  "imageproc",
- "opencv 0.71.0",
  "pathdiff",
  "serde",
  "serde_json",
@@ -1838,12 +1837,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "minisign-verify"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "933dca44d65cdd53b355d0b73d380a2ff5da71f87f036053188bf1eab6a19881"
-
-[[package]]
 name = "miniz_oxide"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2136,27 +2129,7 @@ dependencies = [
  "libc",
  "num-traits",
  "once_cell",
- "opencv-binding-generator 0.45.0",
- "pkg-config",
- "semver 1.0.13",
- "shlex",
- "vcpkg",
-]
-
-[[package]]
-name = "opencv"
-version = "0.71.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71544bbb94c3160d8596b0856ec8a276986cda507b764f0f8002fe4fe4160a20"
-dependencies = [
- "cc",
- "clang",
- "dunce",
- "jobserver",
- "libc",
- "num-traits",
- "once_cell",
- "opencv-binding-generator 0.49.0",
+ "opencv-binding-generator",
  "pkg-config",
  "semver 1.0.13",
  "shlex",
@@ -2168,21 +2141,6 @@ name = "opencv-binding-generator"
 version = "0.45.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1070da825ea3584b7ef0a2951fc002843f986ec430681b2273d9d425da2ffd61"
-dependencies = [
- "clang",
- "clang-sys",
- "dunce",
- "maplit",
- "once_cell",
- "percent-encoding",
- "regex",
-]
-
-[[package]]
-name = "opencv-binding-generator"
-version = "0.49.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3001716b89afc895445a6b17f833e89fc014a96179583aba26fb0561a7b33f60"
 dependencies = [
  "clang",
  "clang-sys",
@@ -3375,7 +3333,6 @@ checksum = "c0aa6a88d71e2be58d0ef063eaa51af33f71b45a7e948afef21ef0152509ba47"
 dependencies = [
  "anyhow",
  "attohttpc",
- "base64",
  "cocoa",
  "dirs-next",
  "embed_plist",
@@ -3388,7 +3345,6 @@ dependencies = [
  "heck 0.4.0",
  "http",
  "ignore",
- "minisign-verify",
  "notify-rust",
  "objc",
  "once_cell",
@@ -3414,14 +3370,12 @@ dependencies = [
  "tauri-utils",
  "tempfile",
  "thiserror",
- "time",
  "tokio",
  "url",
  "uuid 1.1.2",
  "webkit2gtk",
  "webview2-com",
  "windows 0.37.0",
- "zip",
 ]
 
 [[package]]
@@ -4452,19 +4406,8 @@ dependencies = [
  "image",
  "imageproc",
  "indicatif",
- "opencv 0.66.0",
+ "opencv",
  "serde",
  "serde_json",
  "shellexpand",
-]
-
-[[package]]
-name = "zip"
-version = "0.6.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf225bcf73bb52cbb496e70475c7bd7a3f769df699c0020f6c7bd9a96dcf0b8d"
-dependencies = [
- "byteorder",
- "crc32fast",
- "crossbeam-utils",
 ]
