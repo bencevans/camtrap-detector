@@ -24,7 +24,9 @@ jobs:
           toolchain: stable
       
       - name: Install OpenCV
-        run: choco install -y opencv
+        run: |
+          choco install -y llvm --version 15.0.1
+          choco install -y opencv --version 4.6.0
 
       - name: Install app dependencies and build web
         run: npm install && npm run build
