@@ -1,19 +1,19 @@
 use std::path::{ PathBuf, Path};
 
-use image::Rgb;
+use image::{Rgb, ImageFormat};
 use imageproc::drawing::draw_hollow_rect_mut;
 use imageproc::rect::Rect;
 
 use crate::detections::YoloImageDetections;
 
-
-const IMAGE_EXTENTIONS: [&str; 3] = ["jpg", "jpeg", "png"];
-
 pub fn is_image_path(path: &Path) -> bool {
-    match path.extension() {
-        None => false,
-        Some(a) => IMAGE_EXTENTIONS.contains(&a.to_str().unwrap().to_lowercase().as_str()),
-    }
+    let format = if let Ok(format) = ImageFormat::from_path(path) {
+        format
+    } else {
+        return false;
+    };
+
+    format.can_read()
 }
 
 pub fn enumerate_images(root_dir: PathBuf, recursive: bool) -> Vec<PathBuf> {
