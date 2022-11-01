@@ -31,15 +31,8 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Cache Model
-        id: cache-model
-        uses: actions/cache@v3
-        with:
-          path: md_v5a.0.0.onnx
-          key: model
       - name: Download Model
         run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
-        if: steps.cache-model.outputs.cache-hit != 'true'
 
       - name: Cache OpenCV
         id: cache-opencv
