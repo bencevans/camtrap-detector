@@ -65,6 +65,9 @@ jobs:
         with:
           name: CamTrap Detector MacOS Intel.dmg
           path: src-tauri/target/release/bundle/dmg/*.dmg
+          
+      - name: Remove Bundles to Reduce Cache
+        run: rm -rf src-tauri/target/release/bundle/
 
       # - uses: tauri-apps/tauri-action@v0
       #   env:
