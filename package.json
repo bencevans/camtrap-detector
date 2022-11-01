@@ -12,7 +12,7 @@
     "react-dropzone": "^14.2.3",
     "react-scripts": "5.0.1",
     "react-spinners": "^0.13.6",
-    "styled-components": "^5.3.5",
+    "styled-components": "^5.3.6",
     "web-vitals": "^3.0.4"
   },
   "scripts": {
