@@ -32,7 +32,7 @@ jobs:
           toolchain: stable
 
       - name: Download Model
-        run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
+        run: wget -O md_v5a.0.0.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.1.0/md_v5a.0.0-640x640.onnx
 
       - name: Cache OpenCV
         id: cache-opencv
