@@ -15,18 +15,17 @@ rust-version = "1.57"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.0.4", features = [] }
+tauri-build = { version = "1.1.1", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.0.5", features = ["api-all", "updater"] }
-opencv = { version = "0.71.0", default-features = false, features = ["dnn", "imgcodecs"] }
+tauri = { version = "1.1.1", features = ["api-all"] }
 pathdiff = "0.2.1"
 csv = "1.1.6"
 yolov5cv = { path = "../yolov5cv" }
 eta = "0.2.2"
-image = { version = "0.24.3", features = ["rgb"] }
+image = { version = "0.24.4", features = ["rgb"] }
 imageproc = "0.23.0"
 
 [features]

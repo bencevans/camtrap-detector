@@ -31,15 +31,8 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Cache Model
-        id: cache-model
-        uses: actions/cache@v3
-        with:
-          path: md_v5a.0.0.onnx
-          key: model
       - name: Download Model
-        run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
-        if: steps.cache-model.outputs.cache-hit != 'true'
+        run: wget -O md_v5a.0.0.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.1.0/md_v5a.0.0-640x640.onnx
 
       - name: Cache OpenCV
         id: cache-opencv
@@ -72,6 +65,9 @@ jobs:
         with:
           name: CamTrap Detector MacOS Intel.dmg
           path: src-tauri/target/release/bundle/dmg/*.dmg
+          
+      - name: Remove Bundles to Reduce Cache
+        run: rm -rf src-tauri/target/release/bundle/
 
       # - uses: tauri-apps/tauri-action@v0
       #   env:
