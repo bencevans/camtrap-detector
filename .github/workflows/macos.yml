@@ -26,6 +26,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+
       - name: Install Rust stable
         uses: actions-rs/toolchain@v1
         with:
@@ -35,19 +36,9 @@ jobs:
         uses: lukka/run-vcpkg@v10
         with:
           vcpkgGitCommitId: 49931943abe2a22dd9d91be2c4928ead56349b14
-          
 
       - name: Download Model
         run: wget -O md_v5a.0.0.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.1.0/md_v5a.0.0-640x640.onnx
-
-      - name: Cache OpenCV
-        id: cache-opencv
-        uses: actions/cache@v3
-        with:
-          path: src-tauri/vendor/opencv/build
-          key: ${{ runner.os }}-${{runner.arch}}-opencv-ippoff
-          restore-keys: |
-            ${{ runner.os }}-${{runner.arch}}-
 
       - name: Build OpenCV 4
         run: vcpkg install opencv4[dnn] --triplet x64-osx-release
