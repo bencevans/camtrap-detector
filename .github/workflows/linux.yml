@@ -49,7 +49,7 @@ jobs:
         run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
         if: steps.cache-model.outputs.cache-hit != 'true'
 
-       - name: Build OpenCV 4
+      - name: Build OpenCV 4
         run: vcpkg install "opencv4[dnn]" --triplet "${{ matrix.config.triplet }}" --vcpkg-root "${{ env.VCPKG_ROOT }}"
 
       - name: Run Rust App
