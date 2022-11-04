@@ -50,7 +50,7 @@ jobs:
         if: steps.cache-model.outputs.cache-hit != 'true'
 
       - name: Build OpenCV 4
-        run: vcpkg install "opencv4[dnn]" --triplet "${{ matrix.config.triplet }}" --vcpkg-root "${{ env.VCPKG_ROOT }}"
+        run: vcpkg install "opencv4[dnn]" --vcpkg-root "${{ env.VCPKG_ROOT }}"
 
       - name: Run Rust App
         run: OPENCV_DISABLE_PROBES=pkg_config,cmake cargo run
