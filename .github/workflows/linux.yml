@@ -29,37 +29,31 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: setup node
+
+      - name: Setup node
         uses: actions/setup-node@v2
         with:
           node-version: 16
-      - name: install Rust stable
+
+      - name: Install Rust stable
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - name: Cache Model
-        id: cache-model
-        uses: actions/cache@v3
+      - name: Restore artifacts, or setup vcpkg (do not install any package)
+        uses: lukka/run-vcpkg@v10
         with:
-          path: md_v5a.0.0.onnx
-          key: model
+          vcpkgGitCommitId: 49931943abe2a22dd9d91be2c4928ead56349b14
+
       - name: Download Model
         run: wget -q https://static.bencevans.io/md_v5a.0.0.onnx
         if: steps.cache-model.outputs.cache-hit != 'true'
 
-      - name: Cache OpenCV
-        id: cache-opencv
-        uses: actions/cache@v3
-        with:
-          path: src-tauri/vendor/opencv/build
-          key: ${{ runner.os }}-{{runner.arch}}-opencv-ippoff
-          restore-keys: |
-            ${{ runner.os }}-{{runner.arch}}-opencv-
+       - name: Build OpenCV 4
+        run: vcpkg install "opencv4[dnn]" --triplet "${{ matrix.config.triplet }}" --vcpkg-root "${{ env.VCPKG_ROOT }}"
 
-      - name: Build OpenCV
-        run: mkdir -p src-tauri/vendor/opencv/build && cd src-tauri/vendor/opencv/build && cmake -DBUILD_SHARED_LIBS=off -DWITH_IPP=OFF -DBUILD_LIST=core,dnn,imgcodecs -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=RELEASE -DWITH_OPENEXR=off -DWITH_TIFF=off -DWITH_WEBP=off -DWITH_OPENJPEG=off -DWITH_JASPER=off -DBUILD_PNG=on -DBUILD_JPEG=on -DBUILD_ZLIB=on -DBUILD_OPENJPEG=on .. && cmake --build . -j 8 && make install
-        if: steps.cache-opencv.outputs.cache-hit != 'true'
+      - name: Run Rust App
+        run: OPENCV_DISABLE_PROBES=pkg_config,cmake cargo run
 
       - uses: actions/cache@v2
         with:
