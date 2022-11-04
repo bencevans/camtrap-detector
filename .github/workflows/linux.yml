@@ -63,7 +63,7 @@ jobs:
             ${{ runner.os }}-{{runner.arch}}-cargo-
 
       - name: Build App
-        run: npm install && npm run tauri build -- --features builtin
+        run: npm install && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build -- --features builtin
 
       # - uses: actions/upload-artifact@v3
       #   if: ${{ env.ACTIONS_RUNNER_DEBUG }}
