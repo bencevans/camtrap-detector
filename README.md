@@ -9,3 +9,7 @@
 ## Installation
 
 Coming Soon.
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
