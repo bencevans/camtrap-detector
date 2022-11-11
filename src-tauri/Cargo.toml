@@ -25,7 +25,7 @@ pathdiff = "0.2.1"
 csv = "1.1.6"
 yolov5cv = { path = "../yolov5cv" }
 eta = "0.2.2"
-image = { version = "0.24.4", features = ["rgb"] }
+image = { version = "0.24.5", features = ["rgb"] }
 imageproc = "0.23.0"
 
 [features]
