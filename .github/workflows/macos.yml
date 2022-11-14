@@ -44,7 +44,7 @@ jobs:
         run: "${{env.VCPKG_ROOT}}/vcpkg install opencv4[dnn]"
 
       - name: Cache Rust / Cargo
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/registry
