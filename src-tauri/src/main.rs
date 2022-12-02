@@ -157,7 +157,7 @@ async fn process(
     state: tauri::State<'_, AppState>,
     handle: tauri::AppHandle,
 ) -> Result<(), ()> {
-    let files = yolov5cv::helpers::enumerate_images(PathBuf::from(&path), recursive);
+    let files = opencv_yolov5::helpers::enumerate_images(PathBuf::from(&path), recursive);
     let files_n = files.len();
 
     let mut eta = Eta::new(files_n, TimeAcc::SEC);

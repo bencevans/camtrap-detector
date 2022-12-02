@@ -61,12 +61,12 @@ dependencies = [
  "eta",
  "image",
  "imageproc",
+ "opencv-yolov5",
  "pathdiff",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
- "yolov5cv",
 ]
 
 [[package]]
@@ -2065,6 +2065,21 @@ dependencies = [
  "once_cell",
  "percent-encoding",
  "regex",
+]
+
+[[package]]
+name = "opencv-yolov5"
+version = "0.1.0"
+source = "git+https://github.com/bencevans/rust-opencv-yolov5#ffe0ada78d8dca462a565b6b46699bed18d5ad95"
+dependencies = [
+ "clap",
+ "image",
+ "imageproc",
+ "indicatif",
+ "opencv",
+ "serde",
+ "serde_json",
+ "shellexpand",
 ]
 
 [[package]]
@@ -4297,17 +4312,3 @@ name = "xml-rs"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
-
-[[package]]
-name = "yolov5cv"
-version = "0.1.0"
-dependencies = [
- "clap",
- "image",
- "imageproc",
- "indicatif",
- "opencv",
- "serde",
- "serde_json",
- "shellexpand",
-]

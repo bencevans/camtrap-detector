@@ -4,8 +4,8 @@ pub mod exports;
 
 #[cfg(test)]
 mod tests {
-    use yolov5cv::helpers::render_detections;
-    use yolov5cv::YoloModel;
+    use opencv_yolov5::helpers::render_detections;
+    use opencv_yolov5::YoloModel;
 
     #[test]
     fn create_model() {
