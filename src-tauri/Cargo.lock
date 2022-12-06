@@ -2070,7 +2070,7 @@ dependencies = [
 [[package]]
 name = "opencv-yolov5"
 version = "0.1.0"
-source = "git+https://github.com/bencevans/rust-opencv-yolov5#672601b7578319c5906dc5273a5a65f0aeb1c0a2"
+source = "git+https://github.com/bencevans/rust-opencv-yolov5#7a741e54b3c976ef90336378e85304d80525b0c2"
 dependencies = [
  "clap",
  "image",
