@@ -5,9 +5,6 @@ on:
     branches:
       - main
 
-env:
-  VCPKG_BINARY_SOURCES: clear
-
 jobs:
   build-app:
     defaults:
@@ -52,10 +49,17 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Restore artifacts, or setup vcpkg (do not install any package)
-        uses: lukka/run-vcpkg@v10
+      - name: Set VCPKG_ROOT
+        run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+
+      - name: Cache vcpkg
+        uses: actions/cache@v3
         with:
-          vcpkgGitCommitId: 49931943abe2a22dd9d91be2c4928ead56349b14
+          path: |
+            ${{ env.VCPKG_ROOT }}/installed
+            ${{ env.VCPKG_ROOT }}/packages
+          key: ${{ matrix.os.image }}-vcpkg-opencv4[dnn]-${{ matrix.os.triplet }}
+
 
       - name: Download Model
         run: wget -O md_v5a.0.0.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.1.0/md_v5a.0.0-640x640.onnx
