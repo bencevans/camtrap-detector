@@ -14,7 +14,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, windows-latest, ubuntu-latest]
+        include:
+          - platform: macos-latest
+            triplet: x64-osx
+          - platform: windows-latest
+            triplet: x64-windows-static-md
+          - platform: ubuntu-latest
+            triplet: x64-linux
 
     runs-on: ${{ matrix.platform }}
 
@@ -52,7 +58,7 @@ jobs:
         run: wget -O md_v5a.0.0.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.1.0/md_v5a.0.0-640x640.onnx
 
       - name: Build OpenCV 4
-        run: "'${{env.VCPKG_ROOT}}/vcpkg' install opencv4[dnn]"
+        run: "'${{env.VCPKG_ROOT}}/vcpkg' install opencv4[dnn]:${{ matrix.triplet }}"
 
       - name: Cache Rust / Cargo
         uses: actions/cache@v3
