@@ -6,17 +6,13 @@ on:
       - main
 
 jobs:
-  publish-tauri:
+  build-app:
     strategy:
       fail-fast: false
       matrix:
         platform: [macos-latest]
-        arch: [Intel]
-
-    runs-on: [self-hosted, macOS, X64]
-#     runs-on: ${{ matrix.platform }}
-    
-    environment: Signing
+        
+    runs-on: ${{ matrix.platform }}
 
     steps:
       - uses: actions/checkout@v3
