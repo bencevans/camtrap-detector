@@ -4,7 +4,6 @@ fn main() {
     let manifest_dir = var("CARGO_MANIFEST_DIR").unwrap();
 
     println!("cargo:rustc-link-search={}/vendor/opencv/build/3rdparty/lib", manifest_dir);
-    println!("cargo:rustc-link-lib=ittnotify");
     println!("cargo:rustc-link-lib=libjpeg-turbo");
     println!("cargo:rustc-link-lib=libpng");
     println!("cargo:rustc-link-lib=libprotobuf");
