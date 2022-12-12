@@ -1,4 +1,4 @@
-name: "Build MacOS"
+name: "Build App"
 on:
   pull_request:
   push:
@@ -6,19 +6,36 @@ on:
       - main
 
 jobs:
-  publish-tauri:
+  build-app:
+    defaults:
+      run:
+        shell: bash -el {0}
+
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest]
-        arch: [Intel]
+        include:
+          - platform: macos-latest
+            triplet: x64-osx
+          - platform: windows-latest
+            triplet: x64-windows-static-md
+          - platform: ubuntu-latest
+            triplet: x64-linux
 
-    runs-on: [self-hosted, macOS, X64]
-#     runs-on: ${{ matrix.platform }}
-    
-    environment: Signing
+    runs-on: ${{ matrix.platform }}
 
     steps:
+      - name: Install Linux System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libdbus-1-3 libdbus-1-dev libxi-dev libxtst-dev libgles2-mesa-dev libgtk-3-dev \
+                                  libwebkit2gtk-4.0-dev librsvg2-dev
+        if: runner.os == 'Linux'
+
+      - name: Install Windows System Dependencies
+        run: choco install -y wget
+        if: runner.os == 'Windows'
+
       - uses: actions/checkout@v3
         with:
           submodules: true
@@ -31,17 +48,24 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          
-      - name: Restore artifacts, or setup vcpkg (do not install any package)
-        uses: lukka/run-vcpkg@v10
+
+      - name: Set VCPKG_ROOT
+        run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+
+      - name: Cache vcpkg
+        uses: actions/cache@v3
         with:
-          vcpkgGitCommitId: 49931943abe2a22dd9d91be2c4928ead56349b14
+          path: |
+            ${{ env.VCPKG_ROOT }}/installed
+            ${{ env.VCPKG_ROOT }}/packages
+          key: ${{ matrix.os.image }}-vcpkg-opencv4[dnn]-${{ matrix.os.triplet }}
+
 
       - name: Download Model
         run: wget -O md_v5a.0.0.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.1.0/md_v5a.0.0-640x640.onnx
 
       - name: Build OpenCV 4
-        run: "${{env.VCPKG_ROOT}}/vcpkg install opencv4[dnn]"
+        run: "'${{env.VCPKG_ROOT}}/vcpkg' install opencv4[dnn]:${{ matrix.triplet }}"
 
       - name: Cache Rust / Cargo
         uses: actions/cache@v3
@@ -53,7 +77,7 @@ jobs:
           key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{runner.arch}}-cargo-
-            
+
       - name: Build App
         run: npm install && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build -- --features builtin
 
@@ -62,7 +86,7 @@ jobs:
         with:
           name: CamTrap Detector MacOS Intel.dmg
           path: src-tauri/target/release/bundle/dmg/*.dmg
-          
+
       - name: Remove Bundles to Reduce Cache
         run: rm -rf src-tauri/target/release/bundle/
 
@@ -83,4 +107,3 @@ jobs:
       #     releaseBody: 'See the assets to download this version and install.'
       #     releaseDraft: true
       #     prerelease: false
-
