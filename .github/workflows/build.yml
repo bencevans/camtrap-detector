@@ -1,4 +1,4 @@
-name: "Build MacOS"
+name: "Build App"
 on:
   pull_request:
   push:
