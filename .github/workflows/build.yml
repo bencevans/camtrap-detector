@@ -58,7 +58,7 @@ jobs:
           path: |
             ${{ env.VCPKG_ROOT }}/installed
             ${{ env.VCPKG_ROOT }}/packages
-          key: ${{ matrix.os.image }}-vcpkg-opencv4[dnn]-${{ matrix.os.triplet }}
+          key: ${{ matrix.platform }}-vcpkg-opencv4[dnn]-${{ matrix.triplet }}
 
 
       - name: Download Model
