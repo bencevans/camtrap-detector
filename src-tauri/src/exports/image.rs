@@ -121,7 +121,7 @@ pub fn export_image(
                 );
 
                 let color = match detection.class_index {
-                    0 => image::Rgba([0, 255, 0, 255]),
+                    0 => image::Rgba([255, 255, 255, 255]),
                     1 => image::Rgba([255, 0, 0, 255]),
                     2 => image::Rgba([0, 0, 255, 255]),
                     _ => image::Rgba([0, 0, 0, 255]),
