@@ -10,7 +10,7 @@ use app::{
 use eta::{Eta, TimeAcc};
 
 use std::{path::PathBuf, sync::Mutex};
-use tauri::{api::dialog, Window};
+use tauri::{api::dialog, Manager, Window};
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -180,7 +180,8 @@ async fn process(
             .path_resolver()
             .resolve_resource("../md_v5a.0.0.onnx")
             .unwrap()
-            .to_str().unwrap(),
+            .to_str()
+            .unwrap(),
     );
 
     let mut results: Vec<CamTrapImageDetections> = vec![];
@@ -235,6 +236,11 @@ async fn process(
     Ok(())
 }
 
+#[tauri::command]
+async fn showup(window: Window) {
+    window.get_window("main").unwrap().show().unwrap(); // replace "main" by the name of your window
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(AppState(Default::default()))
@@ -242,7 +248,8 @@ fn main() {
             is_dir,
             process,
             export,
-            export_image_set
+            export_image_set,
+            showup
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

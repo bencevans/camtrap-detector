@@ -65,7 +65,8 @@
         "height": 300,
         "resizable": false,
         "title": "CamTrap Detector",
-        "width": 500
+        "width": 500,
+        "visible": false
       }
     ]
   }
