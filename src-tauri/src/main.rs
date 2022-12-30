@@ -7,10 +7,9 @@ use app::{
     megadetector::load_model,
     structures::{self, CamTrapImageDetections},
 };
-use eta::{Eta, TimeAcc};
-
 use std::{path::PathBuf, sync::Mutex};
 use tauri::{api::dialog, Manager, Window};
+use chug::Chug;
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -25,7 +24,7 @@ struct Progress {
     percent: f64,
     path: String,
     message: String,
-    eta: usize,
+    eta: Option<usize>,
 }
 
 pub struct AppState(Mutex<App>);
@@ -161,8 +160,6 @@ async fn process(
     let files = opencv_yolov5::helpers::enumerate_images(PathBuf::from(&path), recursive);
     let files_n = files.len();
 
-    let mut eta = Eta::new(files_n, TimeAcc::SEC);
-
     window
         .emit(
             "progress",
@@ -172,7 +169,7 @@ async fn process(
                 percent: 0.0,
                 message: String::from("Loading MegaDetector model..."),
                 path: String::from(""),
-                eta: eta.time_remaining(),
+                eta: None,
             },
         )
         .unwrap();
@@ -186,6 +183,7 @@ async fn process(
             .unwrap(),
     );
 
+    let mut eta = Chug::new(100, files_n);
     let mut results: Vec<CamTrapImageDetections> = vec![];
 
     for (i, file) in files.iter().enumerate() {
@@ -195,16 +193,17 @@ async fn process(
                 Progress {
                     current: i,
                     total: files_n,
-                    percent: eta.progress() * 100.0,
-                    eta: eta.time_remaining(),
+                    percent: (i as f64 / files_n as f64) * 100.0,
+                    eta: eta.eta().map(|eta| eta.as_secs() as usize),
                     path: file.to_str().unwrap().to_string(),
                     message: String::from("Processing "),
                 },
             )
             .unwrap();
-        eta.step();
+        eta.tick();
 
         let result = model.detect(file.to_str().unwrap(), 0.1, 0.1);
+
         let result_handled = match result {
             Ok(result) => result.into(),
             Err(err) => CamTrapImageDetections {
@@ -231,7 +230,7 @@ async fn process(
                 percent: 100.0,
                 message: String::from("Processing Complete"),
                 path: String::from(""),
-                eta: 0,
+                eta: None,
             },
         )
         .unwrap();

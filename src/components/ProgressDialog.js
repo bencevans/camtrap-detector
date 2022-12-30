@@ -56,7 +56,7 @@ export default function ProgressDialog({ processingStatus }) {
           marginTop: 20,
         }}
       >
-        <div>ETA {friendlyEta(processingStatus.eta)}</div>
+        <div>{processingStatus.eta !== null && `ETA ${friendlyEta(processingStatus.eta)}`}</div>
         <div>
           {processingStatus.current} / {processingStatus.total} Images
         </div>

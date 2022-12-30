@@ -57,8 +57,8 @@ checksum = "c794e162a5eff65c72ef524dfe393eb923c354e350bb78b9c7383df13f3bc142"
 name = "app"
 version = "0.1.0"
 dependencies = [
+ "chug",
  "csv",
- "eta",
  "image",
  "imageproc",
  "opencv-yolov5",
@@ -308,6 +308,12 @@ name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
+name = "chug"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "06f79c0677579a48ff03217e8fb586a66b3adb88aa410d571384687147c97f9f"
 
 [[package]]
 name = "clang"
@@ -791,12 +797,6 @@ checksum = "9852635589dc9f9ea1b6fe9f05b50ef208c85c834a562f0c6abb1c475736ec2b"
 dependencies = [
  "cfg-if",
 ]
-
-[[package]]
-name = "eta"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1c85a216bf5d8aa93731c899611308e25b2dd54309dde76f5f98535364ce619"
 
 [[package]]
 name = "exr"

@@ -24,10 +24,10 @@ tauri = { version = "1.2.3", features = ["api-all"] }
 pathdiff = "0.2.1"
 csv = "1.1.6"
 opencv-yolov5 = { git = "https://github.com/bencevans/rust-opencv-yolov5", rev = "918ac4e2289d484de919b1f3909eb0503a5d3acd" }
-eta = "0.2.2"
 image = { version = "0.24.5", features = ["rgb"] }
 imageproc = "0.23.0"
 rayon = "1.6.1"
+chug = "1.0.0"
 
 [features]
 # by default Tauri runs in production mode
