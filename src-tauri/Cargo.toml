@@ -27,6 +27,7 @@ opencv-yolov5 = { git = "https://github.com/bencevans/rust-opencv-yolov5", rev =
 eta = "0.2.2"
 image = { version = "0.24.5", features = ["rgb"] }
 imageproc = "0.23.0"
+rayon = "1.6.1"
 
 [features]
 # by default Tauri runs in production mode
