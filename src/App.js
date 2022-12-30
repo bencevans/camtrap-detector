@@ -5,11 +5,16 @@ import FolderSelectDialog from "./components/FolderSelectDialog";
 import ProgressDialog from "./components/ProgressDialog";
 import ExportDialog from "./components/ExportDialog";
 import { process } from "./api";
+import { invoke } from "@tauri-apps/api";
 
 function App() {
   const [path, setPath] = useState(null);
   const [includeSubfolders, setIncludeSubfolders] = useState(null);
   const [processingStatus, setProcessingStatus] = useState(null);
+
+  useEffect(() => {
+    invoke("showup");
+  }, []);
 
   useEffect(() => {
     listen("progress", (event) => {
