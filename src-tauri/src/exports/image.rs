@@ -1,4 +1,5 @@
 use image;
+use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -96,21 +97,21 @@ pub fn export_image(
     filter_criteria: FilterCriteria,
     draw_criteria: DrawCriteria,
 ) -> Result<(), ()> {
-    for image in results {
-        if !match_criteria(&image, &filter_criteria) {
-            continue;
+    results.par_iter().for_each(|image| {
+        if !match_criteria(image, &filter_criteria) {
+            return;
         }
 
         let img_result = image::open(&image.file);
 
         if img_result.is_err() {
-            continue;
+            return;
         }
 
         let mut img = img_result.unwrap();
 
-        for detection in image.detections {
-            if should_draw(&detection, &draw_criteria) {
+        for detection in &image.detections {
+            if should_draw(detection, &draw_criteria) {
                 let rect = imageproc::rect::Rect::at(
                     (detection.x * img.width() as f32) as i32,
                     (detection.y * img.height() as f32) as i32,
@@ -139,16 +140,14 @@ pub fn export_image(
         let out_image_dir = out_image_path.parent().unwrap();
 
         // Create directory / parents if they don't exist
-        std::fs::create_dir_all(&out_image_dir).unwrap();
+        std::fs::create_dir_all(out_image_dir).unwrap();
 
         let save_result = img.save(out_image_path);
 
         if save_result.is_err() {
-            continue;
+            // TODO: Log error
         }
-
-        // Read image
-    }
+    });
 
     Ok(())
 }
