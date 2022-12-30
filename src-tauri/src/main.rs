@@ -40,6 +40,7 @@ fn export_csv(
     output_path: PathBuf,
 ) -> Result<(), String> {
     let mut writer = csv::Writer::from_path(output_path).unwrap();
+
     for result in results {
         if let Some(error) = result.error {
             writer
@@ -128,9 +129,29 @@ async fn export(
     state: tauri::State<'_, AppState>,
     window: Window,
 ) -> Result<(), String> {
+    let base_dir = state.0.lock().unwrap().base_dir.clone();
+
+    // Gather the results and convert the paths to relative paths
+    let results = state
+        .0
+        .lock()
+        .unwrap()
+        .results
+        .iter()
+        .map(|r| {
+            let mut copied = r.clone();
+            copied.file = pathdiff::diff_paths(&r.file, &base_dir)
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string();
+            copied
+        })
+        .collect();
+
     let r = match format.as_str() {
-        "csv" => export_csv(state.0.lock().unwrap().results.clone(), output_path),
-        "json" => export_json(state.0.lock().unwrap().results.clone(), output_path),
+        "csv" => export_csv(results, output_path),
+        "json" => export_json(results, output_path),
         _ => Err("Unknown export format".to_string()),
     };
 
