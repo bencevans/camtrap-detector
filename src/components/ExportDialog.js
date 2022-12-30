@@ -59,9 +59,9 @@ const formatTypes = [
   },
 ];
 
-export default function ExportDialog() {
+export default function ExportDialog({ onReset }) {
   useEffect(() => {
-    appWindow.setSize(new LogicalSize(600, 600));
+    appWindow.setSize(new LogicalSize(600, 650));
   });
 
   const [imageExportAnimalFilter, setImageExportAnimalFilter] =
@@ -314,10 +314,11 @@ export default function ExportDialog() {
                         });
                       });
                   } else {
-                    let defaultFileName = format.id === "json" ? "ct.0.1.0.json" : "ct.0.1.0.csv";
+                    let defaultFileName =
+                      format.id === "json" ? "ct.0.1.0.json" : "ct.0.1.0.csv";
                     dialog
                       .save({
-                        defaultPath: defaultFileName
+                        defaultPath: defaultFileName,
                       })
                       .then((outputPath) => {
                         if (outputPath === null) {
@@ -346,6 +347,30 @@ export default function ExportDialog() {
           </div>
         </div>
       ))}
+
+      {/* New Run Button */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <button
+          style={{
+            padding: 10,
+            borderRadius: 5,
+            backgroundColor: "#000",
+            color: "#fff",
+            border: "none",
+          }}
+          onClick={() => {
+            onReset();
+          }}
+        >
+          New Run
+        </button>
+      </div>
     </div>
   );
 }

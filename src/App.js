@@ -28,6 +28,12 @@ function App() {
     }
   }, [path, includeSubfolders]);
 
+  const resetApp = () => {
+    setPath(null);
+    setIncludeSubfolders(null);
+    setProcessingStatus(null);
+  };
+
   return (
     <div
       className="App"
@@ -47,7 +53,7 @@ function App() {
           {processingStatus.percent < 100 ? (
             <ProgressDialog processingStatus={processingStatus} />
           ) : (
-            <ExportDialog />
+            <ExportDialog onReset={resetApp}/>
           )}
         </>
       )}

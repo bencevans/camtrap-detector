@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TauriDropzone from "./TauriDropZone";
-
-
+import { appWindow } from "@tauri-apps/api/window";
+import { LogicalSize } from "@tauri-apps/api/window";
 
 export default function FolderSelectDialog({ onDrop }) {
   const [includeSubfolders, setIncludeSubfolders] = useState(true);
+
+  useEffect(() => {
+    appWindow.setSize(new LogicalSize(500, 300));
+  });
 
   return (
     <>
