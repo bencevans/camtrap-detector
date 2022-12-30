@@ -36,6 +36,8 @@ default = [ "custom-protocol" ]
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
 
+cuda = []
+
 builtin = []
 
 
