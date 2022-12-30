@@ -23,6 +23,7 @@ struct Progress {
     current: usize,
     total: usize,
     percent: f64,
+    path: String,
     message: String,
     eta: usize,
 }
@@ -170,6 +171,7 @@ async fn process(
                 total: files_n,
                 percent: 0.0,
                 message: String::from("Loading MegaDetector model..."),
+                path: String::from(""),
                 eta: eta.time_remaining(),
             },
         )
@@ -195,8 +197,8 @@ async fn process(
                     total: files_n,
                     percent: eta.progress() * 100.0,
                     eta: eta.time_remaining(),
-                    message: String::from("Processing {:?}...")
-                        .replace("{:?}", file.to_str().unwrap()),
+                    path: file.to_str().unwrap().to_string(),
+                    message: String::from("Processing "),
                 },
             )
             .unwrap();
@@ -228,6 +230,7 @@ async fn process(
                 total: files_n,
                 percent: 100.0,
                 message: String::from("Processing Complete"),
+                path: String::from(""),
                 eta: 0,
             },
         )

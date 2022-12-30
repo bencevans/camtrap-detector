@@ -11,12 +11,26 @@ function friendlyEta(secondsRemaining) {
 
 export default function ProgressDialog({ processingStatus }) {
   useEffect(() => {
-    appWindow.setSize(new LogicalSize(500, 220));
+    appWindow.setSize(new LogicalSize(500, 200));
   });
 
   return (
     <div>
-      <p>{processingStatus.message}</p>
+      <div style={{
+        display: "flex",
+        flexDirection: "row",
+        width: "100%",
+        marginBottom: 20,
+      }}>
+        <div>{processingStatus.message}</div>
+        <div style={{
+          marginLeft: 5,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          // direction: "rtl",
+        }}>{processingStatus.path}</div>
+      </div>
 
       <div
         style={{
