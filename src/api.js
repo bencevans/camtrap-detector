@@ -1,8 +1,9 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
-export function process(path, recursive) {
+export function process(path, confidenceThreshold, recursive) {
   return invoke("process", {
     path,
+    confidenceThreshold,
     recursive,
   });
 }

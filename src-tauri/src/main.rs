@@ -7,9 +7,9 @@ use app::{
     megadetector::load_model,
     structures::{self, CamTrapImageDetections},
 };
+use chug::Chug;
 use std::{path::PathBuf, sync::Mutex};
 use tauri::{api::dialog, Manager, Window};
-use chug::Chug;
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -173,6 +173,7 @@ async fn export(
 #[tauri::command]
 async fn process(
     path: String,
+    confidence_threshold: f32,
     recursive: bool,
     window: Window,
     state: tauri::State<'_, AppState>,
@@ -180,6 +181,8 @@ async fn process(
 ) -> Result<(), ()> {
     let files = opencv_yolov5::helpers::enumerate_images(PathBuf::from(&path), recursive);
     let files_n = files.len();
+
+    println!("Running with Confidence Threshold {}", confidence_threshold);
 
     window
         .emit(
@@ -223,7 +226,7 @@ async fn process(
             .unwrap();
         eta.tick();
 
-        let result = model.detect(file.to_str().unwrap(), 0.1, 0.1);
+        let result = model.detect(file.to_str().unwrap(), confidence_threshold, 0.1);
 
         let result_handled = match result {
             Ok(result) => result.into(),

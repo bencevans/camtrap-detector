@@ -11,7 +11,9 @@ function App() {
   const [path, setPath] = useState(null);
   const [includeSubfolders, setIncludeSubfolders] = useState(null);
   const [processingStatus, setProcessingStatus] = useState(null);
+  const [confidenceThreshold, setConfidenceThreshold] = useState(0.1);
 
+  // This is a hack to get the app to show up after the webview is loaded
   useEffect(() => {
     invoke("showup");
   }, []);
@@ -24,9 +26,9 @@ function App() {
 
   useEffect(() => {
     if (path && includeSubfolders) {
-      process(path, includeSubfolders);
+      process(path, confidenceThreshold, includeSubfolders);
     }
-  }, [path, includeSubfolders]);
+  }, [path, confidenceThreshold, includeSubfolders]);
 
   const resetApp = () => {
     setPath(null);
@@ -43,9 +45,15 @@ function App() {
     >
       {processingStatus == null ? (
         <FolderSelectDialog
+          config={{
+            confidenceThreshold: confidenceThreshold,
+          }}
           onDrop={(dirPath, recursive) => {
             setPath(dirPath);
             setIncludeSubfolders(recursive);
+          }}
+          onConfig={(config) => {
+            setConfidenceThreshold(config.confidenceThreshold);
           }}
         />
       ) : (
@@ -53,7 +61,7 @@ function App() {
           {processingStatus.percent < 100 ? (
             <ProgressDialog processingStatus={processingStatus} />
           ) : (
-            <ExportDialog onReset={resetApp}/>
+            <ExportDialog onReset={resetApp} />
           )}
         </>
       )}
