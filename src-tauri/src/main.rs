@@ -226,7 +226,7 @@ async fn process(
             .unwrap();
         eta.tick();
 
-        let result = model.detect(file.to_str().unwrap(), confidence_threshold, 0.1);
+        let result = model.detect(file.to_str().unwrap(), confidence_threshold, 0.45);
 
         let result_handled = match result {
             Ok(result) => result.into(),
