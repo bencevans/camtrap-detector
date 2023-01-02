@@ -2,12 +2,13 @@ import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/api/dialog";
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
+import { FaCog } from "react-icons/fa";
 
 async function isDir(path) {
   return await invoke("is_dir", { path });
 }
 
-export default function TauriDropzone({ onDrop }) {
+export default function TauriDropzone({ onDrop, onConfig }) {
   const [isDragActive, setIsDragActive] = useState(false);
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function TauriDropzone({ onDrop }) {
         flexDirection: "column",
         justifyContent: "space-around",
         alignItems: "center",
+        position: "relative",
       }}
     >
       <div>
@@ -96,6 +98,25 @@ export default function TauriDropzone({ onDrop }) {
           Select Folder
         </button>
       </div>
+      {onConfig && (
+        <button
+          onClick={onConfig}
+          style={{
+            position: "absolute",
+            bottom: "10px",
+            right: "10px",
+            border: "none",
+            background: "none",
+            color: "white",
+            opacity: 0.5,
+            fontSize: "12px",
+            padding: "6px",
+            cursor: "pointer",
+          }}
+        >
+          <FaCog />
+        </button>
+      )}
     </div>
   );
 }
