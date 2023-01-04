@@ -86,9 +86,29 @@ jobs:
         with:
           name: CamTrap Detector MacOS Intel.dmg
           path: src-tauri/target/release/bundle/dmg/*.dmg
+      
+      - uses: actions/upload-artifact@v3
+        if: ${{ env.ACTIONS_RUNNER_DEBUG }}
+        with:
+          name: CamTrap Detector Windows.msi
+          path: src-tauri/target/release/bundle/msi/*.msi
+          
+      - uses: actions/upload-artifact@v3
+        if: ${{ env.ACTIONS_RUNNER_DEBUG }}
+        with:
+          name: CamTrap Detector Linux x64.deb
+          path: src-tauri/target/release/bundle/deb/*.deb
+          
+      - uses: actions/upload-artifact@v3
+        if: ${{ env.ACTIONS_RUNNER_DEBUG }}
+        with:
+          name: CamTrap Detector Linux x64.AppImage
+          path: src-tauri/target/release/bundle/appimage/*.AppImage
 
       - name: Remove Bundles to Reduce Cache
         run: rm -rf src-tauri/target/release/bundle/
+        
+        
 
       # - uses: tauri-apps/tauri-action@v0
       #   env:
