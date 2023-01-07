@@ -22,7 +22,16 @@
 
 ## Installation
 
-Coming Soon.
+Installers are available from the [releases](https://github.com/bencevans/camtrap-detector/releases) page on GitHub under assets of the most recent verion. To identify which file is suitable for your computer, please look for the file with the extention identified in the following table. Once the installer has been downloaded, no internet is required to install and run the application.
+
+| Platform      | CPU               | CUDA            |
+|---------------|-------------------|-----------------|
+| Windows       | x64_en-US.msi     | en-US-cu117.msi |
+| macOS (Intel) | x64.dmg           | n/a             |
+| macOS (M1/M2) | aarch64.dmg       | n/a             |
+| Linux         | .deb or .AppImage | n/a             |
+
+
 
 ## Screenshots
 
