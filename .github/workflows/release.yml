@@ -82,6 +82,8 @@ jobs:
 
       - name: Build App
         run: npm install && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build
+        env:
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
 
       - uses: actions/upload-artifact@v3
         if: ${{ env.ACTIONS_RUNNER_DEBUG }}
@@ -102,6 +104,7 @@ jobs:
           # APPLE_ID: ${{ secrets.APPLE_ID }}
           # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          OPENCV_DISABLE_PROBES: pkg_config,cmake
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
           releaseName: 'App v__VERSION__'
