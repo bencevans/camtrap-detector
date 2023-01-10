@@ -83,7 +83,7 @@ jobs:
       - name: Build App
         run: npm install && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build
         env:
-          TAURI_PRIVATE_KEY="${{ secrets.TAURI_PRIVATE_KEY }}"
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
 
       - uses: actions/upload-artifact@v3
         if: ${{ env.ACTIONS_RUNNER_DEBUG }}
