@@ -1,9 +1,12 @@
 name: "Release App"
 on:
   push:
+    branches:
+      - 'dev-notorize'
     tags:
       - 'v*'
   workflow_dispatch:
+  
 
 jobs:
   build-app:
