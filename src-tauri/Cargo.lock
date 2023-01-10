@@ -311,9 +311,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chug"
-version = "1.0.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06f79c0677579a48ff03217e8fb586a66b3adb88aa410d571384687147c97f9f"
+checksum = "ff32140113d6082bcc264b2b366ca736f75aad86c6691872e99a7ad54d6204e8"
 
 [[package]]
 name = "clang"
