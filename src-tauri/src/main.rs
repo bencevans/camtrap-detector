@@ -273,6 +273,20 @@ async fn showup(window: Window) {
 }
 
 fn main() {
+    let mut context = tauri::generate_context!();
+
+    let update_url = if cfg!(feature = "cuda") {
+        "https://releases.camtrap.net/detector/{{target}}/{{current_version}}"
+    } else {
+        "https://releases.camtrap.net/detector-cuda/{{target}}/{{current_version}}"
+    };
+
+    let updater = &mut context.config_mut().tauri.updater;
+    let urls = vec![tauri::utils::config::UpdaterEndpoint(
+        update_url.parse().unwrap(),
+    )];
+    updater.endpoints.replace(urls);
+
     tauri::Builder::default()
         .manage(AppState(Default::default()))
         .invoke_handler(tauri::generate_handler![
@@ -282,6 +296,6 @@ fn main() {
             export_image_set,
             showup
         ])
-        .run(tauri::generate_context!())
+        .run(context)
         .expect("error while running tauri application");
 }
