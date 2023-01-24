@@ -17,8 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: macos-latest
-            triplet: x64-osx
           - platform: windows-latest
             triplet: x64-windows-static-md
           - platform: ubuntu-latest
