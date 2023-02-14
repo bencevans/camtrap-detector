@@ -61,6 +61,7 @@ dependencies = [
  "csv",
  "image",
  "imageproc",
+ "img-parts",
  "opencv-yolov5",
  "pathdiff",
  "rayon",
@@ -1423,6 +1424,17 @@ dependencies = [
  "rand_distr",
  "rayon",
  "rusttype",
+]
+
+[[package]]
+name = "img-parts"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b19358258d99a5fc34466fed27a5318f92ae636c3e36165cf9b1e87b5b6701f0"
+dependencies = [
+ "bytes",
+ "crc32fast",
+ "miniz_oxide 0.5.3",
 ]
 
 [[package]]

@@ -1,6 +1,7 @@
 pub mod megadetector;
 pub mod structures;
 pub mod exports;
+pub mod util;
 
 #[cfg(test)]
 mod tests {
