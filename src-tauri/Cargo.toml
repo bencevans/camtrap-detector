@@ -28,6 +28,7 @@ image = { version = "0.24.5", features = ["rgb"] }
 imageproc = "0.23.0"
 rayon = "1.6.1"
 chug = "1.1.0"
+img-parts = "0.3.0"
 
 [features]
 # by default Tauri runs in production mode

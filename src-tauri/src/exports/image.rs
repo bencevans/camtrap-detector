@@ -1,9 +1,9 @@
-use image;
+use crate::structures::{CamTrapDetection, CamTrapImageDetections};
+use crate::util::magic_image::MagicImage;
+use image::Rgba;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-
-use crate::structures::{CamTrapDetection, CamTrapImageDetections};
 
 #[derive(Serialize, Deserialize)]
 pub enum IncludeCriteria {
@@ -102,7 +102,7 @@ pub fn export_image(
             return;
         }
 
-        let img_result = image::open(&image.file);
+        let img_result = MagicImage::open(&image.file);
 
         if img_result.is_err() {
             return;
@@ -112,23 +112,20 @@ pub fn export_image(
 
         for detection in &image.detections {
             if should_draw(detection, &draw_criteria) {
-                let rect = imageproc::rect::Rect::at(
-                    (detection.x * img.width() as f32) as i32,
-                    (detection.y * img.height() as f32) as i32,
-                )
-                .of_size(
-                    (detection.width * img.width() as f32) as u32,
-                    (detection.height * img.height() as f32) as u32,
-                );
-
                 let color = match detection.class_index {
-                    0 => image::Rgba([255, 255, 255, 255]),
-                    1 => image::Rgba([255, 0, 0, 255]),
-                    2 => image::Rgba([0, 0, 255, 255]),
-                    _ => image::Rgba([0, 0, 0, 255]),
+                    0 => Rgba([255, 255, 255, 255]),
+                    1 => Rgba([255, 0, 0, 255]),
+                    2 => Rgba([0, 0, 255, 255]),
+                    _ => Rgba([0, 0, 0, 255]),
                 };
 
-                imageproc::drawing::draw_hollow_rect_mut(&mut img, rect, color);
+                img.draw_bounding_box(
+                    (detection.x * img.width() as f32) as i32,
+                    (detection.y * img.height() as f32) as i32,
+                    (detection.width * img.width() as f32) as u32,
+                    (detection.height * img.height() as f32) as u32,
+                    color,
+                );
             }
         }
 
