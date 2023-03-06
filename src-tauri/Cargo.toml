@@ -26,7 +26,7 @@ csv = "1.2.0"
 opencv-yolov5 = { git = "https://github.com/bencevans/rust-opencv-yolov5", rev = "03695538d52864d93908ad32f8956479e538a5e9" }
 image = { version = "0.24.5", features = ["rgb"] }
 imageproc = "0.23.0"
-rayon = "1.6.1"
+rayon = "1.7.0"
 chug = "1.1.0"
 img-parts = "0.3.0"
 
