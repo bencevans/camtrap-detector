@@ -8,12 +8,12 @@ updates:
   - package-ecosystem: "cargo" # See documentation for possible values
     directory: "/src-tauri" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "monthly"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "monthly"
