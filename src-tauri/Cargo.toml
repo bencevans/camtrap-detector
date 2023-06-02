@@ -22,7 +22,7 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.3.0", features = ["api-all", "updater"] }
 pathdiff = "0.2.1"
-csv = "1.2.1"
+csv = "1.2.2"
 opencv-yolov5 = { git = "https://github.com/bencevans/rust-opencv-yolov5", rev = "03695538d52864d93908ad32f8956479e538a5e9" }
 image = { version = "0.24.6", features = ["rgb"] }
 imageproc = "0.23.0"
