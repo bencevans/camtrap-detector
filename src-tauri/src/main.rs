@@ -224,7 +224,7 @@ async fn process(
                     total: files_n,
                     percent: (i as f64 / files_n as f64) * 100.0,
                     eta: eta.eta().map(|eta| eta.as_secs() as usize),
-                    path: file.to_str().unwrap().to_string(),
+                    path: file.to_str().unwrap().to_string()[path.len() + 1..].to_string(),
                     message: String::from("Processing "),
                 },
             )
