@@ -14,7 +14,7 @@ use app::{
 };
 use chug::Chug;
 use std::{path::PathBuf, sync::Mutex};
-use tauri::{api::dialog, Manager, Window};
+use tauri::{api::{dialog, notification::Notification}, Manager, Window};
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -263,6 +263,11 @@ async fn process(
             },
         )
         .unwrap();
+
+    let _ = Notification::new(&handle.config().tauri.bundle.identifier)
+        .title("Processing Complete")
+        .body(format!("Processed {} images.", files_n))
+        .show();
 
     Ok(())
 }
