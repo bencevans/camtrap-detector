@@ -206,7 +206,7 @@ async fn process(
     let mut model = load_model(
         handle
             .path_resolver()
-            .resolve_resource("../md_v5a.0.0.onnx")
+            .resolve_resource("../md_v5a.0.0-1280x1280.onnx")
             .unwrap()
             .to_str()
             .unwrap(),
