@@ -8,7 +8,7 @@ use std::path::PathBuf;
 #[derive(Serialize, Deserialize)]
 pub enum IncludeCriteria {
     Include,
-    Union,
+    Intersect,
     Exclude,
 }
 
@@ -222,9 +222,9 @@ mod tests {
         // All Animals
         let criteria = FilterCriteria {
             animals: IncludeCriteria::Include,
-            humans: IncludeCriteria::Union,
-            vehicles: IncludeCriteria::Union,
-            empty: IncludeCriteria::Union,
+            humans: IncludeCriteria::Intersect,
+            vehicles: IncludeCriteria::Intersect,
+            empty: IncludeCriteria::Intersect,
         };
 
         assert!(!match_criteria(&human_only_image, &criteria));
@@ -239,8 +239,8 @@ mod tests {
         // Animals and Empty
         let criteria = FilterCriteria {
             animals: IncludeCriteria::Include,
-            humans: IncludeCriteria::Union,
-            vehicles: IncludeCriteria::Union,
+            humans: IncludeCriteria::Intersect,
+            vehicles: IncludeCriteria::Intersect,
             empty: IncludeCriteria::Include,
         };
 
@@ -257,8 +257,8 @@ mod tests {
         let criteria = FilterCriteria {
             animals: IncludeCriteria::Include,
             humans: IncludeCriteria::Exclude,
-            vehicles: IncludeCriteria::Union,
-            empty: IncludeCriteria::Union,
+            vehicles: IncludeCriteria::Intersect,
+            empty: IncludeCriteria::Intersect,
         };
 
         assert!(!match_criteria(&human_only_image, &criteria));
