@@ -28,7 +28,7 @@ imageproc = "0.23.0"
 rayon = "1.7.0"
 chug = "1.1.0"
 img-parts = "0.3.0"
-opencv = { version = "0.82.1", features = ["imgproc", "imgcodecs", "dnn"], default-features = false}
+opencv = { version = "0.74.0", features = ["imgproc", "imgcodecs", "dnn"], default-features = false}
 tracing = "0.1.37"
 
 [features]
