@@ -104,7 +104,7 @@ async fn export_image_set(
         dialog::message(
             Some(&window),
             "Export Error",
-            &"The export folder cannot be the same as the raw images folder.",
+            "The export folder cannot be the same as the raw images folder.",
         );
         return Err(());
     }
@@ -121,7 +121,7 @@ async fn export_image_set(
     dialog::message(
         Some(&window),
         "Image Export Complete",
-        &"The image export has completed.",
+        "The image export has completed.",
     );
 
     Ok(())
@@ -169,7 +169,7 @@ async fn export(
     dialog::message(
         Some(&window),
         "Export Complete",
-        &format!("The {} export has completed.", format_name),
+        format!("The {} export has completed.", format_name),
     );
 
     r
@@ -206,7 +206,7 @@ async fn process(
     let mut model = load_model(
         handle
             .path_resolver()
-            .resolve_resource("../md_v5a.0.0.onnx")
+            .resolve_resource("../md_v5a.0.0-1280x1280.onnx")
             .unwrap()
             .to_str()
             .unwrap(),

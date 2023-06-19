@@ -13,8 +13,8 @@ mod tests {
         let image_path = "/Users/ben/demo-dataset/IMG_0173_multi.JPG";
 
         let model = YoloModel::new_from_file(
-            "/Users/ben/Projects/camtrap-detector/md_v5a.0.0.onnx",
-            (640, 640),
+            "/Users/ben/Projects/camtrap-detector/md_v5a.0.0-1280x1280.onnx",
+            (1280, 1280),
         );
         assert!(model.is_ok());
 

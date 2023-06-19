@@ -67,7 +67,7 @@ jobs:
 
 
       - name: Download Model
-        run: wget -O md_v5a.0.0.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.1.0/md_v5a.0.0-640x640.onnx
+        run: wget -O md_v5a.0.0-1280x1280.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-1280x1280.onnx
 
       - name: Build OpenCV 4
         run: "'${{env.VCPKG_ROOT}}/vcpkg' install opencv4[dnn]:${{ matrix.triplet }}"
