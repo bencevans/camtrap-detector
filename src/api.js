@@ -14,7 +14,7 @@ export function createExport(format, outputPath) {
 
 export const IncludeCriteria = {
   Include: "Include",
-  Union: "Union",
+  Intersect: "Intersect",
   Exclude: "Exclude",
 };
 

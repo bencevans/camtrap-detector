@@ -25,6 +25,11 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
+
+      - name: Pin vcpkg version
+        run: |
+          cd $VCPKG_INSTALLATION_ROOT && git checkout . && git checkout 2023.02.24
+
       - name: Install Linux System Dependencies
         run: |
           sudo apt-get update

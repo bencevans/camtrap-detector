@@ -27,6 +27,11 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
+
+      - name: Pin vcpkg version
+        run: |
+          cd $VCPKG_INSTALLATION_ROOT && git checkout . && git checkout 2023.02.24
+
       - name: Install Linux System Dependencies
         run: |
           sudo apt-get update
@@ -39,7 +44,7 @@ jobs:
         if: runner.os == 'Windows'
 
       - name: Install MacOS System Dependencies
-        run: brew install jq
+        run: brew install jq pkg-config
         if: runner.os == 'macOS'
 
       - uses: actions/checkout@v3
