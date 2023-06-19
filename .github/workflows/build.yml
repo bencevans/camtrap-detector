@@ -19,10 +19,16 @@ jobs:
         include:
           - platform: macos-latest
             triplet: x64-osx
+            vcpkg-package: "opencv4[dnn]"
+            vcpkg-version: 2023.02.24
           - platform: windows-latest
             triplet: x64-windows-static-md
+            vcpkg-package: "opencv4[dnn]"
+            vcpkg-version: 2023.02.24
           - platform: ubuntu-latest
             triplet: x64-linux
+            vcpkg-package: "opencv4[dnn]"
+            vcpkg-version: 2023.02.24
 
     runs-on: ${{ matrix.platform }}
 
@@ -30,7 +36,7 @@ jobs:
 
       - name: Pin vcpkg version
         run: |
-          cd $VCPKG_INSTALLATION_ROOT && git checkout . && git checkout 2023.02.24
+          cd $VCPKG_INSTALLATION_ROOT && git checkout . && git checkout ${{ matrix.vcpkg-version }}
 
       - name: Install Linux System Dependencies
         run: |
@@ -76,14 +82,14 @@ jobs:
           path: |
             ${{ env.VCPKG_ROOT }}/installed
             ${{ env.VCPKG_ROOT }}/packages
-          key: ${{ matrix.platform }}-vcpkg-opencv4[dnn]-${{ matrix.triplet }}
+          key: ${{ matrix.vcpkg-version }}-${{ matrix.platform }}-vcpkg-${{ matrix.vcpkg-package }}-${{ matrix.triplet }}
 
 
       - name: Download Model
         run: wget -O md_v5a.0.0-1280x1280.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-1280x1280.onnx
 
       - name: Build OpenCV 4
-        run: "'${{env.VCPKG_ROOT}}/vcpkg' install opencv4[dnn]:${{ matrix.triplet }}"
+        run: "'${{env.VCPKG_ROOT}}/vcpkg' install ${{ matrix.vcpkg-package }}:${{ matrix.triplet }}"
 
       - name: Cache Rust / Cargo
         uses: actions/cache@v3
