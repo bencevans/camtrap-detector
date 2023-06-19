@@ -102,6 +102,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{runner.arch}}-cargo-
 
+      - name: Run Rust Tests
+        run: cd src-tauri && cargo test
+
       - name: Build App
         run: npm ci && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build
         env:
