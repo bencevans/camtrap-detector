@@ -1,4 +1,4 @@
-use opencv_yolov5::YoloModel;
+use super::opencv_yolov5::YoloModel;
 
 pub fn load_model(path: &str) -> YoloModel {
     YoloModel::new_from_file(path, (1280, 1280)).unwrap()

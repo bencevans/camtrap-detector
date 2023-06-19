@@ -2,15 +2,16 @@ pub mod megadetector;
 pub mod structures;
 pub mod exports;
 pub mod util;
+pub mod opencv_yolov5;
 
 #[cfg(test)]
 mod tests {
-    use opencv_yolov5::helpers::render_detections;
-    use opencv_yolov5::YoloModel;
+    use super::opencv_yolov5::helpers::render_detections;
+    use super::opencv_yolov5::YoloModel;
 
     #[test]
     fn create_model() {
-        let image_path = "/Users/ben/demo-dataset/IMG_0173_multi.JPG";
+        let image_path = "tests/fixtures/dataset/IMG_0089_peccary.JPG";
 
         let model = YoloModel::new_from_file(
             "/Users/ben/Projects/camtrap-detector/md_v5a.0.0-1280x1280.onnx",

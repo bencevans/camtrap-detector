@@ -21,8 +21,8 @@ pub struct CamTrapDetection {
     pub confidence: f32,
 }
 
-impl From<opencv_yolov5::YoloDetection> for CamTrapDetection {
-    fn from(yolo: opencv_yolov5::YoloDetection) -> Self {
+impl From<super::opencv_yolov5::YoloDetection> for CamTrapDetection {
+    fn from(yolo: super::opencv_yolov5::YoloDetection) -> Self {
         Self {
             x: yolo.x,
             y: yolo.y,
@@ -34,8 +34,8 @@ impl From<opencv_yolov5::YoloDetection> for CamTrapDetection {
     }
 }
 
-impl From<opencv_yolov5::YoloImageDetections> for CamTrapImageDetections {
-    fn from(yolo: opencv_yolov5::YoloImageDetections) -> Self {
+impl From<super::opencv_yolov5::YoloImageDetections> for CamTrapImageDetections {
+    fn from(yolo: super::opencv_yolov5::YoloImageDetections) -> Self {
         CamTrapImageDetections {
             file: yolo.file,
             error: None,
