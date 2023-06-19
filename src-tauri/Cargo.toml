@@ -20,7 +20,7 @@ tauri-build = { version = "1.4.0", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0.164", features = ["derive"] }
-tauri = { version = "1.4.0", features = ["api-all", "updater"] }
+tauri = { version = "1.4.0", features = ["api-all"] }
 pathdiff = "0.2.1"
 csv = "1.2.2"
 image = { version = "0.24.6", features = ["rgb"] }
@@ -41,3 +41,4 @@ custom-protocol = ["tauri/custom-protocol"]
 
 # Enables CUDA OpenCV support
 cuda = []
+updater = ["tauri/updater"]
