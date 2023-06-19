@@ -14,7 +14,7 @@ mod tests {
         let image_path = "tests/fixtures/dataset/IMG_0089_peccary.JPG";
 
         let model = YoloModel::new_from_file(
-            "/Users/ben/Projects/camtrap-detector/md_v5a.0.0-1280x1280.onnx",
+            "../md_v5a.0.0-1280x1280.onnx",
             (1280, 1280),
         );
         assert!(model.is_ok());
