@@ -50,7 +50,7 @@ jobs:
         if: runner.os == 'Windows'
 
       - name: Install MacOS System Dependencies
-        run: brew install jq pkg-config
+        run: brew install jq pkg-config llvm
         if: runner.os == 'macOS'
 
       - uses: actions/checkout@v3
