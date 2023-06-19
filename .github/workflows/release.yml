@@ -16,21 +16,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        vcpkg-version: [2023.02.24]
-        vcpkg-package: ["opencv4[dnn]"]
         include:
           - platform: macos-latest
             triplet: x64-osx
-            vcpkg-package: ["opencv4[dnn]"]
-            vcpkg-version: [2023.02.24]
+            vcpkg-package: "opencv4[dnn]"
+            vcpkg-version: 2022.10.19
           - platform: windows-latest
             triplet: x64-windows-static-md
-            vcpkg-package: ["opencv4[dnn]"]
-            vcpkg-version: [2023.02.24]
+            vcpkg-package: "opencv4[dnn]"
+            vcpkg-version: 2022.10.19
           - platform: ubuntu-latest
             triplet: x64-linux
-            vcpkg-package: ["opencv4[dnn]"]
-            vcpkg-version: [2023.02.24]
+            vcpkg-package: "opencv4[dnn]"
+            vcpkg-version: 2022.10.19
 
     runs-on: ${{ matrix.platform }}
 
