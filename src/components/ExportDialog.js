@@ -34,7 +34,7 @@ const formatTypes = [
     id: "image-dir",
     name: "Image Directory",
     desciption:
-      "Directory containing images from the dataset, optionaly including or exclusing particular classes and optionally with detections drawn on.",
+      "Directory containing images from the dataset, optionally including or excluding particular classes with detections drawn on.",
     pathType: "dir",
     defaultPath: "",
     options: [
