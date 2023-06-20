@@ -38,6 +38,10 @@ jobs:
         run: |
           cd $VCPKG_INSTALLATION_ROOT && git checkout . && git checkout ${{ matrix.vcpkg-version }}
 
+      - name: Install MacOS System Dependencies
+        run: brew install jq pkg-config && mkdir -p /Users/runner/lib && ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib /Users/runner/lib/libclang.dylib
+        if: runner.os == 'macOS'
+
       - name: Install Linux System Dependencies
         run: |
           sudo apt-get update
@@ -87,9 +91,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{runner.arch}}-cargo-
+          key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ matrix.vcpkg-version }}-${{ matrix.platform }}-vcpkg-${{ matrix.vcpkg-package }}-${{ matrix.triplet }}
 
       - name: Build App
         run: npm ci && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build
