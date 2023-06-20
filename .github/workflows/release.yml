@@ -94,7 +94,7 @@ jobs:
           key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ matrix.vcpkg-version }}-${{ matrix.platform }}-vcpkg-${{ matrix.vcpkg-package }}-${{ matrix.triplet }}
 
       - name: Build App
-        run: npm ci && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build
+        run: npm ci && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build --features updater
         env:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
 
@@ -125,3 +125,4 @@ jobs:
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: false
+          args: --features updater
