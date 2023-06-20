@@ -10,7 +10,7 @@ use app::{
         image::{export_image, DrawCriteria, FilterCriteria},
     },
     megadetector::load_model,
-    structures::{self, CamTrapImageDetections},
+    structures::{self, CamTrapImageDetections}
 };
 use chug::Chug;
 use std::{path::PathBuf, sync::Mutex};
@@ -184,7 +184,7 @@ async fn process(
     state: tauri::State<'_, AppState>,
     handle: tauri::AppHandle,
 ) -> Result<(), ()> {
-    let files = opencv_yolov5::helpers::enumerate_images(PathBuf::from(&path), recursive);
+    let files = app::opencv_yolov5::helpers::enumerate_images(PathBuf::from(&path), recursive);
     let files_n = files.len();
 
     println!("Running with Confidence Threshold {}", confidence_threshold);

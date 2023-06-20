@@ -16,21 +16,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        vcpkg-version: [2023.02.24]
-        vcpkg-package: ["opencv4[dnn]"]
         include:
           - platform: macos-latest
             triplet: x64-osx
-            vcpkg-package: ["opencv4[dnn]"]
-            vcpkg-version: [2023.02.24]
+            vcpkg-package: "opencv4[dnn]"
+            vcpkg-version: 2022.09.27
           - platform: windows-latest
             triplet: x64-windows-static-md
-            vcpkg-package: ["opencv4[dnn]"]
-            vcpkg-version: [2023.02.24]
+            vcpkg-package: "opencv4[dnn]"
+            vcpkg-version: 2022.09.27
           - platform: ubuntu-latest
             triplet: x64-linux
-            vcpkg-package: ["opencv4[dnn]"]
-            vcpkg-version: [2023.02.24]
+            vcpkg-package: "opencv4[dnn]"
+            vcpkg-version: 2022.09.27
 
     runs-on: ${{ matrix.platform }}
 
@@ -39,6 +37,10 @@ jobs:
       - name: Pin vcpkg version
         run: |
           cd $VCPKG_INSTALLATION_ROOT && git checkout . && git checkout ${{ matrix.vcpkg-version }}
+
+      - name: Install MacOS System Dependencies
+        run: brew install jq pkg-config && mkdir -p /Users/runner/lib && ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib /Users/runner/lib/libclang.dylib
+        if: runner.os == 'macOS'
 
       - name: Install Linux System Dependencies
         run: |
@@ -89,9 +91,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{runner.arch}}-cargo-
+          key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ matrix.vcpkg-version }}-${{ matrix.platform }}-vcpkg-${{ matrix.vcpkg-package }}-${{ matrix.triplet }}
 
       - name: Build App
         run: npm ci && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build

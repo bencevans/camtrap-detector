@@ -52,13 +52,13 @@
       "csp": null
     },
     "updater": {
-      "active": true,
+      "active": false,
       "endpoints": [
-          "https://releases.camtrap.net/detector/{{target}}/{{current_version}}"
+        "https://releases.camtrap.net/detector/{{target}}/{{current_version}}"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRFMDVCMzk1MDVFNjdDRjYKUldUMmZPWUZsYk1GVGdYbS9VajNsanBBR09zWVlmNi9aU1lnSG5aWnZCL1YyVnkzb1BrUXRZRTQK"
-  },
+    },
     "windows": [
       {
         "fullscreen": false,

@@ -4,18 +4,6 @@
 //!
 //! The module is based on the [image](https://crates.io/crates/image) and [img_parts](https://crates.io/crates/img_parts) crates.
 //!
-//! # Example
-//!
-//! ```
-//! use magic_image::MagicImage;
-//!
-//! let mut image = MagicImage::open("path/to/image.jpg").unwrap();
-//!
-//! image.draw_bounding_box(0.1, 0.1, 0.2, 0.2, [255, 0, 0, 255]);
-//! image.draw_bounding_box(0.3, 0.3, 0.2, 0.2, [0, 255, 0, 255]);
-//!
-//! image.save("path/to/output.jpg").unwrap();
-//! ```
 
 use img_parts::ImageEXIF;
 use std::fs;
