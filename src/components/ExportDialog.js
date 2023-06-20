@@ -66,10 +66,10 @@ export default function ExportDialog({ onReset }) {
 
   const [imageExportAnimalFilter, setImageExportAnimalFilter] =
     useState("Include");
-  const [imageExportHumanFilter, setImageExportHumanFilter] = useState("Union");
+  const [imageExportHumanFilter, setImageExportHumanFilter] = useState("Intersect");
   const [imageExportVehicleFilter, setImageExportVehicleFilter] =
-    useState("Union");
-  const [imageExportEmptyFilter, setImageExportEmptyFilter] = useState("Union");
+    useState("Intersect");
+  const [imageExportEmptyFilter, setImageExportEmptyFilter] = useState("Intersect");
 
   const [exportInProgress, setExportInProgress] = useState([]);
 
@@ -114,7 +114,7 @@ export default function ExportDialog({ onReset }) {
                   <tr>
                     <th></th>
                     <th>Include</th>
-                    <th>Union</th>
+                    <th>Intersect</th>
                     <th>Exclude</th>
                   </tr>
                 </thead>
@@ -136,8 +136,8 @@ export default function ExportDialog({ onReset }) {
                       <input
                         type="radio"
                         name="animals"
-                        value="Union"
-                        checked={imageExportAnimalFilter === "Union"}
+                        value="Intersect"
+                        checked={imageExportAnimalFilter === "Intersect"}
                         onChange={(e) =>
                           setImageExportAnimalFilter(e.target.value)
                         }
@@ -173,8 +173,8 @@ export default function ExportDialog({ onReset }) {
                       <input
                         type="radio"
                         name="humans"
-                        value="Union"
-                        checked={imageExportHumanFilter === "Union"}
+                        value="Intersect"
+                        checked={imageExportHumanFilter === "Intersect"}
                         onChange={(e) =>
                           setImageExportHumanFilter(e.target.value)
                         }
@@ -209,8 +209,8 @@ export default function ExportDialog({ onReset }) {
                       <input
                         type="radio"
                         name="vehicles"
-                        value="Union"
-                        checked={imageExportVehicleFilter === "Union"}
+                        value="Intersect"
+                        checked={imageExportVehicleFilter === "Intersect"}
                         onChange={(e) =>
                           setImageExportVehicleFilter(e.target.value)
                         }
@@ -245,8 +245,8 @@ export default function ExportDialog({ onReset }) {
                       <input
                         type="radio"
                         name="empty"
-                        value="Union"
-                        checked={imageExportEmptyFilter === "Union"}
+                        value="Intersect"
+                        checked={imageExportEmptyFilter === "Intersect"}
                         onChange={(e) =>
                           setImageExportEmptyFilter(e.target.value)
                         }
