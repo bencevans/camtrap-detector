@@ -13,7 +13,7 @@
     "react-icons": "^4.10.1",
     "react-scripts": "5.0.1",
     "react-spinners": "^0.13.8",
-    "styled-components": "^6.0.6",
+    "styled-components": "^6.0.7",
     "web-vitals": "^3.4.0"
   },
   "scripts": {
