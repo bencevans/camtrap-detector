@@ -46,27 +46,38 @@ impl Model {
             }
         }
 
-        // println!();
-        // println!("INPUTS = {:?}", session.inputs);
+        println!();
+        println!("INPUTS = {:?}", session.inputs);
 
-        // println!();
-        // println!("OUTPUTS = {:?}", session.outputs);
+        println!();
+        println!("OUTPUTS = {:?}", session.outputs);
 
-        // // let array = ndarray::Array::from_shape_vec(
-        // //     (1, 3, 1280, 1280),
-        // //     vec![0.0; 1 * 3 * 1280 * 1280],
-        // // ).unwrap().into_dyn();
+        let cuda_enabled = ExecutionProvider::CUDA(Default::default()).is_available();
+        println!("cuda_enabled = {:?}", cuda_enabled);
+
+        // let array = ndarray::Array::from_shape_vec(
+        //     (1, 3, 1280, 1280),
+        //     vec![0.0; 1 * 3 * 1280 * 1280],
+        // ).unwrap().into_dyn();
 
         // let array: ndarray::ArrayBase<ndarray::CowRepr<'_, f32>, ndarray::Dim<ndarray::IxDynImpl>> =
         //     CowArray::from(ndarray::Array::from_shape_vec(
-        //         (1, 3, 1280, 1280),
-        //         vec![0.0; 1 * 3 * 1280 * 1280],
+        //         (1, 3, 640, 640),
+        //         vec![0.0; 1 * 3 * 640 * 640],
         //     )?)
         //     .into_dyn();
+        
+        // // warm up model
+        // let inputs = Value::from_array(
+        //     session.allocator(),
+        //     &array, // Pass the CowRepr array reference here
+        // )
+        // .unwrap();
+        // let outputs = session.run(vec![inputs]);
 
         // let start_time = std::time::Instant::now();
         // let mut i = 0;
-        // for x in 1..100 {
+        // for x in 1..1000 {
         //     println!("x = {}", x);
         //     let inputs = Value::from_array(
         //         session.allocator(),
@@ -86,6 +97,8 @@ impl Model {
         //     i as f64 / (end_time - start_time).as_secs_f64()
         // );
 
+        // panic!();
+
         Ok(Self {
             environment,
             session,
@@ -96,7 +109,9 @@ impl Model {
 #[cfg(test)]
 mod test {
     use super::*;
+    use tracing_test::traced_test;
 
+    #[traced_test]
     #[test]
     fn test_model() {
         let model = Model::new().unwrap();

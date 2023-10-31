@@ -206,7 +206,7 @@ async fn process(
     let mut model = load_model(
         handle
             .path_resolver()
-            .resolve_resource("../md_v5a.0.0-1280x1280.onnx")
+            .resolve_resource("../md_v5a.0.0-dynamic.onnx")
             .unwrap()
             .to_str()
             .unwrap(),
@@ -278,6 +278,8 @@ async fn showup(window: Window) {
 }
 
 fn main() {
+    tracing_subscriber::fmt::init();
+
     let mut context = tauri::generate_context!();
 
     let update_url = if cfg!(feature = "cuda") {

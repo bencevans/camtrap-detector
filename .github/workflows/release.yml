@@ -65,14 +65,8 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Set VCPKG_ROOT
-        run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
-
-      - name: Download Model
-        run: wget -O md_v5a.0.0-1280x1280.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-1280x1280.onnx
-
-      - name: Build OpenCV 4
-        run: "'${{env.VCPKG_ROOT}}/vcpkg' install ${{ matrix.vcpkg-package }}:${{ matrix.triplet }}"
+      - name: Download Model (dynamic)
+        run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
 
       - name: Cache Rust / Cargo
         uses: actions/cache@v4
