@@ -85,8 +85,11 @@ jobs:
           key: ${{ matrix.vcpkg-version }}-${{ matrix.platform }}-vcpkg-${{ matrix.vcpkg-package }}-${{ matrix.triplet }}
 
 
-      - name: Download Model
+      - name: Download Model (1280x1280)
         run: wget -O md_v5a.0.0-1280x1280.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-1280x1280.onnx
+
+      - name: Download Model (dynamic)
+        run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
 
       - name: Build OpenCV 4
         run: "'${{env.VCPKG_ROOT}}/vcpkg' install ${{ matrix.vcpkg-package }}:${{ matrix.triplet }}"
