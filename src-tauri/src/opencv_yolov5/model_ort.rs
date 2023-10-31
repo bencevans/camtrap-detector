@@ -6,6 +6,8 @@ use ort::{
     SessionBuilder, Value,
 };
 
+use super::YoloImageDetections;
+
 pub struct Model {
     environment: Arc<Environment>,
     session: Session,
@@ -44,43 +46,45 @@ impl Model {
             }
         }
 
-        println!();
-        println!("INPUTS = {:?}", session.inputs);
+        // println!();
+        // println!("INPUTS = {:?}", session.inputs);
 
-        println!();
-        println!("OUTPUTS = {:?}", session.outputs);
+        // println!();
+        // println!("OUTPUTS = {:?}", session.outputs);
 
-        // let array = ndarray::Array::from_shape_vec(
-        //     (1, 3, 1280, 1280),
-        //     vec![0.0; 1 * 3 * 1280 * 1280],
-        // ).unwrap().into_dyn();
+        // // let array = ndarray::Array::from_shape_vec(
+        // //     (1, 3, 1280, 1280),
+        // //     vec![0.0; 1 * 3 * 1280 * 1280],
+        // // ).unwrap().into_dyn();
 
-        let array: ndarray::ArrayBase<ndarray::CowRepr<'_, f32>, ndarray::Dim<ndarray::IxDynImpl>> =
-            CowArray::from(ndarray::Array::from_shape_vec(
-                (1, 3, 1280, 1280),
-                vec![0.0; 1 * 3 * 1280 * 1280],
-            )?)
-            .into_dyn();
+        // let array: ndarray::ArrayBase<ndarray::CowRepr<'_, f32>, ndarray::Dim<ndarray::IxDynImpl>> =
+        //     CowArray::from(ndarray::Array::from_shape_vec(
+        //         (1, 3, 1280, 1280),
+        //         vec![0.0; 1 * 3 * 1280 * 1280],
+        //     )?)
+        //     .into_dyn();
 
+        // let start_time = std::time::Instant::now();
+        // let mut i = 0;
+        // for x in 1..100 {
+        //     println!("x = {}", x);
+        //     let inputs = Value::from_array(
+        //         session.allocator(),
+        //         &array, // Pass the CowRepr array reference here
+        //     )
+        //     .unwrap();
+        //     let outputs = session.run(vec![inputs]);
+        //     // println!("OUTPUTS = {:?}", outputs.unwrap());
+        //     i += 1;
+        // }
+        // let end_time = std::time::Instant::now();
 
-        let start_time = std::time::Instant::now();
-        let mut i = 0;
-        for x in 1..100 {
-            println!("x = {}", x);
-            let inputs = Value::from_array(
-                session.allocator(),
-                &array, // Pass the CowRepr array reference here
-            )
-            .unwrap();
-            let outputs = session.run(vec![inputs]);
-            // println!("OUTPUTS = {:?}", outputs.unwrap());
-            i += 1;
-        }
-        let end_time = std::time::Instant::now();
-
-        println!("total time = {:?}", end_time - start_time);
-        println!("average time = {:?}", (end_time - start_time) / i);
-        println!("images per second = {:?}", i as f64 / (end_time - start_time).as_secs_f64());
+        // println!("total time = {:?}", end_time - start_time);
+        // println!("average time = {:?}", (end_time - start_time) / i);
+        // println!(
+        //     "images per second = {:?}",
+        //     i as f64 / (end_time - start_time).as_secs_f64()
+        // );
 
         Ok(Self {
             environment,
@@ -96,5 +100,42 @@ mod test {
     #[test]
     fn test_model() {
         let model = Model::new().unwrap();
+    }
+}
+
+pub struct YoloModel {
+    model: Model,
+}
+
+impl YoloModel {
+    pub fn new_from_file(
+        path: &str,
+        input_size: (usize, usize),
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        println!("Warning: YoloModel::new_from_file is not implemented");
+        let model = Model::new()?;
+
+        Ok(Self { model })
+    }
+
+    pub fn detect(
+        &mut self,
+        image_path: &str,
+        confidence_threshold: f32,
+        iou_threshold: f32,
+    ) -> Result<YoloImageDetections, Box<dyn std::error::Error>> {
+        println!("Warning: YoloModel::detect is not implemented");
+        let image = image::open(image_path)?;
+
+        // let detections = self.model.detect(image, confidence_threshold, iou_threshold)?;
+
+        let detections = YoloImageDetections {
+            file: "mock".to_string(),
+            image_width: 111,
+            image_height: 111,
+            detections: vec![],
+        };
+
+        Ok(detections)
     }
 }

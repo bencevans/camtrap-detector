@@ -35,7 +35,7 @@ pub fn render_detections(
     image_path: &str,
     detections: &YoloImageDetections,
     output_path: &str,
-) -> Result<(), opencv::Error> {
+) -> Result<(), ()> {
     let image = image::open(image_path).unwrap();
     let mut image = image.to_rgb8();
 
@@ -59,8 +59,6 @@ pub fn render_detections(
 
 /// Checks if CUDA and a Supported CUDA device can be found.
 pub fn is_cuda_available() -> bool {
-    match opencv::core::get_cuda_enabled_device_count() {
-        Ok(count) => count > 0,
-        Err(_) => false,
-    }
+    println!("Warning: is_cuda_available is not implemented");
+    false
 }

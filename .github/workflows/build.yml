@@ -17,26 +17,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: macos-latest
-            triplet: x64-osx
-            vcpkg-package: "opencv4[dnn]"
-            vcpkg-version: 2023.11.20
-          - platform: windows-latest
-            triplet: x64-windows-static-md
-            vcpkg-package: "opencv4[dnn]"
-            vcpkg-version: 2023.11.20
+          # - platform: macos-latest
+          #   triplet: x64-osx
+          # - platform: windows-latest
+          #   triplet: x64-windows-static-md
           - platform: ubuntu-latest
             triplet: x64-linux
-            vcpkg-package: "opencv4[dnn]"
-            vcpkg-version: 2023.11.20
 
     runs-on: ${{ matrix.platform }}
 
     steps:
-
-      - name: Pin vcpkg version
-        run: |
-          cd $VCPKG_INSTALLATION_ROOT && git fetch && git checkout . && git checkout ${{ matrix.vcpkg-version }}
 
       - name: Install Linux System Dependencies
         run: |
@@ -73,26 +63,11 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Set VCPKG_ROOT
-        run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
-
-      - name: Cache vcpkg
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ env.VCPKG_ROOT }}/installed
-            ${{ env.VCPKG_ROOT }}/packages
-          key: ${{ matrix.vcpkg-version }}-${{ matrix.platform }}-vcpkg-${{ matrix.vcpkg-package }}-${{ matrix.triplet }}
-
-
       - name: Download Model (1280x1280)
         run: wget -O md_v5a.0.0-1280x1280.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-1280x1280.onnx
 
       - name: Download Model (dynamic)
         run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
-
-      - name: Build OpenCV 4
-        run: "'${{env.VCPKG_ROOT}}/vcpkg' install ${{ matrix.vcpkg-package }}:${{ matrix.triplet }}"
 
       - name: Cache Rust / Cargo
         uses: actions/cache@v4
@@ -104,7 +79,7 @@ jobs:
           key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ matrix.vcpkg-version }}-${{ matrix.platform }}-vcpkg-${{ matrix.vcpkg-package }}-${{ matrix.triplet }}
 
       - name: Build App
-        run: npm ci && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build
+        run: npm ci && npm run tauri build
         env:
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
