@@ -25,8 +25,8 @@ impl Model {
             .into_arc();
 
         let session = SessionBuilder::new(&environment)?
-            .with_optimization_level(GraphOptimizationLevel::Disable)?
-            .with_intra_threads(1)?
+            .with_optimization_level(GraphOptimizationLevel::Level3)?
+            .with_intra_threads(4)?
             .with_model_from_file("../md_v5a.0.0-dynamic.onnx")?;
 
         if let Ok(metadata) = session.metadata() {
@@ -66,7 +66,7 @@ impl Model {
         //         vec![0.0; 1 * 3 * 640 * 640],
         //     )?)
         //     .into_dyn();
-        
+
         // // warm up model
         // let inputs = Value::from_array(
         //     session.allocator(),
@@ -142,7 +142,20 @@ impl YoloModel {
         println!("Warning: YoloModel::detect is not implemented");
         let image = image::open(image_path)?;
 
-        // let detections = self.model.detect(image, confidence_threshold, iou_threshold)?;
+        let array: ndarray::ArrayBase<ndarray::CowRepr<'_, f32>, ndarray::Dim<ndarray::IxDynImpl>> =
+            CowArray::from(ndarray::Array::from_shape_vec(
+                (1, 3, 640, 640),
+                vec![0.0; 1 * 3 * 640 * 640],
+            )?)
+            .into_dyn();
+
+
+        let inputs = Value::from_array(
+            self.model.session.allocator(),
+            &array, // Pass the CowRepr array reference here
+        )
+        .unwrap();
+        let outputs = self.model.session.run(vec![inputs]);
 
         let detections = YoloImageDetections {
             file: "mock".to_string(),
