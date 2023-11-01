@@ -118,21 +118,39 @@ mod test {
     }
 }
 
+/// A YOLO model.
 pub struct YoloModel {
-    model: Model,
+    session: Session,
+    environment: Arc<Environment>,
 }
 
 impl YoloModel {
+    /// Load a YOLO model from a file.
     pub fn new_from_file(
         path: &str,
         input_size: (usize, usize),
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        println!("Warning: YoloModel::new_from_file is not implemented");
-        let model = Model::new()?;
+        let environment = Environment::builder()
+            .with_name("CamTrap Detector")
+            .with_execution_providers([
+                ExecutionProvider::CUDA(Default::default()),
+                ExecutionProvider::CoreML(Default::default()),
+            ])
+            .build()?
+            .into_arc();
 
-        Ok(Self { model })
+        let session = SessionBuilder::new(&environment)?
+            .with_optimization_level(GraphOptimizationLevel::Level3)?
+            .with_intra_threads(4)?
+            .with_model_from_file(path)?;
+
+        Ok(Self {
+            session,
+            environment,
+        })
     }
 
+    /// Detect objects in an image.
     pub fn detect(
         &mut self,
         image_path: &str,
@@ -149,13 +167,12 @@ impl YoloModel {
             )?)
             .into_dyn();
 
-
         let inputs = Value::from_array(
-            self.model.session.allocator(),
+            self.session.allocator(),
             &array, // Pass the CowRepr array reference here
         )
         .unwrap();
-        let outputs = self.model.session.run(vec![inputs]);
+        let outputs = self.session.run(vec![inputs]);
 
         let detections = YoloImageDetections {
             file: "mock".to_string(),
