@@ -4,6 +4,8 @@ use imageproc::drawing::draw_hollow_rect_mut;
 use imageproc::rect::Rect;
 use std::path::{Path, PathBuf};
 
+use walkdir::WalkDir;
+
 const IMAGE_EXTENTIONS: [&str; 3] = ["jpg", "jpeg", "png"];
 
 /// Check if path is a known image extention
@@ -16,28 +18,16 @@ pub fn is_image_path(path: &Path) -> bool {
 
 /// Find all images beleived to be an image.
 pub fn enumerate_images(root_dir: PathBuf, recursive: bool) -> Vec<PathBuf> {
-    if root_dir.is_file() {
-        if is_image_path(&root_dir) {
-            vec![root_dir]
-        } else {
-            vec![]
+    let mut images: Vec<PathBuf> = vec![];
+
+    for entry in WalkDir::new(root_dir)
+        .max_depth(if recursive {::std::usize::MAX} else {1})
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| is_image_path(e.path())) {
+            images.push(entry.into_path());
         }
-    } else {
-        let mut images: Vec<PathBuf> = vec![];
-
-        for entry in root_dir.read_dir().unwrap() {
-            let entry = entry.unwrap();
-            let path = entry.path();
-
-            if path.is_dir() && recursive {
-                images.extend(enumerate_images(path, recursive));
-            } else if path.is_file() && is_image_path(&path) {
-                images.push(path);
-            }
-        }
-
-        images
-    }
+    images
 }
 
 /// Render Bounding Boxes onto an Image and Save
