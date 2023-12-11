@@ -36,7 +36,7 @@ jobs:
 
       - name: Pin vcpkg version
         run: |
-          cd $VCPKG_INSTALLATION_ROOT && git checkout . && git checkout ${{ matrix.vcpkg-version }}
+          cd $VCPKG_INSTALLATION_ROOT && git fetch && git checkout . && git checkout ${{ matrix.vcpkg-version }}
 
       - name: Install Linux System Dependencies
         run: |
