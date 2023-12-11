@@ -30,6 +30,7 @@ chug = "1.1.0"
 img-parts = "0.3.0"
 opencv = { version = "0.88.2", features = ["imgproc", "imgcodecs", "dnn"], default-features = false}
 tracing = "0.1.40"
+walkdir = "2.4.0"
 
 [features]
 # by default Tauri runs in production mode
