@@ -98,7 +98,7 @@ jobs:
         env:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ env.ACTIONS_RUNNER_DEBUG }}
         with:
           name: CamTrap Detector MacOS Intel.dmg
