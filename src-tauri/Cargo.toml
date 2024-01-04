@@ -29,11 +29,11 @@ rayon = "1.8.0"
 chug = "1.1.0"
 img-parts = "0.3.0"
 tracing = "0.1.40"
-ort = "2.0.0-alpha.4"
+ort = { version = "2.0.0-alpha.4", features = ["load-dynamic"] }
 ndarray = "0.15.6"
 walkdir = "2.4.0"
-tracing-subscriber = { version = "0.3", features = [ "env-filter", "fmt" ] }
-tracing-test = { version = "0.2.4", feature = [ "no-env-filter" ] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tracing-test = { version = "0.2.4", feature = ["no-env-filter"] }
 
 [features]
 # by default Tauri runs in production mode

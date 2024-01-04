@@ -2072,6 +2072,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13e3bf6590cbc649f4d1a3eefc9d5d6eb746f5200ffb04e5e142700b8faa56e7"
 
 [[package]]
+name = "libloading"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d580318f95776505201b28cf98eb1fa5e4be3b689633ba6a3e6cd880ff22d8cb"
+dependencies = [
+ "cfg-if",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
 name = "libredox"
 version = "0.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2629,6 +2639,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8bdb7c4723330322ea09d508e730950e4fcf2116f2dc8394ca0f00dbb77e9e11"
 dependencies = [
  "half",
+ "libloading",
  "ndarray",
  "ort-sys",
  "thiserror",
