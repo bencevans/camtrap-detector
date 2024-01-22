@@ -70,7 +70,7 @@ jobs:
         run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
 
       - name: Cache vcpkg
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ env.VCPKG_ROOT }}/installed
@@ -85,7 +85,7 @@ jobs:
         run: "'${{env.VCPKG_ROOT}}/vcpkg' install ${{ matrix.vcpkg-package }}:${{ matrix.triplet }}"
 
       - name: Cache Rust / Cargo
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
