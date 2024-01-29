@@ -30,6 +30,8 @@ chug = "1.1.0"
 img-parts = "0.3.0"
 opencv = { version = "0.88.6", features = ["imgproc", "imgcodecs", "dnn"], default-features = false}
 tracing = "0.1.40"
+ort = { version = "1.16.2" }
+ndarray = "0.15.6"
 walkdir = "2.4.0"
 
 [features]
@@ -41,5 +43,6 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 # Enables CUDA OpenCV support
-cuda = []
 updater = ["tauri/updater"]
+cuda = ["ort/cuda"]
+coreml = ["ort/coreml"]

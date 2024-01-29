@@ -1,6 +1,7 @@
 mod detections;
 pub mod helpers;
 mod model;
+pub mod model_ort;
 
 pub use detections::YoloDetection;
 pub use detections::YoloImageDetections;

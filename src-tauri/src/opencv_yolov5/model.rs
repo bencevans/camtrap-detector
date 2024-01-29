@@ -2,7 +2,7 @@ use super::{YoloDetection, YoloImageDetections};
 use opencv::{
     core::{copy_make_border, Scalar, Vector, BORDER_CONSTANT, CV_32F},
     dnn::{read_net_from_onnx, read_net_from_onnx_buffer},
-    prelude::{Mat, MatTraitConst, NetTrait, NetTraitConst, MatTraitConstManual},
+    prelude::{Mat, MatTraitConst, NetTrait, NetTraitConst},
     Error,
 };
 use tracing::info;
