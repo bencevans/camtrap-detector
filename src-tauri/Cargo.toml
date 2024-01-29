@@ -29,7 +29,7 @@ rayon = "1.8.0"
 chug = "1.1.0"
 img-parts = "0.3.0"
 tracing = "0.1.40"
-ort = { version = "2.0.0-alpha.4", features = ["load-dynamic"] }
+ort = { version = "2.0.0-alpha.4", features = ["load-dynamic", "download-binaries"] }
 ndarray = "0.15.6"
 walkdir = "2.4.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
