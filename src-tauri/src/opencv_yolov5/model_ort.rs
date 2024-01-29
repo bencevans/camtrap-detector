@@ -1,11 +1,6 @@
-use std::sync::Arc;
-
-use image::{Rgb, Rgb32FImage, RgbImage};
-use ndarray::{Axis, CowArray};
-use ort::{
-    CUDAExecutionProviderCuDNNConvAlgoSearch, ExecutionProvider, GraphOptimizationLevel, Session,
-    SessionBuilder, Value,
-};
+use image::Rgb;
+use ndarray::CowArray;
+use ort::{GraphOptimizationLevel, Session};
 
 use super::{YoloDetection, YoloImageDetections};
 
@@ -13,15 +8,16 @@ use super::{YoloDetection, YoloImageDetections};
 pub struct YoloModel {
     session: Session,
     // environment: Arc<Environment>,
+    input_size: (u32, u32),
 }
 
 impl YoloModel {
     /// Load a YOLO model from a file.
     pub fn new_from_file(
         path: &str,
-        input_size: (usize, usize),
+        input_size: (u32, u32),
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let environment = ort::init()
+        ort::init()
             .with_execution_providers([
                 ort::CUDAExecutionProvider::default().build(),
                 ort::CoreMLExecutionProvider::default().build(),
@@ -33,7 +29,10 @@ impl YoloModel {
             .with_intra_threads(4)?
             .with_model_from_file(path)?;
 
-        Ok(Self { session })
+        Ok(Self {
+            session,
+            input_size,
+        })
     }
 
     /// Detect objects in an image.
@@ -48,8 +47,12 @@ impl YoloModel {
 
         // TODO: Letterboxing
 
-        let x: image::ImageBuffer<image::Rgba<u8>, Vec<u8>> =
-            image::imageops::resize(&image, 640, 640, image::imageops::FilterType::Nearest);
+        let x: image::ImageBuffer<image::Rgba<u8>, Vec<u8>> = image::imageops::resize(
+            &image,
+            self.input_size.0,
+            self.input_size.1,
+            image::imageops::FilterType::Nearest,
+        );
         let mut output: image::ImageBuffer<Rgb<u8>, Vec<_>> = image::ImageBuffer::new(640, 640);
         for (output, chunk) in output.chunks_exact_mut(3).zip(x.chunks_exact(4)) {
             // ... and copy each of them to output, leaving out the A byte
@@ -108,6 +111,10 @@ impl YoloModel {
                 });
             }
         }
+
+        let detections = filter_confidence(detections, confidence_threshold);
+
+        let detections = non_max_suppression(detections, iou_threshold);
 
         let detections = YoloImageDetections {
             file: image_path.to_string(),
