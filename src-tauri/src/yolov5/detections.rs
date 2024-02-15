@@ -39,6 +39,7 @@ pub struct YoloDetection {
 }
 
 impl YoloDetection {
+    /// Calculate the area of the detection.
     pub fn area(&self) -> f32 {
         self.width * self.height
     }

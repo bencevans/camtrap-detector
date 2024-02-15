@@ -10,6 +10,9 @@ use std::fs;
 use std::io::Cursor;
 use std::path::Path;
 
+/// Magic Image
+///
+/// This struct represents an image that can be drawn on and saved while preserving the original EXIF data.
 pub(crate) struct MagicImage {
     image: image::DynamicImage,
     exif: Option<img_parts::Bytes>,

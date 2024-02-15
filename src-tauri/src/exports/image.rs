@@ -1,7 +1,6 @@
 use crate::structures::{CamTrapDetection, CamTrapImageDetections};
 use crate::util::magic_image::MagicImage;
 use image::Rgba;
-use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -20,6 +19,7 @@ pub struct FilterCriteria {
     empty: IncludeCriteria,
 }
 
+/// Check if an image matches the filter criteria
 fn match_criteria(image: &CamTrapImageDetections, criteria: &FilterCriteria) -> bool {
     let mut has_animals = false;
     let mut has_humans = false;
@@ -81,6 +81,7 @@ pub struct DrawCriteria {
     vehicles: bool,
 }
 
+/// Check if a detection should be drawn
 fn should_draw(detection: &CamTrapDetection, criteria: &DrawCriteria) -> bool {
     match detection.class_index {
         0 => criteria.animals,
@@ -96,21 +97,18 @@ pub fn export_image(
     output_dir: PathBuf,
     filter_criteria: FilterCriteria,
     draw_criteria: DrawCriteria,
-) -> Result<(), ()> {
-    results.par_iter().for_each(|image| {
-        if !match_criteria(image, &filter_criteria) {
-            return;
-        }
+) -> Result<(), Box<dyn std::error::Error>> {
+    // Filter out images that don't match the criteria
+    let results: Vec<_> = results
+        .into_iter()
+        .filter(|image| match_criteria(image, &filter_criteria))
+        .collect();
 
-        let img_result = MagicImage::open(&image.file);
+    // TODO: Parallelisee this
+    for image_meta in results.iter() {
+        let mut image = MagicImage::open(&image_meta.file).unwrap();
 
-        if img_result.is_err() {
-            return;
-        }
-
-        let mut img = img_result.unwrap();
-
-        for detection in &image.detections {
+        for detection in &image_meta.detections {
             if should_draw(detection, &draw_criteria) {
                 let color = match detection.class_index {
                     0 => Rgba([255, 255, 255, 255]),
@@ -119,19 +117,17 @@ pub fn export_image(
                     _ => Rgba([0, 0, 0, 255]),
                 };
 
-                img.draw_bounding_box(
-                    (detection.x * img.width() as f32) as i32,
-                    (detection.y * img.height() as f32) as i32,
-                    (detection.width * img.width() as f32) as u32,
-                    (detection.height * img.height() as f32) as u32,
+                image.draw_bounding_box(
+                    (detection.x * image.width() as f32) as i32,
+                    (detection.y * image.height() as f32) as i32,
+                    (detection.width * image.width() as f32) as u32,
+                    (detection.height * image.height() as f32) as u32,
                     color,
                 );
             }
         }
 
-        // let in_image_path = &image.file;
-
-        let image_rel_path = pathdiff::diff_paths(&image.file, &base_dir).unwrap();
+        let image_rel_path = pathdiff::diff_paths(&image_meta.file, &base_dir).unwrap();
 
         let out_image_path = output_dir.join(image_rel_path);
         let out_image_dir = out_image_path.parent().unwrap();
@@ -139,15 +135,15 @@ pub fn export_image(
         // Create directory / parents if they don't exist
         std::fs::create_dir_all(out_image_dir).unwrap();
 
-        let save_result = img.save(out_image_path);
+        image
+            .save(out_image_path)
+            .unwrap();
+    }
 
-        if save_result.is_err() {
-            // TODO: Log error
-        }
-    });
-
+   
     Ok(())
 }
+
 
 #[cfg(test)]
 mod tests {

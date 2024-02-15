@@ -1,9 +1,8 @@
 use super::detections::YoloImageDetections;
-use image::Rgb;
+use image::{ImageError, Rgb};
 use imageproc::drawing::draw_hollow_rect_mut;
 use imageproc::rect::Rect;
 use std::path::{Path, PathBuf};
-
 use walkdir::WalkDir;
 
 const IMAGE_EXTENTIONS: [&str; 3] = ["jpg", "jpeg", "png"];
@@ -21,12 +20,13 @@ pub fn enumerate_images(root_dir: PathBuf, recursive: bool) -> Vec<PathBuf> {
     let mut images: Vec<PathBuf> = vec![];
 
     for entry in WalkDir::new(root_dir)
-        .max_depth(if recursive {::std::usize::MAX} else {1})
+        .max_depth(if recursive { ::std::usize::MAX } else { 1 })
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|e| is_image_path(e.path())) {
-            images.push(entry.into_path());
-        }
+        .filter(|e| is_image_path(e.path()))
+    {
+        images.push(entry.into_path());
+    }
     images
 }
 
@@ -35,8 +35,8 @@ pub fn render_detections(
     image_path: &str,
     detections: &YoloImageDetections,
     output_path: &str,
-) -> Result<(), ()> {
-    let image = image::open(image_path).unwrap();
+) -> Result<(), ImageError> {
+    let image = image::open(image_path)?;
     let mut image = image.to_rgb8();
 
     for detection in &detections.detections {
@@ -52,13 +52,7 @@ pub fn render_detections(
         );
     }
 
-    image.save(output_path).unwrap();
+    image.save(output_path)?;
 
     Ok(())
-}
-
-/// Checks if CUDA and a Supported CUDA device can be found.
-pub fn is_cuda_available() -> bool {
-    println!("Warning: is_cuda_available is not implemented");
-    false
 }

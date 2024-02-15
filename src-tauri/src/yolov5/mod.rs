@@ -1,11 +1,10 @@
 mod detections;
 pub mod helpers;
-// mod model;
-pub mod model_ort;
+pub mod model;
 
 pub use detections::YoloDetection;
 pub use detections::YoloImageDetections;
-pub use model_ort::YoloModel;
+pub use model::YoloModel;
 
 #[cfg(test)]
 mod tests {

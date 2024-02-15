@@ -9,8 +9,8 @@ use app::{
         csv::CamTrapCSVDetection,
         image::{export_image, DrawCriteria, FilterCriteria},
     },
-    megadetector::load_model,
     structures::{self, CamTrapImageDetections},
+    yolov5::YoloModel,
 };
 use chug::Chug;
 use std::{path::PathBuf, sync::Mutex};
@@ -187,7 +187,7 @@ async fn process(
     state: tauri::State<'_, AppState>,
     handle: tauri::AppHandle,
 ) -> Result<(), ()> {
-    let files = app::opencv_yolov5::helpers::enumerate_images(PathBuf::from(&path), recursive);
+    let files = app::yolov5::helpers::enumerate_images(PathBuf::from(&path), recursive);
     let files_n = files.len();
 
     println!("Running with Confidence Threshold {}", confidence_threshold);
@@ -206,14 +206,16 @@ async fn process(
         )
         .unwrap();
 
-    let mut model = load_model(
+    let mut model = YoloModel::new_from_file(
         handle
             .path_resolver()
             .resolve_resource("../md_v5a.0.0-dynamic.onnx")
             .unwrap()
             .to_str()
             .unwrap(),
-    );
+        (640, 640),
+    )
+    .unwrap();
 
     let mut eta = Chug::new(100, files_n);
     let mut results: Vec<CamTrapImageDetections> = vec![];
@@ -275,9 +277,11 @@ async fn process(
     Ok(())
 }
 
+/// Show the main window, this is used to reduce the flicker when the app is started
+/// and the window is hidden by default.
 #[tauri::command]
 async fn showup(window: Window) {
-    window.get_window("main").unwrap().show().unwrap(); // replace "main" by the name of your window
+    window.get_window("main").unwrap().show().unwrap();
 }
 
 fn main() {
