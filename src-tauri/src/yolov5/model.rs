@@ -26,7 +26,6 @@ impl YoloModel {
         let coreml = ort::CoreMLExecutionProvider::default();
         if !coreml.is_available().unwrap() {
             eprintln!("Please compile ONNX Runtime with CoreML!");
-            std::process::exit(1);
         } else {
             println!("CoreML is available!");
         }
@@ -34,10 +33,10 @@ impl YoloModel {
         let session = ort::Session::builder()?
             .with_execution_providers([
                 // // Prefer TensorRT over CUDA.
-                // ort::TensorRTExecutionProvider::default().build(),
-                // ort::CUDAExecutionProvider::default().build(),
-                // // Use DirectML on Windows if NVIDIA EPs are not available
-                // ort::DirectMLExecutionProvider::default().build(),
+                ort::TensorRTExecutionProvider::default().build(),
+                ort::CUDAExecutionProvider::default().build(),
+                // Use DirectML on Windows if NVIDIA EPs are not available
+                ort::DirectMLExecutionProvider::default().build(),
                 ort::CoreMLExecutionProvider::default()
                     // Or use ANE on Apple platforms
                     .with_subgraphs()
@@ -106,12 +105,7 @@ impl YoloModel {
 
         // Pretend it's a batch of 12 by repeating the first image 12 times
         let array = array
-            .broadcast((
-                1,
-                3,
-                self.input_size.0 as usize,
-                self.input_size.1 as usize,
-            ))
+            .broadcast((1, 3, self.input_size.0 as usize, self.input_size.1 as usize))
             .unwrap()
             .to_owned();
         println!("Converted image to tensor: {:?}", time.elapsed());
