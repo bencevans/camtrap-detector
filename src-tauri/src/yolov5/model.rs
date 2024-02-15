@@ -285,7 +285,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_model() {
-        let mut model = YoloModel::new_from_file("../md_v5a.0.0-640x640.onnx", (640, 640)).unwrap();
+        let mut model = YoloModel::new_from_file("../md_v5a.0.0-dynamic.onnx", (640, 640)).unwrap();
 
         let detections = model
             .detect("./tests/fixtures/dataset/IMG_0089_peccary.JPG", 0.001, 0.45)
