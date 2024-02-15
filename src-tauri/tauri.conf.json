@@ -38,7 +38,8 @@
         "signingIdentity": null
       },
       "resources": [
-        "../md_v5a.0.0-dynamic.onnx"
+        "../md_v5a.0.0-dynamic.onnx",
+        "../md_v5a.0.0-640x640.onnx"
       ],
       "shortDescription": "",
       "targets": "all",

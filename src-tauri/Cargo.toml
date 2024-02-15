@@ -23,13 +23,13 @@ serde = { version = "1.0.193", features = ["derive"] }
 tauri = { version = "1.5.4", features = ["api-all"] }
 pathdiff = "0.2.1"
 csv = "1.3.0"
-image = { version = "0.24.7", features = ["rgb"] }
+image = { version = "0.24.7", features = ["rgb", "rayon", "jpeg_rayon"] }
 imageproc = "0.23.0"
 rayon = "1.8.0"
 chug = "1.1.0"
 img-parts = "0.3.0"
 tracing = "0.1.40"
-ort = { version = "2.0.0-alpha.4", features = ["load-dynamic", "download-binaries"] }
+ort = { version = "2.0.0-rc.0", features = [ "coreml", "download-binaries"] }
 ndarray = "0.15.6"
 walkdir = "2.4.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
@@ -43,7 +43,5 @@ default = ["custom-protocol"]
 # DO NOT remove this
 custom-protocol = ["tauri/custom-protocol"]
 
-# Enables CUDA OpenCV support
+# Enables Updater API
 updater = ["tauri/updater"]
-cuda = ["ort/cuda"]
-coreml = ["ort/coreml"]

@@ -1,6 +1,6 @@
 use image::Rgb;
 use ndarray::CowArray;
-use ort::{GraphOptimizationLevel, Session};
+use ort::{ExecutionProvider, GraphOptimizationLevel, Session};
 
 use super::{YoloDetection, YoloImageDetections};
 
@@ -17,17 +17,40 @@ impl YoloModel {
         path: &str,
         input_size: (u32, u32),
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        ort::init()
-            .with_execution_providers([
-                ort::CUDAExecutionProvider::default().build(),
-                ort::CoreMLExecutionProvider::default().build(),
-            ])
-            .commit()?;
+        // tracing_subscriber::fmt::init();
+        // let dylib_path = crate::internal::find_onnxruntime_dylib()?; // /etc/.../libonnxruntime.so
+        // println!("dylib_path: {:?}", dylib_path);
+
+        // ort::init_from(dylib_path).commit()?;
+
+        let coreml = ort::CoreMLExecutionProvider::default();
+        if !coreml.is_available().unwrap() {
+            eprintln!("Please compile ONNX Runtime with CoreML!");
+            std::process::exit(1);
+        } else {
+            println!("CoreML is available!");
+        }
 
         let session = ort::Session::builder()?
+            .with_execution_providers([
+                // // Prefer TensorRT over CUDA.
+                // ort::TensorRTExecutionProvider::default().build(),
+                // ort::CUDAExecutionProvider::default().build(),
+                // // Use DirectML on Windows if NVIDIA EPs are not available
+                // ort::DirectMLExecutionProvider::default().build(),
+                ort::CoreMLExecutionProvider::default()
+                    // Or use ANE on Apple platforms
+                    .with_subgraphs()
+                    // only use the ANE as the CoreML CPU implementation is super slow for this model
+                    // .with_ane_only()
+                    .build(),
+            ])
+            .unwrap()
             .with_optimization_level(GraphOptimizationLevel::Level3)?
-            .with_intra_threads(4)?
+            // .with_intra_threads(4)?
             .with_model_from_file(path)?;
+
+        println!("{:?}", session.allocator());
 
         Ok(Self {
             session,
@@ -43,29 +66,55 @@ impl YoloModel {
         iou_threshold: f32,
     ) -> Result<YoloImageDetections, Box<dyn std::error::Error>> {
         println!("Warning: YoloModel::detect is not implemented");
+
+        let time = std::time::Instant::now();
+        println!("Loading image...");
         let image = image::open(image_path).unwrap();
+        println!("Loaded image: {:?}", time.elapsed());
 
         // TODO: Letterboxing
 
+        let time = std::time::Instant::now();
+        println!("Resizing image...");
         let x: image::ImageBuffer<image::Rgba<u8>, Vec<u8>> = image::imageops::resize(
             &image,
             self.input_size.0,
             self.input_size.1,
             image::imageops::FilterType::Nearest,
         );
-        let mut output: image::ImageBuffer<Rgb<u8>, Vec<_>> = image::ImageBuffer::new(640, 640);
+        println!("Resized image: {:?}", time.elapsed());
+
+        let time = std::time::Instant::now();
+        println!("Converting image...");
+        let mut output: image::ImageBuffer<Rgb<u8>, Vec<_>> =
+            image::ImageBuffer::new(self.input_size.0, self.input_size.1);
         for (output, chunk) in output.chunks_exact_mut(3).zip(x.chunks_exact(4)) {
             // ... and copy each of them to output, leaving out the A byte
             output.copy_from_slice(&chunk[0..3]);
         }
+        println!("Converted image: {:?}", time.elapsed());
         // Convert x into ndarray::ArrayBase<ndarray::CowRepr<'_, f32>,
 
+        let time = std::time::Instant::now();
+        println!("Converting image to tensor...");
         let array: ndarray::ArrayBase<ndarray::CowRepr<'_, f32>, ndarray::Dim<ndarray::IxDynImpl>> =
             CowArray::from(ndarray::Array::from_shape_vec(
-                (1, 3, 640, 640),
+                (1, 3, self.input_size.0 as usize, self.input_size.1 as usize),
                 output.as_raw().iter().map(|x| *x as f32).collect(),
             )?)
             .into_dyn();
+
+        // Pretend it's a batch of 12 by repeating the first image 12 times
+        let array = array
+            .broadcast((
+                1,
+                3,
+                self.input_size.0 as usize,
+                self.input_size.1 as usize,
+            ))
+            .unwrap()
+            .to_owned();
+        println!("Converted image to tensor: {:?}", time.elapsed());
 
         // convert image into a tensor
         // let array = ndarray::Array::from_shape_vec(
@@ -81,13 +130,19 @@ impl YoloModel {
         //     )?)
         //     .into_dyn();
 
+        let time = std::time::Instant::now();
+        println!("Running model...");
         let inputs = ort::inputs![
-            &array, // Pass the CowRepr array reference here
+            array, // Pass the CowRepr array reference here
         ]
         .unwrap();
 
         let outputs = &self.session.run(inputs).unwrap()[0];
         let output = outputs.extract_tensor::<f32>()?;
+        println!("Ran model: {:?}", time.elapsed());
+
+        let time = std::time::Instant::now();
+        println!("Processing output...");
         let view = output.view();
 
         let mut detections = vec![];
@@ -111,10 +166,17 @@ impl YoloModel {
                 });
             }
         }
+        println!("Processed output: {:?}", time.elapsed());
 
+        let time = std::time::Instant::now();
+        println!("Filtering detections...");
         let detections = filter_confidence(detections, confidence_threshold);
+        println!("Filtered detections: {:?}", time.elapsed());
 
+        let time = std::time::Instant::now();
+        println!("Non-maximum suppression...");
         let detections = non_max_suppression(detections, iou_threshold);
+        println!("Non-maximum suppression: {:?}", time.elapsed());
 
         let detections = YoloImageDetections {
             file: image_path.to_string(),

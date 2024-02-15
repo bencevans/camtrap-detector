@@ -10,11 +10,14 @@ use app::{
         image::{export_image, DrawCriteria, FilterCriteria},
     },
     megadetector::load_model,
-    structures::{self, CamTrapImageDetections}
+    structures::{self, CamTrapImageDetections},
 };
 use chug::Chug;
 use std::{path::PathBuf, sync::Mutex};
-use tauri::{api::{dialog, notification::Notification}, Manager, Window};
+use tauri::{
+    api::{dialog, notification::Notification},
+    Manager, Window,
+};
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -278,7 +281,9 @@ async fn showup(window: Window) {
 }
 
 fn main() {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::TRACE)
+        .finish();
 
     let mut context = tauri::generate_context!();
 
