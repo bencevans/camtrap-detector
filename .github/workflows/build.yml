@@ -70,7 +70,7 @@ jobs:
       #   run: npm ci && npm run tauri build
 
       - name: Run Rust Tests
-        run: mkdir -p build && cd src-tauri && cargo test
+        run: mkdir -p build && cd src-tauri && cargo test -- --nocapture
 
       - name: Remove Bundles to Reduce Cache
         run: rm -rf src-tauri/target/release/bundle/
