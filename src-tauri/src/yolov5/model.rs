@@ -133,7 +133,6 @@ impl YoloModel {
 
         println!("Boxes: {:?}", boxes);
 
-
         println!("{:?}", start.elapsed());
 
         Ok(boxes)
@@ -191,7 +190,6 @@ fn non_max_suppression(detections: Vec<Detection>, nms_threshold: f32) -> Vec<De
 
 #[cfg(test)]
 mod test {
-    use crate::yolov5::helpers::render_detections;
 
     use super::*;
     use tracing_test::traced_test;
@@ -199,7 +197,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_model() {
-        let mut model = YoloModel::new_from_file("../md_v5a.0.0-dynamic.onnx", (640, 640)).unwrap();
+        let model = YoloModel::new_from_file("../md_v5a.0.0-dynamic.onnx", (640, 640)).unwrap();
 
         let detections = model
             .detect(
@@ -212,12 +210,5 @@ mod test {
         println!("{:?}", detections);
 
         println!("Detections: {:?}", detections.len());
-
-        // render_detections(
-        //     "./tests/fixtures/dataset/IMG_0089_peccary.JPG",
-        //     &detections,
-        //     "tmp.jpg",
-        // )
-        // .unwrap();
     }
 }

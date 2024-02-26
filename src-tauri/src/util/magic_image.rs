@@ -42,16 +42,6 @@ impl MagicImage {
         })
     }
 
-    /// Image width
-    pub fn width(&self) -> u32 {
-        self.image.width()
-    }
-
-    /// Image height
-    pub fn height(&self) -> u32 {
-        self.image.height()
-    }
-
     /// Draw a bounding box on the image
     pub fn draw_bounding_box(
         &mut self,
