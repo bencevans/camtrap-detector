@@ -59,7 +59,7 @@ jobs:
       #   run: npm ci && npm run tauri build
 
       - name: Run Rust Tests
-        run: cd src-tauri && cargo test -- --nocapture
+        run: mkdir -p build && cd src-tauri && cargo test -- --nocapture
 
       # - uses: tauri-apps/tauri-action@v0
       #   env:
