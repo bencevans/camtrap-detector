@@ -79,10 +79,10 @@ impl CamTrapCSVDetection {
             error: None,
             image_width: Some(image_width),
             image_height: Some(image_height),
-            x: Some((detection.x * (image_width as f32)) as u32),
-            y: Some((detection.y * (image_height as f32)) as u32),
-            width: Some((detection.width * (image_width as f32)) as u32),
-            height: Some((detection.height * (image_height as f32)) as u32),
+            x: Some(detection.x as u32),
+            y: Some(detection.y as u32),
+            width: Some(detection.width as u32),
+            height: Some(detection.height as u32),
             category: Some(
                 CATEGORIES
                     .get(detection.class_index as usize + 1)

@@ -1,10 +1,7 @@
-use super::{YoloDetection, YoloImageDetections};
 use image::imageops::FilterType;
-use image::DynamicImage;
-use image::{buffer::ConvertBuffer, GenericImageView, ImageBuffer, RgbImage, RgbaImage};
-use ndarray::{s, Array, Axis, CowArray};
-use ort::GraphOptimizationLevel;
-use ort::{ExecutionProvider, Session};
+use image::{DynamicImage, GenericImageView};
+use ndarray::{s, Array, Axis};
+use ort::{ExecutionProvider, GraphOptimizationLevel, Session};
 use serde::{Deserialize, Serialize};
 
 pub struct YoloModel {
@@ -14,7 +11,7 @@ pub struct YoloModel {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Detection {
-    pub class: String,
+    pub class: usize,
     pub score: f32,
     pub bbox: BBox,
 }
@@ -65,7 +62,7 @@ impl YoloModel {
         let nms_threshold = nms_threshold.unwrap_or(0.45);
         println!("NMS threshold: {:?}", nms_threshold);
 
-        let target_size = 640;
+        let target_size = self.input_size.0 as u32;
 
         let start = std::time::Instant::now();
 
@@ -96,7 +93,7 @@ impl YoloModel {
         for row in output.axis_iter(Axis(1)) {
             let row: Vec<_> = row.iter().copied().collect();
 
-            let (class_id, prob) = row
+            let (class_id, _prob) = row
                 .iter()
                 // skip bounding box coordinates
                 .skip(5)
@@ -109,7 +106,7 @@ impl YoloModel {
                 continue;
             }
 
-            let label = class_id.to_string();
+            let label = class_id;
             let xc = row[0] / target_size as f32 * (img_width as f32);
             let xc = xc.max(0.).min(img_width as f32);
             let yc = row[1] / target_size as f32 * (img_height as f32);
@@ -123,8 +120,8 @@ impl YoloModel {
                 class: label,
                 score: row[4],
                 bbox: BBox {
-                    x: xc - w / 2.,
-                    y: yc - h / 2.,
+                    x: xc - w / 2.0,
+                    y: yc - h / 2.0,
                     w,
                     h,
                 },
@@ -133,6 +130,9 @@ impl YoloModel {
 
         // Non-maximum suppression
         boxes = non_max_suppression(boxes, nms_threshold);
+
+        println!("Boxes: {:?}", boxes);
+
 
         println!("{:?}", start.elapsed());
 

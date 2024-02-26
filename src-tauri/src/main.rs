@@ -207,7 +207,7 @@ async fn process(
         )
         .unwrap();
 
-    let mut model = YoloModel::new_from_file(
+    let model = YoloModel::new_from_file(
         handle
             .path_resolver()
             .resolve_resource("../md_v5a.0.0-dynamic.onnx")
@@ -252,7 +252,7 @@ async fn process(
                 detections: result
                     .into_iter()
                     .map(|d| CamTrapDetection {
-                        class_index: 42,
+                        class_index: d.class as u32,
                         confidence: d.score,
                         x: d.bbox.x,
                         y: d.bbox.y,

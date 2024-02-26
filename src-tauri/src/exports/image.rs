@@ -118,10 +118,10 @@ pub fn export_image(
                 };
 
                 image.draw_bounding_box(
-                    (detection.x * image.width() as f32) as i32,
-                    (detection.y * image.height() as f32) as i32,
-                    (detection.width * image.width() as f32) as u32,
-                    (detection.height * image.height() as f32) as u32,
+                    (detection.x) as i32,
+                    (detection.y) as i32,
+                    (detection.width) as u32,
+                    (detection.height) as u32,
                     color,
                 );
             }
@@ -135,15 +135,11 @@ pub fn export_image(
         // Create directory / parents if they don't exist
         std::fs::create_dir_all(out_image_dir).unwrap();
 
-        image
-            .save(out_image_path)
-            .unwrap();
+        image.save(out_image_path).unwrap();
     }
 
-   
     Ok(())
 }
-
 
 #[cfg(test)]
 mod tests {
