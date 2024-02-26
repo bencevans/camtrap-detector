@@ -55,23 +55,11 @@ jobs:
       - name: Download Model (dynamic)
         run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
 
-      - name: Cache Rust / Cargo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
       # - name: Build App
       #   run: npm ci && npm run tauri build
 
       - name: Run Rust Tests
-        run: mkdir -p build && cd src-tauri && cargo test -- --nocapture
-
-      - name: Remove Bundles to Reduce Cache
-        run: rm -rf src-tauri/target/release/bundle/
+        run: cd src-tauri && cargo test -- --nocapture
 
       # - uses: tauri-apps/tauri-action@v0
       #   env:

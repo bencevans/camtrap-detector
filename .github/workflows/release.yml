@@ -19,24 +19,13 @@ jobs:
         include:
           - platform: macos-latest
             triplet: x64-osx
-            vcpkg-package: "opencv4[dnn]"
-            vcpkg-version: 2023.11.20
           - platform: windows-latest
-            triplet: x64-windows-static-md
-            vcpkg-package: "opencv4[dnn]"
-            vcpkg-version: 2023.11.20
           - platform: ubuntu-latest
             triplet: x64-linux
-            vcpkg-package: "opencv4[dnn]"
-            vcpkg-version: 2023.11.20
 
     runs-on: ${{ matrix.platform }}
 
     steps:
-      - name: Pin vcpkg version
-        run: |
-          cd $VCPKG_INSTALLATION_ROOT && git fetch && git checkout . && git checkout ${{ matrix.vcpkg-version }}
-
       - name: Install MacOS System Dependencies
         run: brew install jq pkg-config && mkdir -p /Users/runner/lib && ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib /Users/runner/lib/libclang.dylib
         if: runner.os == 'macOS'
@@ -58,22 +47,13 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
       - name: Download Model (dynamic)
         run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
-
-      - name: Cache Rust / Cargo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-${{runner.arch}}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ matrix.vcpkg-version }}-${{ matrix.platform }}-vcpkg-${{ matrix.vcpkg-package }}-${{ matrix.triplet }}
 
       - name: Build App
         run: npm ci && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build -- --features updater
@@ -85,9 +65,6 @@ jobs:
         with:
           name: CamTrap Detector MacOS Intel.dmg
           path: src-tauri/target/release/bundle/dmg/*.dmg
-
-      - name: Remove Bundles to Reduce Cache
-        run: rm -rf src-tauri/target/release/bundle/
 
       - uses: tauri-apps/tauri-action@v0
         env:
