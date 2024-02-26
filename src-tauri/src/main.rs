@@ -9,10 +9,11 @@ use app::{
         csv::CamTrapCSVDetection,
         image::{export_image, DrawCriteria, FilterCriteria},
     },
-    structures::{self, CamTrapImageDetections},
+    structures::{self, CamTrapDetection, CamTrapImageDetections},
     yolov5::YoloModel,
 };
 use chug::Chug;
+use image::GenericImageView;
 use std::{path::PathBuf, sync::Mutex};
 use tauri::{
     api::{dialog, notification::Notification},
@@ -236,10 +237,30 @@ async fn process(
             .unwrap();
         eta.tick();
 
-        let result = model.detect(file.to_str().unwrap(), confidence_threshold, 0.45);
+        let image = image::open(file.to_str().unwrap()).unwrap();
+
+        let result = model.detect(&image, Some(confidence_threshold), Some(0.45));
+
+        let (width, height) = image.dimensions();
 
         let result_handled = match result {
-            Ok(result) => result.into(),
+            Ok(result) => CamTrapImageDetections {
+                file: file.to_str().unwrap().to_string(),
+                error: None,
+                image_width: Some(width),
+                image_height: Some(height),
+                detections: result
+                    .into_iter()
+                    .map(|d| CamTrapDetection {
+                        class_index: 42,
+                        confidence: d.score,
+                        x: d.bbox.x,
+                        y: d.bbox.y,
+                        width: d.bbox.w,
+                        height: d.bbox.h,
+                    })
+                    .collect(),
+            },
             Err(err) => CamTrapImageDetections {
                 file: file.to_str().unwrap().to_string(),
                 error: Some(err.to_string()),

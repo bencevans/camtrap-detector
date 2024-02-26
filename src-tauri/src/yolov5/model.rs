@@ -1,260 +1,182 @@
 use super::{YoloDetection, YoloImageDetections};
+use image::imageops::FilterType;
+use image::DynamicImage;
 use image::{buffer::ConvertBuffer, GenericImageView, ImageBuffer, RgbImage, RgbaImage};
-use ndarray::CowArray;
+use ndarray::{s, Array, Axis, CowArray};
+use ort::GraphOptimizationLevel;
 use ort::{ExecutionProvider, Session};
+use serde::{Deserialize, Serialize};
 
-/// A YOLO model.
 pub struct YoloModel {
-    session: Session,
-    input_size: (u32, u32),
+    model: Session,
+    input_size: (usize, usize),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Detection {
+    pub class: String,
+    pub score: f32,
+    pub bbox: BBox,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BBox {
+    pub x: f32,
+    pub y: f32,
+    pub w: f32,
+    pub h: f32,
 }
 
 impl YoloModel {
-    /// Load a YOLO model from a file.
     pub fn new_from_file(
-        path: &str,
-        input_size: (u32, u32),
+        model_path: &str,
+        input_size: (usize, usize),
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let coreml = ort::CoreMLExecutionProvider::default();
-        if !coreml.is_available().unwrap() {
-            eprintln!("Please compile ONNX Runtime with CoreML!");
-        } else {
-            println!("CoreML is available!");
-        }
+        println!("Loading model");
 
-        let session = ort::Session::builder()?
-            .with_execution_providers([
-                // // // Prefer TensorRT over CUDA.
-                // ort::TensorRTExecutionProvider::default().build(),
-                // ort::CUDAExecutionProvider::default().build(),
-                // // Use DirectML on Windows if NVIDIA EPs are not available
-                // ort::DirectMLExecutionProvider::default().build(),
-                // ort::CoreMLExecutionProvider::default()
-                //     // Or use ANE on Apple platforms
-                //     .with_subgraphs()
-                //     // only use the ANE as the CoreML CPU implementation is super slow for this model
-                //     // .with_ane_only()
-                //     .build(),
-            ])
-            .unwrap()
-            // .with_optimization_level(GraphOptimizationLevel::Level3)?
-            // .with_intra_threads(4)?
-            .with_model_from_file(path)?;
+        let coreml = ort::CoreMLExecutionProvider::default()
+            .with_ane_only()
+            .with_subgraphs();
 
-        println!("{:?}", session.allocator());
+        println!("CoreML available: {:?}", coreml.is_available().unwrap());
 
-        Ok(Self {
-            session,
-            input_size,
-        })
+        let model = Session::builder()?
+            .with_execution_providers(vec![
+                coreml.build(),
+                ort::CUDAExecutionProvider::default().build(),
+            ])?
+            .with_optimization_level(GraphOptimizationLevel::Level3)?
+            .with_intra_threads(4)?
+            .with_model_from_file(model_path)?;
+
+        println!("Model loaded");
+
+        Ok(Self { model, input_size })
     }
 
-    /// Detect objects in an image.
     pub fn detect(
-        &mut self,
-        image_path: &str,
-        confidence_threshold: f32,
-        iou_threshold: f32,
-    ) -> Result<YoloImageDetections, Box<dyn std::error::Error>> {
-        println!("Warning: YoloModel::detect is not implemented");
+        &self,
+        original_img: &DynamicImage,
+        conf_threshold: Option<f32>,
+        nms_threshold: Option<f32>,
+    ) -> Result<Vec<Detection>, Box<dyn std::error::Error>> {
+        let conf_threshold = conf_threshold.unwrap_or(0.1);
+        println!("Confidence threshold: {:?}", conf_threshold);
+        let nms_threshold = nms_threshold.unwrap_or(0.45);
+        println!("NMS threshold: {:?}", nms_threshold);
 
-        // Load the image
-        let (original_image, original_image_width, original_image_height) = {
-            let time = std::time::Instant::now();
-            println!("Loading image...");
-            let original_image = image::open(image_path).unwrap();
-            let original_image_width = original_image.width();
-            let original_image_height = original_image.height();
+        let target_size = 640;
 
-            let image = original_image;
-            println!("Loaded image: {:?}", time.elapsed());
-            (image, original_image_width, original_image_height)
-        };
+        let start = std::time::Instant::now();
 
-        let image = {
-            // 1. Letterbox the image
-
-            let mut letterboxed: ImageBuffer<image::Rgb<f32>, Vec<f32>> =
-                image::ImageBuffer::new(self.input_size.0, self.input_size.1);
-
-            let background = image::Rgb([0.015686275, 0.015686275, 0.015686275]); // Convert background color values to f32
-            for pixel in letterboxed.pixels_mut() {
-                *pixel = background;
-            }
-
-            let width_w_ratio = self.input_size.0 as f32 / original_image_width as f32;
-            let height_w_ratio = self.input_size.1 as f32 / original_image_height as f32;
-
-            let ratio = width_w_ratio.min(height_w_ratio);
-            let new_width = (original_image_width as f32 * ratio) as u32;
-            let new_height = (original_image_height as f32 * ratio) as u32;
-
-            let image_resized =
-                original_image.resize(new_width, new_height, image::imageops::FilterType::Nearest);
-
-            // Swap R and B channels
-            let image_resized: RgbImage =
-                ImageBuffer::from_fn(image_resized.width(), image_resized.height(), |x, y| {
-                    let pixel = image_resized.get_pixel(x, y);
-                    image::Rgb([pixel[2], pixel[1], pixel[0]])
-                });
-
-            let x = (self.input_size.0 - image_resized.width()) / 2;
-            let y = (self.input_size.1 - image_resized.height()) / 2;
-
-            let image_resized_f32: ImageBuffer<image::Rgb<f32>, Vec<_>> = image_resized.convert();
-            image::imageops::overlay(&mut letterboxed, &image_resized_f32, x.into(), y.into());
-
-            let lettboxed_to_u8: RgbaImage = letterboxed.convert();
-            lettboxed_to_u8.save("letterboxed.jpg").unwrap();
-
-            // Convert the image to a tensor
-            let t = CowArray::from(ndarray::Array::from_shape_vec(
-                (1, 3, self.input_size.0 as usize, self.input_size.1 as usize),
-                letterboxed.as_raw().to_vec(),
-            )?)
-            .to_owned();
-
-            println!("input shape = {:?}", t.shape());
-
-            // Change the image to be BGR instead of RGB. It has the shape [1, 3, 640, 640] so we need to reverese the channels in the second axis
-            // let mut t = t;
-            // t.raw_view_mut().swap_axes(1, 2);
-
-            println!("input = {:?}", t);
-
-            t
-        };
-
-        let time = std::time::Instant::now();
-        println!("Running model...");
-        let binding = self.session.run(ort::inputs![image].unwrap()).unwrap();
-        let binding = binding[0].extract_tensor().unwrap();
-        let outputs = &binding.view();
-
-        println!("Ran model: {:?}", time.elapsed());
-
-        let time = std::time::Instant::now();
-        println!("Processing model output...");
-
-        let rows = *outputs.shape().get(1).unwrap();
-        println!("rows: {:?}", rows);
-        let mut detections = Vec::<YoloDetection>::with_capacity(rows);
-
-        let mut overall_max_confidence: f32 = 0.0;
-
-        for row in 0..rows {
-            let cx: &f32 = &outputs[[0, row, 0]];
-            let cy: &f32 = &outputs[[0, row, 1]];
-            let w: &f32 = &outputs[[0, row, 2]];
-            let h: &f32 = &outputs[[0, row, 3]];
-            let sc: &f32 = &outputs[[0, row, 4]];
-
-            // println!("cx: {:?}, cy: {:?}, w: {:?}, h: {:?}, sc: {:?}", cx, cy, w, h, sc);
-
-            overall_max_confidence = overall_max_confidence.max(*sc);
-
-            let mut x_min = *cx - *w / 2.0;
-            let mut y_min = *cy - *h / 2.0;
-
-            x_min /= self.input_size.0 as f32;
-            y_min /= self.input_size.1 as f32;
-            let mut width = *w / self.input_size.0 as f32;
-            let mut height = *h / self.input_size.1 as f32;
-
-            x_min = x_min.max(0.0).min(1_f32);
-            y_min = y_min.max(0.0).min(1_f32);
-            width = width.max(0.0).min(1_f32);
-            height = height.max(0.0).min(1_f32);
-
-            let mat_size = outputs.shape();
-            let classes = *mat_size.get(2).unwrap() - 5;
-            let mut classes_confidences = vec![];
-
-            for j in 5..5 + classes {
-                let confidence: &f32 = &outputs[[0, row, j]];
-                classes_confidences.push(confidence);
-            }
-
-            let mut max_index = 0;
-            let mut max_confidence = 0.0;
-            for (index, confidence) in classes_confidences.iter().enumerate() {
-                if *confidence > &max_confidence {
-                    max_index = index;
-                    max_confidence = **confidence;
-                }
-            }
-
-            detections.push(YoloDetection {
-                x: x_min,
-                y: y_min,
-                width,
-                height,
-                class_index: max_index as u32,
-                confidence: *sc,
-            })
+        let (img_width, img_height) = (original_img.width(), original_img.height());
+        let img = original_img.resize_exact(target_size, target_size, FilterType::CatmullRom);
+        let mut input = Array::zeros((1, 3, target_size as usize, target_size as usize));
+        for pixel in img.pixels() {
+            let x = pixel.0 as _;
+            let y = pixel.1 as _;
+            let [r, g, b, _] = pixel.2 .0;
+            input[[0, 0, y, x]] = (r as f32) / 255.;
+            input[[0, 1, y, x]] = (g as f32) / 255.;
+            input[[0, 2, y, x]] = (b as f32) / 255.;
         }
 
-        println!("Overall max confidence: {:?}", overall_max_confidence);
+        let outputs = self.model.run(ort::inputs!["images" => input]?)?;
 
-        println!("Processed model output: {:?}", time.elapsed());
-        println!("Detections: {:?}", detections.len());
+        // Postprocessing
+        let output = outputs["output"]
+            .extract_tensor::<f32>()
+            .unwrap()
+            .view()
+            .t()
+            .into_owned();
 
-        let time = std::time::Instant::now();
-        println!("Filtering detections...");
-        let detections = filter_confidence(detections, confidence_threshold);
-        println!(
-            "Filtered detections: {:?} {}",
-            time.elapsed(),
-            detections.len()
-        );
+        let mut boxes = Vec::new();
+        let output = output.slice(s![.., .., 0]);
+        for row in output.axis_iter(Axis(1)) {
+            let row: Vec<_> = row.iter().copied().collect();
 
-        let time = std::time::Instant::now();
-        println!("Non-maximum suppression...");
-        let detections = non_max_suppression(detections, iou_threshold);
-        println!(
-            "Non-maximum suppression: {:?} {}",
-            time.elapsed(),
-            detections.len()
-        );
+            let (class_id, prob) = row
+                .iter()
+                // skip bounding box coordinates
+                .skip(5)
+                .enumerate()
+                .map(|(index, value)| (index, *value))
+                .reduce(|accum, row| if row.1 > accum.1 { row } else { accum })
+                .unwrap();
 
-        let detections = YoloImageDetections {
-            file: image_path.to_string(),
-            image_width: original_image_width,
-            image_height: original_image_height,
-            detections,
-        };
+            if row[4] < conf_threshold {
+                continue;
+            }
 
-        Ok(detections)
+            let label = class_id.to_string();
+            let xc = row[0] / target_size as f32 * (img_width as f32);
+            let xc = xc.max(0.).min(img_width as f32);
+            let yc = row[1] / target_size as f32 * (img_height as f32);
+            let yc = yc.max(0.).min(img_height as f32);
+            let w = row[2] / target_size as f32 * (img_width as f32);
+            let w = w.max(0.).min(img_width as f32);
+            let h = row[3] / target_size as f32 * (img_height as f32);
+            let h = h.max(0.).min(img_height as f32);
+
+            boxes.push(Detection {
+                class: label,
+                score: row[4],
+                bbox: BBox {
+                    x: xc - w / 2.,
+                    y: yc - h / 2.,
+                    w,
+                    h,
+                },
+            });
+        }
+
+        // Non-maximum suppression
+        boxes = non_max_suppression(boxes, nms_threshold);
+
+        println!("{:?}", start.elapsed());
+
+        Ok(boxes)
     }
 }
 
-/// Calculate Intersection Over Union (IOU) between two bounding boxes.
-fn iou(a: &YoloDetection, b: &YoloDetection) -> f32 {
-    let area_a = a.area();
-    let area_b = b.area();
+impl BBox {
+    /// Calculate the intersection over union (IoU) of two bounding boxes
+    pub fn iou(&self, other: &BBox) -> f32 {
+        let x1 = self.x;
+        let y1 = self.y;
+        let w1 = self.w;
+        let h1 = self.h;
+        let x2 = other.x;
+        let y2 = other.y;
+        let w2 = other.w;
+        let h2 = other.h;
 
-    let top_left = (a.x.max(b.x), a.y.max(b.y));
-    let bottom_right = (a.x + a.width.min(b.width), a.y + a.height.min(b.height));
+        let x_a = x1.max(x2);
+        let y_a = y1.max(y2);
+        let x_b = (x1 + w1).min(x2 + w2);
+        let y_b = (y1 + h1).min(y2 + h2);
 
-    let intersection =
-        (bottom_right.0 - top_left.0).max(0.0) * (bottom_right.1 - top_left.1).max(0.0);
+        let inter_area = (x_b - x_a).max(0.) * (y_b - y_a).max(0.);
+        let box_aarea = w1 * h1;
+        let box_barea = w2 * h2;
 
-    intersection / (area_a + area_b - intersection)
+        inter_area / (box_aarea + box_barea - inter_area)
+    }
 }
 
 /// Non-Maximum Suppression
-fn non_max_suppression(detections: Vec<YoloDetection>, nms_threshold: f32) -> Vec<YoloDetection> {
-    let mut suppressed_detections: Vec<YoloDetection> = vec![];
-    let mut sorted_detections: Vec<YoloDetection> = detections.to_vec();
+fn non_max_suppression(detections: Vec<Detection>, nms_threshold: f32) -> Vec<Detection> {
+    let mut suppressed_detections: Vec<Detection> = vec![];
+    let mut sorted_detections: Vec<Detection> = detections;
 
-    sorted_detections.sort_by(|a, b| a.confidence.partial_cmp(&b.confidence).unwrap());
+    sorted_detections.sort_by(|a, b| a.score.partial_cmp(&b.score).unwrap());
     sorted_detections.reverse();
 
     for i in 0..sorted_detections.len() {
         let mut keep = true;
         for j in 0..i {
-            let iou = iou(&sorted_detections[i], &sorted_detections[j]);
+            let iou = sorted_detections[i].bbox.iou(&sorted_detections[j].bbox);
             if iou > nms_threshold {
                 keep = false;
                 break;
@@ -265,14 +187,6 @@ fn non_max_suppression(detections: Vec<YoloDetection>, nms_threshold: f32) -> Ve
         }
     }
     suppressed_detections
-}
-
-/// Filter detections by confidence.
-fn filter_confidence(detections: Vec<YoloDetection>, min_confidence: f32) -> Vec<YoloDetection> {
-    detections
-        .into_iter()
-        .filter(|dsetection| dsetection.confidence >= min_confidence)
-        .collect()
 }
 
 #[cfg(test)]
@@ -288,18 +202,22 @@ mod test {
         let mut model = YoloModel::new_from_file("../md_v5a.0.0-dynamic.onnx", (640, 640)).unwrap();
 
         let detections = model
-            .detect("./tests/fixtures/dataset/IMG_0089_peccary.JPG", 0.001, 0.45)
+            .detect(
+                &image::open("./tests/fixtures/dataset/IMG_0089_peccary.JPG").unwrap(),
+                Some(0.001),
+                Some(0.45),
+            )
             .unwrap();
 
         println!("{:?}", detections);
 
-        println!("Detections: {:?}", detections.detections.len());
+        println!("Detections: {:?}", detections.len());
 
-        render_detections(
-            "./tests/fixtures/dataset/IMG_0089_peccary.JPG",
-            &detections,
-            "tmp.jpg",
-        )
-        .unwrap();
+        // render_detections(
+        //     "./tests/fixtures/dataset/IMG_0089_peccary.JPG",
+        //     &detections,
+        //     "tmp.jpg",
+        // )
+        // .unwrap();
     }
 }
