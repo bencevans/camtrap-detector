@@ -50,9 +50,7 @@ jobs:
           node-version: 20
 
       - name: Install Rust stable
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Download Model (dynamic)
         run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
