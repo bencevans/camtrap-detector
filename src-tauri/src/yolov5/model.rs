@@ -1,11 +1,12 @@
 use image::imageops::FilterType;
 use image::{DynamicImage, GenericImageView};
 use ndarray::{s, Array, Axis};
-use ort::{ExecutionProvider, GraphOptimizationLevel, Session};
+use ort::{ExecutionProvider, Session};
 use serde::{Deserialize, Serialize};
 
 pub struct YoloModel {
     model: Session,
+    accelerator_availability: AcceleratorAvailability,
     input_size: (usize, usize),
 }
 
@@ -24,6 +25,15 @@ pub struct BBox {
     pub h: f32,
 }
 
+/// Availability of different accelerators
+#[derive(Debug, Serialize)]
+pub struct AcceleratorAvailability {
+    pub coreml: bool,
+    pub tensor_rt: bool,
+    pub cuda: bool,
+    pub direct_ml: bool,
+}
+
 impl YoloModel {
     pub fn new_from_file(
         model_path: &str,
@@ -34,21 +44,50 @@ impl YoloModel {
         let coreml = ort::CoreMLExecutionProvider::default()
             .with_ane_only()
             .with_subgraphs();
-
         println!("CoreML available: {:?}", coreml.is_available().unwrap());
+
+        let tensor_rt = ort::TensorRTExecutionProvider::default();
+        println!(
+            "TensorRT available: {:?}",
+            tensor_rt.is_available().unwrap()
+        );
+
+        let cuda = ort::CUDAExecutionProvider::default();
+        println!("CUDA available: {:?}", cuda.is_available().unwrap());
+
+        let direct_ml = ort::DirectMLExecutionProvider::default();
+        println!(
+            "DirectML available: {:?}",
+            direct_ml.is_available().unwrap()
+        );
+
+        let accelerator_availability = AcceleratorAvailability {
+            coreml: coreml.is_available().unwrap(),
+            tensor_rt: tensor_rt.is_available().unwrap(),
+            cuda: cuda.is_available().unwrap(),
+            direct_ml: direct_ml.is_available().unwrap(),
+        };
 
         let model = Session::builder()?
             .with_execution_providers(vec![
                 coreml.build(),
-                ort::CUDAExecutionProvider::default().build(),
+                tensor_rt.build(),
+                cuda.build(),
+                direct_ml.build(),
             ])?
-            .with_optimization_level(GraphOptimizationLevel::Level3)?
-            .with_intra_threads(4)?
             .with_model_from_file(model_path)?;
 
         println!("Model loaded");
 
-        Ok(Self { model, input_size })
+        Ok(Self {
+            model,
+            input_size,
+            accelerator_availability,
+        })
+    }
+
+    pub fn accelerator_availability(&self) -> &AcceleratorAvailability {
+        &self.accelerator_availability
     }
 
     pub fn detect(
