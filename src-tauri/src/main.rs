@@ -9,12 +9,16 @@ use app::{
         csv::CamTrapCSVDetection,
         image::{export_image, DrawCriteria, FilterCriteria},
     },
-    megadetector::load_model,
-    structures::{self, CamTrapImageDetections}
+    structures::{self, CamTrapDetection, CamTrapImageDetections},
+    yolov5::YoloModel,
 };
 use chug::Chug;
+use image::GenericImageView;
 use std::{path::PathBuf, sync::Mutex};
-use tauri::{api::{dialog, notification::Notification}, Manager, Window};
+use tauri::{
+    api::{dialog, notification::Notification},
+    Manager, Window,
+};
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -184,7 +188,7 @@ async fn process(
     state: tauri::State<'_, AppState>,
     handle: tauri::AppHandle,
 ) -> Result<(), ()> {
-    let files = app::opencv_yolov5::helpers::enumerate_images(PathBuf::from(&path), recursive);
+    let files = app::yolov5::helpers::enumerate_images(PathBuf::from(&path), recursive);
     let files_n = files.len();
 
     println!("Running with Confidence Threshold {}", confidence_threshold);
@@ -203,14 +207,16 @@ async fn process(
         )
         .unwrap();
 
-    let mut model = load_model(
+    let model = YoloModel::new_from_file(
         handle
             .path_resolver()
-            .resolve_resource("../md_v5a.0.0-1280x1280.onnx")
+            .resolve_resource("../md_v5a.0.0-dynamic.onnx")
             .unwrap()
             .to_str()
             .unwrap(),
-    );
+        (640, 640),
+    )
+    .unwrap();
 
     let mut eta = Chug::new(100, files_n);
     let mut results: Vec<CamTrapImageDetections> = vec![];
@@ -231,10 +237,30 @@ async fn process(
             .unwrap();
         eta.tick();
 
-        let result = model.detect(file.to_str().unwrap(), confidence_threshold, 0.45);
+        let image = image::open(file.to_str().unwrap()).unwrap();
+
+        let result = model.detect(&image, Some(confidence_threshold), Some(0.45));
+
+        let (width, height) = image.dimensions();
 
         let result_handled = match result {
-            Ok(result) => result.into(),
+            Ok(result) => CamTrapImageDetections {
+                file: file.to_str().unwrap().to_string(),
+                error: None,
+                image_width: Some(width),
+                image_height: Some(height),
+                detections: result
+                    .into_iter()
+                    .map(|d| CamTrapDetection {
+                        class_index: d.class as u32,
+                        confidence: d.score,
+                        x: d.bbox.x,
+                        y: d.bbox.y,
+                        width: d.bbox.w,
+                        height: d.bbox.h,
+                    })
+                    .collect(),
+            },
             Err(err) => CamTrapImageDetections {
                 file: file.to_str().unwrap().to_string(),
                 error: Some(err.to_string()),
@@ -272,12 +298,18 @@ async fn process(
     Ok(())
 }
 
+/// Show the main window, this is used to reduce the flicker when the app is started
+/// and the window is hidden by default.
 #[tauri::command]
 async fn showup(window: Window) {
-    window.get_window("main").unwrap().show().unwrap(); // replace "main" by the name of your window
+    window.get_window("main").unwrap().show().unwrap();
 }
 
 fn main() {
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::TRACE)
+        .finish();
+
     let mut context = tauri::generate_context!();
 
     let update_url = if cfg!(feature = "cuda") {

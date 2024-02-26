@@ -2,7 +2,7 @@ name: "Release App"
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -33,10 +33,9 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-
       - name: Pin vcpkg version
         run: |
-          cd $VCPKG_INSTALLATION_ROOT && git checkout . && git checkout ${{ matrix.vcpkg-version }}
+          cd $VCPKG_INSTALLATION_ROOT && git fetch && git checkout . && git checkout ${{ matrix.vcpkg-version }}
 
       - name: Install MacOS System Dependencies
         run: brew install jq pkg-config && mkdir -p /Users/runner/lib && ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib /Users/runner/lib/libclang.dylib
@@ -66,23 +65,8 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Set VCPKG_ROOT
-        run: echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
-
-      - name: Cache vcpkg
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ env.VCPKG_ROOT }}/installed
-            ${{ env.VCPKG_ROOT }}/packages
-          key: ${{ matrix.vcpkg-version }}-${{ matrix.platform }}-vcpkg-${{ matrix.vcpkg-package }}-${{ matrix.triplet }}
-
-
-      - name: Download Model
-        run: wget -O md_v5a.0.0-1280x1280.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-1280x1280.onnx
-
-      - name: Build OpenCV 4
-        run: "'${{env.VCPKG_ROOT}}/vcpkg' install ${{ matrix.vcpkg-package }}:${{ matrix.triplet }}"
+      - name: Download Model (dynamic)
+        run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
 
       - name: Cache Rust / Cargo
         uses: actions/cache@v4
@@ -121,8 +105,8 @@ jobs:
           OPENCV_DISABLE_PROBES: pkg_config,cmake
         with:
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
-          releaseName: 'App v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
+          releaseName: "App v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
           tauriScript: npm run tauri --

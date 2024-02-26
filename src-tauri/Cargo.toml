@@ -23,14 +23,20 @@ serde = { version = "1.0.196", features = ["derive"] }
 tauri = { version = "1.5.4", features = ["api-all"] }
 pathdiff = "0.2.1"
 csv = "1.3.0"
-image = { version = "0.24.8", features = ["rgb"] }
+image = { version = "0.24.7", features = ["rgb", "rayon", "jpeg_rayon"] }
 imageproc = "0.23.0"
 rayon = "1.8.1"
 chug = "1.1.0"
 img-parts = "0.3.0"
-opencv = { version = "0.88.8", features = ["imgproc", "imgcodecs", "dnn"], default-features = false}
 tracing = "0.1.40"
+ort = { version = "2.0.0-rc.0", features = ["download-binaries"] }
+ndarray = "0.15.6"
 walkdir = "2.4.0"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tracing-test = { version = "0.2.4", feature = ["no-env-filter"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+ort = { version = "2.0.0-rc.0", features = ["coreml"] }
 
 [features]
 # by default Tauri runs in production mode
@@ -40,6 +46,5 @@ default = ["custom-protocol"]
 # DO NOT remove this
 custom-protocol = ["tauri/custom-protocol"]
 
-# Enables CUDA OpenCV support
-cuda = []
+# Enables Updater API
 updater = ["tauri/updater"]

@@ -24,3 +24,4 @@ yarn-error.log*
 *.onnx
 yolov5onnxruntime/target
 output.jpg
+*.so*

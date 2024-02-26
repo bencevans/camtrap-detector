@@ -12,22 +12,9 @@ Instructions for installing Rust can be found [here](https://www.rust-lang.org/t
 
 Instructions for installing Node.js can be found [here](https://nodejs.org/en/download/).
 
-### Install OpenCV
+### Install Onnxruntime
 
-Further, you'll also require an installation of OpenCV, which is currently the library that executes the MegaDetector model.
-
-Windows (via [Chocolatey](https://chocolatey.org/)):
-
-    choco install opencv
-
-Ubuntu
-
-    sudo apt install opencv
-
-
-macOS (via [Homebrew](https://brew.sh/)):
-
-    brew install opencv
+TODO
 
 ### Clone the repository
 

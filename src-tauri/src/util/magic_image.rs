@@ -10,6 +10,9 @@ use std::fs;
 use std::io::Cursor;
 use std::path::Path;
 
+/// Magic Image
+///
+/// This struct represents an image that can be drawn on and saved while preserving the original EXIF data.
 pub(crate) struct MagicImage {
     image: image::DynamicImage,
     exif: Option<img_parts::Bytes>,
@@ -37,16 +40,6 @@ impl MagicImage {
             exif,
             original_format,
         })
-    }
-
-    /// Image width
-    pub fn width(&self) -> u32 {
-        self.image.width()
-    }
-
-    /// Image height
-    pub fn height(&self) -> u32 {
-        self.image.height()
     }
 
     /// Draw a bounding box on the image
