@@ -56,7 +56,7 @@ jobs:
         run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
 
       - name: Build App
-        run: npm ci && OPENCV_DISABLE_PROBES=pkg_config,cmake npm run tauri build -- --features updater
+        run: npm ci && npm run tauri build -- --features updater
         env:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
 
@@ -77,10 +77,9 @@ jobs:
           # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-          OPENCV_DISABLE_PROBES: pkg_config,cmake
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
-          releaseName: "App v__VERSION__"
+          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
+          releaseName: "v__VERSION__"
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
