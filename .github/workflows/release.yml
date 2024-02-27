@@ -18,10 +18,10 @@ jobs:
       matrix:
         include:
           - platform: macos-latest
-            triplet: x64-osx
+          # M1
+          - platform: macos-14
           - platform: windows-latest
           - platform: ubuntu-latest
-            triplet: x64-linux
 
     runs-on: ${{ matrix.platform }}
 

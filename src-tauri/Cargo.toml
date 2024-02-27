@@ -36,7 +36,7 @@ tracing-test = { version = "0.2.4", feature = ["no-env-filter"] }
 
 [target.'cfg(target_os = "windows")'.dependencies.ort]
 version = "2.0.0-rc.0"
-features = ["download-binaries", "cuda", "tensorrt", "directml"]
+features = ["download-binaries", "cuda", "tensorrt"]
 
 [target.'cfg(target_os = "linux")'.dependencies.ort]
 version = "2.0.0-rc.0"
