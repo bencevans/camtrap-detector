@@ -19,7 +19,7 @@ jobs:
           # M1
           - platform: macos-14
           - platform: windows-latest
-          - platform: ubuntu-latest
+          # - platform: ubuntu-latest
 
     runs-on: ${{ matrix.platform }}
 
