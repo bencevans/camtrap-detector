@@ -23,7 +23,7 @@ serde = { version = "1.0.197", features = ["derive"] }
 tauri = { version = "1.6.1", features = ["api-all"] }
 pathdiff = "0.2.1"
 csv = "1.3.0"
-image = { version = "0.24.9", features = ["rgb", "rayon", "jpeg_rayon"] }
+image = { version = "0.25.1", features = ["rayon"] }
 imageproc = "0.24.0"
 rayon = "1.10.0"
 chug = "1.1.0"
