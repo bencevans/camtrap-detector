@@ -75,7 +75,7 @@ impl YoloModel {
                 cuda.build(),
                 direct_ml.build(),
             ])?
-            .with_model_from_file(model_path)?;
+            .commit_from_file(model_path)?;
 
         println!("Model loaded");
 
@@ -121,7 +121,7 @@ impl YoloModel {
 
         // Postprocessing
         let output = outputs["output"]
-            .extract_tensor::<f32>()
+            .try_extract_tensor::<f32>()
             .unwrap()
             .view()
             .t()
