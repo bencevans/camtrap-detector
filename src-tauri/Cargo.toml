@@ -24,7 +24,7 @@ tauri = { version = "1.6.1", features = ["api-all"] }
 pathdiff = "0.2.1"
 csv = "1.3.0"
 image = { version = "0.24.9", features = ["rgb", "rayon", "jpeg_rayon"] }
-imageproc = "0.23.0"
+imageproc = "0.24.0"
 rayon = "1.10.0"
 chug = "1.1.0"
 img-parts = "0.3.0"
