@@ -35,15 +35,15 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tracing-test = { version = "0.2.4", feature = ["no-env-filter"] }
 
 [target.'cfg(target_os = "windows")'.dependencies.ort]
-version = "2.0.0-rc.0"
+version = "2.0.0-rc.2"
 features = ["download-binaries", "cuda", "tensorrt"]
 
 [target.'cfg(target_os = "linux")'.dependencies.ort]
-version = "2.0.0-rc.0"
+version = "2.0.0-rc.2"
 features = ["download-binaries", "cuda", "tensorrt"]
 
 [target.'cfg(target_os = "macos")'.dependencies]
-ort = { version = "2.0.0-rc.1", features = ["download-binaries", "coreml"] }
+ort = { version = "2.0.0-rc.2", features = ["download-binaries", "coreml"] }
 
 [features]
 # by default Tauri runs in production mode
