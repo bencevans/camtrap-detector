@@ -711,15 +711,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "conv"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78ff10625fd0ac447827aa30ea8b861fead473bb60aeb73af6c1c58caf0d1299"
-dependencies = [
- "custom_derive",
-]
-
-[[package]]
 name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -903,12 +894,6 @@ dependencies = [
  "quote",
  "syn 2.0.48",
 ]
-
-[[package]]
-name = "custom_derive"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef8ae57c4978a2acd8b869ce6b9ca1dfe817bff704c220209fdef2c0b75a01b9"
 
 [[package]]
 name = "darling"
@@ -2084,13 +2069,12 @@ dependencies = [
 
 [[package]]
 name = "imageproc"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2a0d7770f428b4615960cc8602775d1f04c75d41b0ccdef862e889ebaae9bbf"
+checksum = "2393fb7808960751a52e8a154f67e7dd3f8a2ef9bd80d1553078a7b4e8ed3f0d"
 dependencies = [
  "ab_glyph",
  "approx",
- "conv",
  "getrandom 0.2.12",
  "image 0.25.1",
  "itertools",
