@@ -32,7 +32,7 @@ tracing = "0.1.40"
 ndarray = "0.15.6"
 walkdir = "2.5.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
-tracing-test = { version = "0.2.4", feature = ["no-env-filter"] }
+tracing-test = { version = "0.2.5", feature = ["no-env-filter"] }
 
 [target.'cfg(target_os = "windows")'.dependencies.ort]
 version = "2.0.0-rc.2"
