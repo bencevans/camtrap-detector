@@ -2,14 +2,22 @@ import { useEffect, useState } from "react";
 import TauriDropzone from "./TauriDropZone";
 import { appWindow } from "@tauri-apps/api/window";
 import { LogicalSize } from "@tauri-apps/api/window";
-import ConfigDialog from "./ConfigDialog";
+import ConfigDialog, { Config } from "./ConfigDialog";
 
-export default function FolderSelectDialog({ onDrop, onConfig, config }) {
+export default function FolderSelectDialog({
+  onDrop,
+  onConfig,
+  config,
+}: {
+  onDrop: (path: string, includeSubfolders: boolean) => void;
+  onConfig: (config: Config) => void;
+  config: Config;
+}) {
   const [includeSubfolders, setIncludeSubfolders] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
 
   useEffect(() => {
-    appWindow.setSize(new LogicalSize(500, 300));
+    appWindow.setSize(new LogicalSize(500, 300)).catch(console.error);
   });
 
   if (showConfig) {

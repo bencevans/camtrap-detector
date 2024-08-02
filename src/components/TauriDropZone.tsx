@@ -1,19 +1,21 @@
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/api/dialog";
 import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
 import { FaCog } from "react-icons/fa";
+import { isDir } from "../api";
 
-async function isDir(path) {
-  return await invoke("is_dir", { path });
-}
-
-export default function TauriDropzone({ onDrop, onConfig }) {
+export default function TauriDropzone({
+  onDrop,
+  onConfig,
+}: {
+  onDrop: (path: string) => void;
+  onConfig?: () => void;
+}) {
   const [isDragActive, setIsDragActive] = useState(false);
 
   useEffect(() => {
     listen("tauri://file-drop", (event) => {
-      let files = event.payload;
+      const files = event.payload as string[];
 
       if (files.length > 1) {
         setIsDragActive(false);
@@ -25,7 +27,7 @@ export default function TauriDropzone({ onDrop, onConfig }) {
         return console.warn("No files were dropped");
       }
 
-      let file = files[0];
+      const file = files[0];
 
       isDir(file)
         .then((isDir) => {
@@ -38,19 +40,19 @@ export default function TauriDropzone({ onDrop, onConfig }) {
 
           setIsDragActive(false);
         })
-        .catch((err) => {
+        .catch(() => {
           setIsDragActive(false);
         });
-    });
+    }).catch(console.error);
 
-    listen("tauri://file-drop-hover", (event) => {
+    listen("tauri://file-drop-hover", () => {
       setIsDragActive(true);
-    });
+    }).catch(console.error);
 
     listen("tauri://file-drop-cancelled", (event) => {
       console.log("canceled", event);
       setIsDragActive(false);
-    });
+    }).catch(console.error);
   });
 
   return (
@@ -87,7 +89,7 @@ export default function TauriDropzone({ onDrop, onConfig }) {
             })
               .then((res) => {
                 if (res !== null) {
-                  onDrop(res);
+                  onDrop(res as string);
                 }
               })
               .catch((err) => {

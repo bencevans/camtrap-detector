@@ -1,7 +1,8 @@
 import { appWindow, LogicalSize } from "@tauri-apps/api/window";
 import { useEffect } from "react";
+import { ProgressReport } from "../api";
 
-function friendlyEta(secondsRemaining) {
+function friendlyEta(secondsRemaining: number) {
   const hours = Math.trunc(secondsRemaining / 3600);
   const minutes = Math.trunc(secondsRemaining / 60) % 60;
   const seconds = Math.trunc(secondsRemaining / 1) % 60;
@@ -9,27 +10,37 @@ function friendlyEta(secondsRemaining) {
   return `${hours}h ${minutes}m ${seconds}s`;
 }
 
-export default function ProgressDialog({ processingStatus }) {
+export default function ProgressDialog({
+  processingStatus,
+}: {
+  processingStatus: ProgressReport;
+}) {
   useEffect(() => {
-    appWindow.setSize(new LogicalSize(500, 200));
+    appWindow.setSize(new LogicalSize(500, 200)).catch(console.error);
   });
 
   return (
     <div>
-      <div style={{
-        display: "flex",
-        flexDirection: "row",
-        width: "100%",
-        marginBottom: 20,
-      }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          width: "100%",
+          marginBottom: 20,
+        }}
+      >
         <div>{processingStatus.message}</div>
-        <div style={{
-          marginLeft: 5,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          // direction: "rtl",
-        }}>{processingStatus.path}</div>
+        <div
+          style={{
+            marginLeft: 5,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            // direction: "rtl",
+          }}
+        >
+          {processingStatus.path}
+        </div>
       </div>
 
       <div
@@ -56,7 +67,10 @@ export default function ProgressDialog({ processingStatus }) {
           marginTop: 20,
         }}
       >
-        <div>{processingStatus.eta !== null && `ETA ${friendlyEta(processingStatus.eta)}`}</div>
+        <div>
+          {processingStatus.eta !== null &&
+            `ETA ${friendlyEta(processingStatus.eta)}`}
+        </div>
         <div>
           {processingStatus.current} / {processingStatus.total} Images
         </div>
