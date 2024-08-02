@@ -7,15 +7,20 @@
     "@testing-library/jest-dom": "6.4.8",
     "@testing-library/react": "16.0.0",
     "@testing-library/user-event": "14.5.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-icons": "^5.2.1",
     "react-spinners": "^0.14.1",
+    "typescript": "^5.5.4",
     "web-vitals": "^4.2.2"
   },
+  "type": "module",
   "scripts": {
     "start": "cross-env vite --port 3000 src",
     "build": "vite build --emptyOutDir --outDir ../build/ src",
     "test": "node scripts/test.js",
     "dev": "vite --port 3000 src",
+    "lint": "eslint  src",
     "tauri": "tauri"
   },
   "eslintConfig": {
@@ -37,9 +42,18 @@
     ]
   },
   "devDependencies": {
+    "@eslint/js": "^9.8.0",
     "@tauri-apps/cli": "1.6.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "cross-env": "7.0.3",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "globals": "^15.9.0",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^7.18.0",
     "vite": "^5.3.5"
   },
   "jest": {
