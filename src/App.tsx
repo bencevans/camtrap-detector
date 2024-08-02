@@ -9,18 +9,24 @@ import { invoke } from "@tauri-apps/api";
 
 function App() {
   const [path, setPath] = useState(null);
-  const [includeSubfolders, setIncludeSubfolders] = useState(null);
+  const [includeSubfolders, setIncludeSubfolders] = useState(
+    null as null | boolean,
+  );
   const [processingStatus, setProcessingStatus] = useState(null);
-  const [confidenceThreshold, setConfidenceThreshold] = useState(0.1);
+  const [confidenceThreshold, setConfidenceThreshold] = useState(0.1 as number);
 
   // This is a hack to get the app to show up after the webview is loaded
   useEffect(() => {
-    invoke("showup");
+    invoke("showup").catch((e) => {
+      console.error(`Error showing up: ${e}`);
+    });
   }, []);
 
   useEffect(() => {
     listen("progress", (event) => {
-      setProcessingStatus(event.payload);
+      setProcessingStatus(event.payload!);
+    }).catch((e) => {
+      console.error(`Error listening to progress: ${e}`);
     });
   }, []);
 
