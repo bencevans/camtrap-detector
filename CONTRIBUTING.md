@@ -46,3 +46,15 @@ To build the application, run:
     npm run tauri build
 
 This will build the application for the current platform. It's worth noting that the OpenCV library is not included in the build, meaning the user will need to install OpenCV separately. Alternatively OpenCV can be built statically so that it's included in the build. To do this, inspect the GitHub Actions workflow files for the build process.
+
+### Test the application
+
+To run the frontend lint tests, run:
+
+    npm run lint
+
+To run the backend tests, run:
+
+    cargo test
+
+Please note that the backend tests require the `md_v5a.0.0-dynamic.onnx` model to be present in the root of the repository.
