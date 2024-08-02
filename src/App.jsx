@@ -7,7 +7,10 @@ import ExportDialog from "./components/ExportDialog";
 import { process } from "./api";
 import { invoke } from "@tauri-apps/api";
 
+console.log("Loaded App.jsx");
+
 function App() {
+  console.log("Loading App");
   const [path, setPath] = useState(null);
   const [includeSubfolders, setIncludeSubfolders] = useState(null);
   const [processingStatus, setProcessingStatus] = useState(null);
