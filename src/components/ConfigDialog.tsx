@@ -4,11 +4,19 @@ const inputStyle = {
   width: "100%",
 };
 
-const labelStyle = {
-  padding: "1rem",
-};
+export interface Config {
+  confidenceThreshold: number;
+}
 
-export default function ConfigDialog({ onClose, onConfig, config }) {
+export default function ConfigDialog({
+  onClose,
+  onConfig,
+  config,
+}: {
+  onClose: () => void;
+  onConfig: (config: Config) => void;
+  config: Config;
+}) {
   return (
     <div
       style={{
@@ -19,7 +27,11 @@ export default function ConfigDialog({ onClose, onConfig, config }) {
         width: "100%",
       }}
     >
-      <label style={{ labelStyle }}>
+      <label
+        style={{
+          padding: "1rem",
+        }}
+      >
         <span>Confidence Threshold</span>
         <input
           type="number"
@@ -31,8 +43,8 @@ export default function ConfigDialog({ onClose, onConfig, config }) {
           onChange={(e) => {
             onConfig(
               Object.assign({}, config, {
-                confidenceThreshold: parseFloat(e.target.value, 10),
-              })
+                confidenceThreshold: parseFloat(e.target.value),
+              }),
             );
           }}
         />

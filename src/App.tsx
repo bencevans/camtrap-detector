@@ -1,38 +1,51 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { listen } from "@tauri-apps/api/event";
 import FolderSelectDialog from "./components/FolderSelectDialog";
 import ProgressDialog from "./components/ProgressDialog";
 import ExportDialog from "./components/ExportDialog";
-import { process } from "./api";
-import { invoke } from "@tauri-apps/api";
+import { listenProgress, process, ProgressReport, showWindow } from "./api";
 
 function App() {
-  const [path, setPath] = useState(null);
+  const [path, setPath] = useState(null as null | string);
   const [includeSubfolders, setIncludeSubfolders] = useState(
     null as null | boolean,
   );
-  const [processingStatus, setProcessingStatus] = useState(null);
+  const [processingStatus, setProcessingStatus] = useState(
+    null as null | ProgressReport,
+  );
   const [confidenceThreshold, setConfidenceThreshold] = useState(0.1 as number);
 
-  // This is a hack to get the app to show up after the webview is loaded
+  // Initial Load
   useEffect(() => {
-    invoke("showup").catch((e) => {
-      console.error(`Error showing up: ${e}`);
-    });
-  }, []);
+    const unlistenFunctions: (() => void)[] = [];
 
-  useEffect(() => {
-    listen("progress", (event) => {
-      setProcessingStatus(event.payload!);
-    }).catch((e) => {
-      console.error(`Error listening to progress: ${e}`);
+    // Show the window, by default it is hidden
+    // This is done to avoid showing the window before the interface is ready
+    showWindow().catch((e) => {
+      console.error(`Error showing window: ${e}`);
     });
+
+    // Listen to progress events
+    listenProgress((progressReport) => {
+      setProcessingStatus(progressReport);
+    })
+      .then((unlistenFunc) => {
+        unlistenFunctions.push(unlistenFunc);
+      })
+      .catch((e) => {
+        console.error(`Error listening to progress: ${e}`);
+      });
+
+    return () => {
+      unlistenFunctions.forEach((unlisten) => unlisten());
+    };
   }, []);
 
   useEffect(() => {
     if (path && includeSubfolders) {
-      process(path, confidenceThreshold, includeSubfolders);
+      process(path, confidenceThreshold, includeSubfolders).catch((e) => {
+        console.error(`Error processing: ${e}`);
+      });
     }
   }, [path, confidenceThreshold, includeSubfolders]);
 

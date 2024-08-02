@@ -4,14 +4,35 @@ import { LogicalSize } from "@tauri-apps/api/window";
 import { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
 import {
+  AllExportFormat,
   createDrawCriteria,
   createExport,
   createFilterCriteria,
+  ExportFormat,
   exportImageSet,
+  FilterCriteriaOption,
 } from "../api";
 import "./ExportDialog.css";
 
-const formatTypes = [
+interface Format {
+  id: AllExportFormat;
+  name: string;
+  pathType: "file" | "dir";
+  defaultPath: string;
+  disabled: boolean;
+  desciption: string;
+  options?: {
+    id: string;
+    name: string;
+    options: {
+      id: string;
+      name: string;
+      value: string;
+    }[];
+  }[];
+}
+
+const formatTypes: Format[] = [
   {
     id: "csv",
     name: "CamTrap CSV",
@@ -59,19 +80,25 @@ const formatTypes = [
   },
 ];
 
-export default function ExportDialog({ onReset }) {
+export default function ExportDialog({ onReset }: { onReset: () => void }) {
   useEffect(() => {
-    appWindow.setSize(new LogicalSize(600, 650));
+    appWindow.setSize(new LogicalSize(600, 650)).catch(console.error);
   });
 
-  const [imageExportAnimalFilter, setImageExportAnimalFilter] =
-    useState("Include");
-  const [imageExportHumanFilter, setImageExportHumanFilter] = useState("Intersect");
-  const [imageExportVehicleFilter, setImageExportVehicleFilter] =
-    useState("Intersect");
-  const [imageExportEmptyFilter, setImageExportEmptyFilter] = useState("Intersect");
+  const [imageExportAnimalFilter, setImageExportAnimalFilter] = useState(
+    "Include" as FilterCriteriaOption,
+  );
+  const [imageExportHumanFilter, setImageExportHumanFilter] = useState(
+    "Intersect" as FilterCriteriaOption,
+  );
+  const [imageExportVehicleFilter, setImageExportVehicleFilter] = useState(
+    "Intersect" as FilterCriteriaOption,
+  );
+  const [imageExportEmptyFilter, setImageExportEmptyFilter] = useState(
+    "Intersect" as FilterCriteriaOption,
+  );
 
-  const [exportInProgress, setExportInProgress] = useState([]);
+  const [exportInProgress, setExportInProgress] = useState([] as string[]);
 
   return (
     <div>
@@ -127,9 +154,7 @@ export default function ExportDialog({ onReset }) {
                         name="animals"
                         value="Include"
                         checked={imageExportAnimalFilter === "Include"}
-                        onChange={(e) =>
-                          setImageExportAnimalFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportAnimalFilter("Include")}
                       />
                     </td>
                     <td>
@@ -138,9 +163,7 @@ export default function ExportDialog({ onReset }) {
                         name="animals"
                         value="Intersect"
                         checked={imageExportAnimalFilter === "Intersect"}
-                        onChange={(e) =>
-                          setImageExportAnimalFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportAnimalFilter("Intersect")}
                       />
                     </td>
                     <td>
@@ -150,9 +173,7 @@ export default function ExportDialog({ onReset }) {
                         value="Exclude"
                         disabled={imageExportAnimalFilter === "Exclude"}
                         checked={imageExportAnimalFilter === "Exclude"}
-                        onChange={(e) =>
-                          setImageExportAnimalFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportAnimalFilter("Exclude")}
                       />
                     </td>
                   </tr>
@@ -164,9 +185,7 @@ export default function ExportDialog({ onReset }) {
                         name="humans"
                         value="Include"
                         checked={imageExportHumanFilter === "Include"}
-                        onChange={(e) =>
-                          setImageExportHumanFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportHumanFilter("Include")}
                       />
                     </td>
                     <td>
@@ -175,9 +194,7 @@ export default function ExportDialog({ onReset }) {
                         name="humans"
                         value="Intersect"
                         checked={imageExportHumanFilter === "Intersect"}
-                        onChange={(e) =>
-                          setImageExportHumanFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportHumanFilter("Intersect")}
                       />
                     </td>
                     <td>
@@ -186,9 +203,7 @@ export default function ExportDialog({ onReset }) {
                         name="humans"
                         value="Exclude"
                         checked={imageExportHumanFilter === "Exclude"}
-                        onChange={(e) =>
-                          setImageExportHumanFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportHumanFilter("Exclude")}
                       />
                     </td>
                   </tr>
@@ -200,9 +215,7 @@ export default function ExportDialog({ onReset }) {
                         name="vehicles"
                         value="Include"
                         checked={imageExportVehicleFilter === "Include"}
-                        onChange={(e) =>
-                          setImageExportVehicleFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportVehicleFilter("Include")}
                       />
                     </td>
                     <td>
@@ -211,8 +224,8 @@ export default function ExportDialog({ onReset }) {
                         name="vehicles"
                         value="Intersect"
                         checked={imageExportVehicleFilter === "Intersect"}
-                        onChange={(e) =>
-                          setImageExportVehicleFilter(e.target.value)
+                        onChange={() =>
+                          setImageExportVehicleFilter("Intersect")
                         }
                       />
                     </td>
@@ -222,9 +235,7 @@ export default function ExportDialog({ onReset }) {
                         name="vehicles"
                         value="Exclude"
                         checked={imageExportVehicleFilter === "Exclude"}
-                        onChange={(e) =>
-                          setImageExportVehicleFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportVehicleFilter("Exclude")}
                       />
                     </td>
                   </tr>
@@ -236,9 +247,7 @@ export default function ExportDialog({ onReset }) {
                         name="empty"
                         value="Include"
                         checked={imageExportEmptyFilter === "Include"}
-                        onChange={(e) =>
-                          setImageExportEmptyFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportEmptyFilter("Include")}
                       />
                     </td>
                     <td>
@@ -247,9 +256,7 @@ export default function ExportDialog({ onReset }) {
                         name="empty"
                         value="Intersect"
                         checked={imageExportEmptyFilter === "Intersect"}
-                        onChange={(e) =>
-                          setImageExportEmptyFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportEmptyFilter("Intersect")}
                       />
                     </td>
                     <td>
@@ -258,9 +265,7 @@ export default function ExportDialog({ onReset }) {
                         name="empty"
                         value="Exclude"
                         checked={imageExportEmptyFilter === "Exclude"}
-                        onChange={(e) =>
-                          setImageExportEmptyFilter(e.target.value)
-                        }
+                        onChange={() => setImageExportEmptyFilter("Exclude")}
                       />
                     </td>
                   </tr>
@@ -287,7 +292,7 @@ export default function ExportDialog({ onReset }) {
                         directory: true,
                       })
                       .then((outputPath) => {
-                        if (outputPath === null) {
+                        if (outputPath === null || Array.isArray(outputPath)) {
                           return;
                         }
 
@@ -301,27 +306,32 @@ export default function ExportDialog({ onReset }) {
                             imageExportAnimalFilter,
                             imageExportHumanFilter,
                             imageExportVehicleFilter,
-                            imageExportEmptyFilter
+                            imageExportEmptyFilter,
                           ),
-                          createDrawCriteria(true, true, true)
-                        ).finally(() => {
-                          console.log("Exported", format.id);
-                          exportInProgress.splice(
-                            exportInProgress.indexOf(format.id),
-                            1
-                          );
-                          setExportInProgress([...exportInProgress]);
-                        });
-                      });
+                          createDrawCriteria(true, true, true),
+                        )
+                          .then(() => {
+                            console.log("Exported", format.id);
+                            exportInProgress.splice(
+                              exportInProgress.indexOf(format.id),
+                              1,
+                            );
+                            setExportInProgress([...exportInProgress]);
+                          })
+                          .catch(console.error);
+                      })
+                      .catch(console.error);
                   } else {
-                    let defaultFileName =
+                    const defaultFileName =
                       format.id === "json" ? "ct.0.1.0.json" : "ct.0.1.0.csv";
+
                     dialog
                       .save({
                         defaultPath: defaultFileName,
                       })
+
                       .then((outputPath) => {
-                        if (outputPath === null) {
+                        if (outputPath === null || Array.isArray(outputPath)) {
                           return;
                         }
 
@@ -329,15 +339,18 @@ export default function ExportDialog({ onReset }) {
                         setExportInProgress([...exportInProgress]);
                         console.log("Exporting", format.id);
 
-                        createExport(format.id, outputPath).finally(() => {
-                          console.log("Exported", format.id);
-                          exportInProgress.splice(
-                            exportInProgress.indexOf(format.id),
-                            1
-                          );
-                          setExportInProgress([...exportInProgress]);
-                        });
-                      });
+                        createExport(format.id as ExportFormat, outputPath)
+                          .then(() => {
+                            console.log("Exported", format.id);
+                            exportInProgress.splice(
+                              exportInProgress.indexOf(format.id),
+                              1,
+                            );
+                            setExportInProgress([...exportInProgress]);
+                          })
+                          .catch(console.error);
+                      })
+                      .catch(console.error);
                   }
                 }}
               >
