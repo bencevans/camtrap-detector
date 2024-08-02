@@ -44,7 +44,7 @@ version = "2.0.0-rc.2"
 features = ["download-binaries", "cuda", "tensorrt"]
 
 [target.'cfg(target_os = "macos")'.dependencies]
-ort = { version = "2.0.0-rc.2", features = ["download-binaries", "coreml"] }
+ort = { version = "2.0.0-rc.4", features = ["download-binaries", "coreml"] }
 
 [features]
 # by default Tauri runs in production mode
