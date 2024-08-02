@@ -12,10 +12,6 @@ Instructions for installing Rust can be found [here](https://www.rust-lang.org/t
 
 Instructions for installing Node.js can be found [here](https://nodejs.org/en/download/).
 
-### Install Onnxruntime
-
-TODO
-
 ### Clone the repository
 
 Assuming [Git](https://git-scm.com/) is installed, clone the repository:
@@ -29,6 +25,9 @@ Install the npm dependencies, this should be repeated each time any of the `pack
 
     npm install
 
+### Download Model
+
+    wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
 
 ## Development
 
