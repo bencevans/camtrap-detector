@@ -29,22 +29,22 @@ rayon = "1.10.0"
 chug = "1.1.0"
 img-parts = "0.3.0"
 tracing = "0.1.40"
-ndarray = "0.15.6"
+ndarray = "0.16.1"
 walkdir = "2.5.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tracing-test = { version = "0.2.5", feature = ["no-env-filter"] }
 time = "0.3.36"
 
 [target.'cfg(target_os = "windows")'.dependencies.ort]
-version = "2.0.0-rc.2"
+version = "2.0.0-rc.6"
 features = ["download-binaries", "cuda", "tensorrt"]
 
 [target.'cfg(target_os = "linux")'.dependencies.ort]
-version = "2.0.0-rc.2"
+version = "2.0.0-rc.6"
 features = ["download-binaries", "cuda", "tensorrt"]
 
 [target.'cfg(target_os = "macos")'.dependencies]
-ort = { version = "2.0.0-rc.4", features = ["download-binaries", "coreml"] }
+ort = { version = "2.0.0-rc.6", features = ["download-binaries", "coreml"] }
 
 [features]
 # by default Tauri runs in production mode
