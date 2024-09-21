@@ -9,7 +9,9 @@ export default tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ["*.js", "src/vite.config.js"],
+        },
         tsconfigRootDir: import.meta.dirname,
         project: "./tsconfig.json",
       },
