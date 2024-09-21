@@ -29,7 +29,7 @@ rayon = "1.10.0"
 chug = "1.1.0"
 img-parts = "0.3.0"
 tracing = "0.1.40"
-ndarray = "0.15.6"
+ndarray = "0.16.1"
 walkdir = "2.5.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tracing-test = { version = "0.2.5", feature = ["no-env-filter"] }
