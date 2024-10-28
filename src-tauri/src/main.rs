@@ -237,7 +237,19 @@ async fn process(
             .unwrap();
         eta.tick();
 
-        let image = image::open(file.to_str().unwrap()).unwrap();
+        let image = match image::open(file.to_str().unwrap()) {
+            Ok(image) => image,
+            Err(err) => {
+                results.push(CamTrapImageDetections {
+                    file: file.to_str().unwrap().to_string(),
+                    error: Some(err.to_string()),
+                    image_width: None,
+                    image_height: None,
+                    detections: vec![],
+                });
+                continue;
+            }
+        };
 
         let result = model.detect(&image, Some(confidence_threshold), Some(0.45));
 
