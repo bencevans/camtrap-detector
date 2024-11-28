@@ -43,8 +43,8 @@ jobs:
         with:
           submodules: true
 
-      - name: Disable Signing
-        run: jq '.tauri.updater.active = false' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp && mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
+      - name: Disable Updater/Signing
+        run: jq '.plugins.updater.active = false' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp && mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
 
       - name: Setup node
         uses: actions/setup-node@v4
@@ -70,7 +70,7 @@ jobs:
       #   run: npm ci && npm run tauri build
 
       - name: Run Rust Tests
-        run: mkdir -p build && cd src-tauri && cargo test -- --nocapture
+        run: mkdir -p build && cd src-tauri && cargo test --locked -- --nocapture
 
       # - uses: tauri-apps/tauri-action@v0
       #   env:

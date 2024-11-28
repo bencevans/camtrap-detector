@@ -15,10 +15,9 @@ use app::{
 use chug::Chug;
 use image::GenericImageView;
 use std::{path::PathBuf, sync::Mutex};
-use tauri::{
-    api::{dialog, notification::Notification},
-    Manager, Window,
-};
+use tauri::{path::BaseDirectory, Emitter, Manager, Window};
+use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
+use tauri_plugin_notification::NotificationExt;
 
 #[tauri::command]
 fn is_dir(path: String) -> bool {
@@ -105,11 +104,13 @@ async fn export_image_set(
 
     // Ensure it's not the same folder as the raw images
     if output_path == base_dir {
-        dialog::message(
-            Some(&window),
-            "Export Error",
-            "The export folder cannot be the same as the raw images folder.",
-        );
+        window
+            .dialog()
+            .message("The export folder cannot be the same as the raw images folder.")
+            .kind(MessageDialogKind::Error)
+            .title("Export Error")
+            .blocking_show();
+
         return Err(());
     }
 
@@ -122,11 +123,12 @@ async fn export_image_set(
     )
     .unwrap();
 
-    dialog::message(
-        Some(&window),
-        "Image Export Complete",
-        "The image export has completed.",
-    );
+    window
+        .dialog()
+        .message("The image export has completed.")
+        .kind(MessageDialogKind::Info)
+        .title("Image Export Complete")
+        .blocking_show();
 
     Ok(())
 }
@@ -170,11 +172,12 @@ async fn export(
         _ => "Unknown",
     };
 
-    dialog::message(
-        Some(&window),
-        "Export Complete",
-        format!("The {} export has completed.", format_name),
-    );
+    window
+        .dialog()
+        .message(format!("The {} export has completed.", format_name))
+        .kind(MessageDialogKind::Info)
+        .title("Export Complete")
+        .blocking_show();
 
     r
 }
@@ -209,8 +212,8 @@ async fn process(
 
     let model = YoloModel::new_from_file(
         handle
-            .path_resolver()
-            .resolve_resource("../md_v5a.0.0-dynamic.onnx")
+            .path()
+            .resolve("../md_v5a.0.0-dynamic.onnx", BaseDirectory::Resource)
             .unwrap()
             .to_str()
             .unwrap(),
@@ -302,7 +305,9 @@ async fn process(
         )
         .unwrap();
 
-    let _ = Notification::new(&handle.config().tauri.bundle.identifier)
+    handle
+        .notification()
+        .builder()
         .title("Processing Complete")
         .body(format!("Processed {} images.", files_n))
         .show();
@@ -314,7 +319,7 @@ async fn process(
 /// and the window is hidden by default.
 #[tauri::command]
 async fn showup(window: Window) {
-    window.get_window("main").unwrap().show().unwrap();
+    window.get_webview_window("main").unwrap().show().unwrap();
 }
 
 fn main() {
@@ -324,19 +329,10 @@ fn main() {
 
     let mut context = tauri::generate_context!();
 
-    let update_url = if cfg!(feature = "cuda") {
-        "https://releases.camtrap.net/detector/{{target}}/{{current_version}}"
-    } else {
-        "https://releases.camtrap.net/detector-cuda/{{target}}/{{current_version}}"
-    };
-
-    let updater = &mut context.config_mut().tauri.updater;
-    let urls = vec![tauri::utils::config::UpdaterEndpoint(
-        update_url.parse().unwrap(),
-    )];
-    updater.endpoints.replace(urls);
-
     tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(AppState(Default::default()))
         .invoke_handler(tauri::generate_handler![
             is_dir,

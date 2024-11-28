@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import TauriDropzone from "./TauriDropZone";
-import { appWindow } from "@tauri-apps/api/window";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { LogicalSize } from "@tauri-apps/api/window";
 import ConfigDialog, { Config } from "./ConfigDialog";
 
@@ -17,7 +17,7 @@ export default function FolderSelectDialog({
   const [showConfig, setShowConfig] = useState(false);
 
   useEffect(() => {
-    appWindow.setSize(new LogicalSize(500, 300)).catch(console.error);
+    getCurrentWindow().setSize(new LogicalSize(500, 300)).catch(console.error);
   });
 
   if (showConfig) {

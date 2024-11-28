@@ -1,7 +1,8 @@
 use image::imageops::FilterType;
 use image::{DynamicImage, GenericImageView};
 use ndarray::{s, Array, Axis};
-use ort::{ExecutionProvider, Session};
+use ort::execution_providers::{CUDAExecutionProvider, CoreMLExecutionProvider, DirectMLExecutionProvider, ExecutionProvider, TensorRTExecutionProvider};
+use ort::session::Session;
 use serde::{Deserialize, Serialize};
 
 pub struct YoloModel {
@@ -41,21 +42,21 @@ impl YoloModel {
     ) -> Result<Self, Box<dyn std::error::Error>> {
         println!("Loading model");
 
-        let coreml = ort::CoreMLExecutionProvider::default()
+        let coreml = CoreMLExecutionProvider::default()
             .with_ane_only()
             .with_subgraphs();
         println!("CoreML available: {:?}", coreml.is_available().unwrap());
 
-        let tensor_rt = ort::TensorRTExecutionProvider::default();
+        let tensor_rt = TensorRTExecutionProvider::default();
         println!(
             "TensorRT available: {:?}",
             tensor_rt.is_available().unwrap()
         );
 
-        let cuda = ort::CUDAExecutionProvider::default();
+        let cuda = CUDAExecutionProvider::default();
         println!("CUDA available: {:?}", cuda.is_available().unwrap());
 
-        let direct_ml = ort::DirectMLExecutionProvider::default();
+        let direct_ml = DirectMLExecutionProvider::default();
         println!(
             "DirectML available: {:?}",
             direct_ml.is_available().unwrap()

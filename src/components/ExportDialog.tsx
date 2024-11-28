@@ -1,5 +1,5 @@
-import { dialog } from "@tauri-apps/api";
-import { appWindow } from "@tauri-apps/api/window";
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { LogicalSize } from "@tauri-apps/api/window";
 import { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
@@ -82,7 +82,7 @@ const formatTypes: Format[] = [
 
 export default function ExportDialog({ onReset }: { onReset: () => void }) {
   useEffect(() => {
-    appWindow.setSize(new LogicalSize(600, 650)).catch(console.error);
+    getCurrentWindow().setSize(new LogicalSize(600, 650)).catch(console.error);
   });
 
   const [imageExportAnimalFilter, setImageExportAnimalFilter] = useState(
@@ -287,10 +287,9 @@ export default function ExportDialog({ onReset }: { onReset: () => void }) {
               <button
                 onClick={() => {
                   if (format.id === "image-dir") {
-                    dialog
-                      .open({
-                        directory: true,
-                      })
+                    open({
+                      directory: true,
+                    })
                       .then((outputPath) => {
                         if (outputPath === null || Array.isArray(outputPath)) {
                           return;
@@ -325,11 +324,9 @@ export default function ExportDialog({ onReset }: { onReset: () => void }) {
                     const defaultFileName =
                       format.id === "json" ? "ct.0.1.0.json" : "ct.0.1.0.csv";
 
-                    dialog
-                      .save({
-                        defaultPath: defaultFileName,
-                      })
-
+                    save({
+                      defaultPath: defaultFileName,
+                    })
                       .then((outputPath) => {
                         if (outputPath === null || Array.isArray(outputPath)) {
                           return;

@@ -1,5 +1,5 @@
 import { listen } from "@tauri-apps/api/event";
-import { open } from "@tauri-apps/api/dialog";
+import { open } from "@tauri-apps/plugin-dialog";
 import { useEffect, useState } from "react";
 import { FaCog } from "react-icons/fa";
 import { isDir } from "../api";
@@ -89,7 +89,7 @@ export default function TauriDropzone({
             })
               .then((res) => {
                 if (res !== null) {
-                  onDrop(res as string);
+                  onDrop(res);
                 }
               })
               .catch((err) => {

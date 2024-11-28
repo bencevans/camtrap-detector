@@ -1,4 +1,4 @@
-import { appWindow, LogicalSize } from "@tauri-apps/api/window";
+import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 import { useEffect } from "react";
 import { ProgressReport } from "../api";
 
@@ -16,7 +16,7 @@ export default function ProgressDialog({
   processingStatus: ProgressReport;
 }) {
   useEffect(() => {
-    appWindow.setSize(new LogicalSize(500, 200)).catch(console.error);
+    getCurrentWindow().setSize(new LogicalSize(500, 200)).catch(console.error);
   });
 
   return (

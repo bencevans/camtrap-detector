@@ -1,8 +1,8 @@
 pub mod exports;
 pub mod megadetector;
-pub mod yolov5;
 pub mod structures;
 pub mod util;
+pub mod yolov5;
 
 // #[cfg(test)]
 // mod tests {
