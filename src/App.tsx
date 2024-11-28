@@ -42,7 +42,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (path && includeSubfolders) {
+    if (path && includeSubfolders !== null) {
       process(path, confidenceThreshold, includeSubfolders).catch((e) => {
         console.error(`Error processing: ${e}`);
       });
