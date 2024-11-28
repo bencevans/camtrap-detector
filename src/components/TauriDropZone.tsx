@@ -89,7 +89,7 @@ export default function TauriDropzone({
             })
               .then((res) => {
                 if (res !== null) {
-                  onDrop(res as string);
+                  onDrop(res);
                 }
               })
               .catch((err) => {
