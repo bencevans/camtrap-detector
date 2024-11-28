@@ -319,7 +319,7 @@ async fn process(
 /// and the window is hidden by default.
 #[tauri::command]
 async fn showup(window: Window) {
-    window.get_window("main").unwrap().show().unwrap();
+    window.get_webview_window("main").unwrap().show().unwrap();
 }
 
 fn main() {
