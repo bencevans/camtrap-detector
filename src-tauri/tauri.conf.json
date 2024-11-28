@@ -1,61 +1,53 @@
 {
+  "productName": "CamTrap Detector",
+  "version": "1.0.0",
+  "identifier": "io.bluechimp.camtrap-detector",
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm start",
-    "devPath": "http://localhost:3000",
-    "distDir": "../build"
+    "devUrl": "http://localhost:3000",
+    "frontendDist": "../build"
   },
-  "package": {
-    "productName": "CamTrap Detector",
-    "version": "1.0.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": true
-    },
-    "bundle": {
-      "active": true,
-      "category": "Utilities",
-      "copyright": "Blue Chimp Limited",
-      "deb": {
+  "bundle": {
+    "active": true,
+    "category": "Utilities",
+    "copyright": "Blue Chimp Limited",
+    "linux": {
+    "deb": {
         "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "io.bluechimp.camtrap-detector",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": ["../md_v5a.0.0-dynamic.onnx"],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
       }
     },
+    "externalBin": [],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+
+    "longDescription": "",
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
+    },
+    "resources": ["../md_v5a.0.0-dynamic.onnx"],
+    "shortDescription": "",
+    "targets": "all",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    }
+  },
+
+  "app": {
+
     "security": {
       "csp": null
-    },
-    "updater": {
-      "active": false,
-      "endpoints": [
-        "https://releases.camtrap.net/detector/{{target}}/{{current_version}}"
-      ],
-      "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRFMDVCMzk1MDVFNjdDRjYKUldUMmZPWUZsYk1GVGdYbS9VajNsanBBR09zWVlmNi9aU1lnSG5aWnZCL1YyVnkzb1BrUXRZRTQK"
     },
     "windows": [
       {
@@ -67,5 +59,15 @@
         "visible": false
       }
     ]
+  },
+  "plugins": {
+    "updater": {
+      "active": false,
+      "endpoints": [
+        "https://releases.camtrap.net/detector/v2/{{target}}/{{arch}}/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRFMDVCMzk1MDVFNjdDRjYKUldUMmZPWUZsYk1GVGdYbS9VajNsanBBR09zWVlmNi9aU1lnSG5aWnZCL1YyVnkzb1BrUXRZRTQK"
+    }
   }
 }
