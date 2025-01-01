@@ -33,7 +33,7 @@ ndarray = "0.16.1"
 walkdir = "2.5.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 tracing-test = { version = "0.2.5", feature = ["no-env-filter"] }
-time = "0.3.36"
+time = "0.3.37"
 tauri-plugin-dialog = "2"
 tauri-plugin-notification = "2"
 
