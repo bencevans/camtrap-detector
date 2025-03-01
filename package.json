@@ -58,7 +58,7 @@
     "globals": "^15.9.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.19.0",
-    "vite": "^6.1.0"
+    "vite": "^6.2.0"
   },
   "jest": {
     "roots": [
