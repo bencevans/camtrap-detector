@@ -15,7 +15,7 @@
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-spinners": "^0.15.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.2",
     "web-vitals": "^4.2.4"
   },
   "type": "module",
@@ -56,7 +56,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.12",
     "globals": "^15.9.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.2",
     "typescript-eslint": "^8.19.0",
     "vite": "^6.2.0"
   },
