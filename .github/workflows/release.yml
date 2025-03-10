@@ -71,12 +71,19 @@ jobs:
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
+          echo "Decoding Apple Developer Certificate"
           echo $APPLE_CERTIFICATE | base64 --decode > certificate.p12
+          echo "Creating Keychain"
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          echo "Setting Keychain as Default"
           security default-keychain -s build.keychain
+          echo "Unlocking Keychain"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          echo "Importing Certificate"
           security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          echo "Setting Key Partition List"
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          echo "Finding Identity"
           security find-identity -v -p codesigning build.keychain
 
       - name: Verify Certificate
