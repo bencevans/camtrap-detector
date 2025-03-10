@@ -57,6 +57,9 @@ jobs:
       - name: Download Model (dynamic)
         run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
 
+      - name: install frontend dependencies
+        run: npm ci
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
