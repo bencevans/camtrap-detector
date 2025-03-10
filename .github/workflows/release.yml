@@ -57,17 +57,6 @@ jobs:
       - name: Download Model (dynamic)
         run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
 
-      - name: Build App
-        run: npm ci && npm run tauri build -- --features updater
-        env:
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-
-      - uses: actions/upload-artifact@v4
-        if: ${{ env.ACTIONS_RUNNER_DEBUG }}
-        with:
-          name: CamTrap Detector MacOS Intel.dmg
-          path: src-tauri/target/release/bundle/dmg/*.dmg
-
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
