@@ -29,9 +29,9 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-      - name: Install MacOS System Dependencies
-        run: brew install jq pkg-config && mkdir -p /Users/runner/lib && ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib /Users/runner/lib/libclang.dylib
-        if: runner.os == 'macOS'
+      # - name: Install MacOS System Dependencies
+      #   run: brew install jq pkg-config && mkdir -p /Users/runner/lib && ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib /Users/runner/lib/libclang.dylib
+      #   if: runner.os == 'macOS'
 
       - name: Install Linux System Dependencies
         run: |
