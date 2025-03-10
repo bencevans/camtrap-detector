@@ -305,12 +305,15 @@ async fn process(
         )
         .unwrap();
 
-    handle
+    if let Err(err) = handle
         .notification()
         .builder()
         .title("Processing Complete")
         .body(format!("Processed {} images.", files_n))
-        .show();
+        .show()
+    {
+        println!("Failed to show notification: {}", err);
+    }
 
     Ok(())
 }
@@ -327,7 +330,7 @@ fn main() {
         .with_max_level(tracing::Level::TRACE)
         .finish();
 
-    let mut context = tauri::generate_context!();
+    let context = tauri::generate_context!();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
