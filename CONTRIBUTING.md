@@ -45,7 +45,7 @@ To build the application, run:
 
     npm run tauri build
 
-This will build the application for the current platform. It's worth noting that the OpenCV library is not included in the build, meaning the user will need to install OpenCV separately. Alternatively OpenCV can be built statically so that it's included in the build. To do this, inspect the GitHub Actions workflow files for the build process.
+This will build the application for the current platform.
 
 ### Test the application
 
