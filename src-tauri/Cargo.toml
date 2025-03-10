@@ -39,7 +39,7 @@ tauri-plugin-notification = "2"
 
 [target.'cfg(target_os = "windows")'.dependencies.ort]
 version = "2.0.0-rc.9"
-features = ["download-binaries", "cuda", "tensorrt"]
+features = ["download-binaries", "directml"] # "cuda", "tensorrt"]
 
 [target.'cfg(target_os = "linux")'.dependencies.ort]
 version = "2.0.0-rc.9"
