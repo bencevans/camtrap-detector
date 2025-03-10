@@ -82,7 +82,7 @@ jobs:
           echo "Importing Certificate"
           security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           echo "Setting Key Partition List"
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" build.keychain
           echo "Finding Identity"
           security find-identity -v -p codesigning build.keychain
 
