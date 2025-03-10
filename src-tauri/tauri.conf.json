@@ -12,8 +12,9 @@
     "active": true,
     "category": "Utilities",
     "copyright": "Blue Chimp Limited",
+    "createUpdaterArtifacts": "v1Compatible",
     "linux": {
-    "deb": {
+      "deb": {
         "depends": []
       }
     },
@@ -45,7 +46,6 @@
   },
 
   "app": {
-
     "security": {
       "csp": null
     },
