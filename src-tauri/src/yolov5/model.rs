@@ -1,7 +1,10 @@
 use image::imageops::FilterType;
 use image::{DynamicImage, GenericImageView};
 use ndarray::{s, Array, Axis};
-use ort::execution_providers::{CUDAExecutionProvider, CoreMLExecutionProvider, DirectMLExecutionProvider, ExecutionProvider, TensorRTExecutionProvider};
+use ort::execution_providers::{
+    CUDAExecutionProvider, CoreMLExecutionProvider, DirectMLExecutionProvider, ExecutionProvider,
+    TensorRTExecutionProvider,
+};
 use ort::session::Session;
 use serde::{Deserialize, Serialize};
 
