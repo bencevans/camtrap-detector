@@ -72,7 +72,7 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           echo "Decoding Apple Developer Certificate"
-          echo $APPLE_CERTIFICATE | openssl base64 -d -in - -out - > certificate.p12
+          echo $APPLE_CERTIFICATE | base64 --decode > certificate.p12
           echo "Creating Keychain"
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           echo "Setting Keychain as Default"
