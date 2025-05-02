@@ -116,5 +116,8 @@
     "presets": [
       "react-app"
     ]
+  },
+  "optionalDependencies": {
+    "@tauri-apps/cli": "^2.5.0"
   }
 }
