@@ -312,7 +312,7 @@ async fn process(
         .body(format!("Processed {} images.", files_n))
         .show()
     {
-        println!("Failed to show notification: {}", err);
+        eprintln!("Failed to show notification: {}", err);
     }
 
     Ok(())
