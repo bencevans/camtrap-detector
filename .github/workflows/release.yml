@@ -20,11 +20,11 @@ jobs:
       matrix:
         include:
           # macOS Intel
-          - platform: macos-13
+          - platform: macos-14-large
           # macOS Arm
           - platform: macos-14
-          - platform: windows-latest
-          # - platform: ubuntu-latest
+          # Windows
+          - platform: windows-2022
 
     runs-on: ${{ matrix.platform }}
 
