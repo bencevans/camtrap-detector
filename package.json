@@ -5,6 +5,7 @@
   "dependencies": {
     "@tauri-apps/api": "^2.4.1",
     "@tauri-apps/plugin-dialog": "^2.2.0",
+    "@tauri-apps/plugin-log": "^2.3.0",
     "@tauri-apps/plugin-notification": "^2.2.2",
     "@tauri-apps/plugin-updater": "^2.7.1",
     "@testing-library/jest-dom": "6.6.3",
@@ -115,5 +116,9 @@
     "presets": [
       "react-app"
     ]
+  },
+  "optionalDependencies": {
+    "@tauri-apps/cli": "^2.5.0",
+    "vite": "^6.3.4"
   }
 }
