@@ -23,8 +23,10 @@ jobs:
           - platform: macos-14-large
           # macOS Arm
           - platform: macos-14
-          # Windows
+          # Windows (x64)
           - platform: windows-2022
+          # Windows (Arm)
+          - platform: windows-11-arm
 
     runs-on: ${{ matrix.platform }}
 
