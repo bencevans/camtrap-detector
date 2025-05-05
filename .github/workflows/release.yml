@@ -26,7 +26,7 @@ jobs:
           # Windows (x64)
           - platform: windows-2022
           # Windows (Arm)
-          - platform: windows-11-arm
+          # - platform: windows-11-arm
 
     runs-on: ${{ matrix.platform }}
 
