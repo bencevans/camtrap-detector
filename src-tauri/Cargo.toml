@@ -40,8 +40,7 @@ tauri-plugin-log = "2"
 
 [target.'cfg(target_os = "windows")'.dependencies.ort]
 version = "2.0.0-rc.9"
-default-features = false
-features = ["download-binaries", "directml", "half", "load-dynamic", "ndarray", "copy-dylib"]
+features = ["download-binaries", "directml"]
 
 [target.'cfg(target_os = "linux")'.dependencies.ort]
 version = "2.0.0-rc.9"
