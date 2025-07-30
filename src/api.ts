@@ -22,7 +22,7 @@ export interface ProgressReport {
 }
 
 export async function listenProgress(
-  onProgress: (report: ProgressReport) => void,
+  onProgress: (report: ProgressReport) => void
 ) {
   return await listen("progress", (event) => {
     const report = event.payload as ProgressReport;
@@ -37,7 +37,7 @@ export async function process(
   path: string,
   confidenceThreshold: number,
   recursive: boolean,
-  onProgress?: (report: ProgressReport) => void,
+  onProgress?: (report: ProgressReport) => void
 ) {
   await invoke("process", {
     path,
@@ -59,7 +59,10 @@ export type ExportFormat = "json" | "csv";
 export type ImageExportFormat = "image-dir";
 export type AllExportFormat = ExportFormat | ImageExportFormat;
 
-export async function createExport(format: ExportFormat, outputPath: string) {
+export async function createExport(
+  format: ExportFormat,
+  outputPath: string
+) {
   return await invoke("export", { format, outputPath });
 }
 
@@ -76,7 +79,7 @@ export function createFilterCriteria(
   animals: FilterCriteriaOption,
   humans: FilterCriteriaOption,
   vehicles: FilterCriteriaOption,
-  empty: FilterCriteriaOption,
+  empty: FilterCriteriaOption
 ): FilterCriteria {
   return {
     animals: animals,
@@ -95,7 +98,7 @@ interface DrawCriteria {
 export function createDrawCriteria(
   animals: boolean,
   humans: boolean,
-  vehicles: boolean,
+  vehicles: boolean
 ) {
   return {
     animals: animals,
@@ -107,7 +110,7 @@ export function createDrawCriteria(
 export function exportImageSet(
   outputPath: string,
   filterCriteria: FilterCriteria,
-  drawCriteria: DrawCriteria,
+  drawCriteria: DrawCriteria
 ) {
   return invoke("export_image_set", {
     outputPath,

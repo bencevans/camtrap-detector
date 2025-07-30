@@ -47,32 +47,38 @@ fn export_csv(
     results: Vec<structures::CamTrapImageDetections>,
     output_path: PathBuf,
 ) -> Result<(), String> {
-    let mut writer = csv::Writer::from_path(output_path).unwrap();
+    let mut writer = csv::Writer::from_path(&output_path)
+        .map_err(|e| format!("Failed to create CSV writer: {}", e))?;
 
     for result in results {
-        if let Some(error) = result.error {
-            writer
-                .serialize(CamTrapCSVDetection::new_error(result.file, error))
-                .unwrap();
+        let res = if let Some(error) = result.error {
+            writer.serialize(CamTrapCSVDetection::new_error(result.file, error))
         } else if result.detections.is_empty() {
-            writer
-                .serialize(CamTrapCSVDetection::new_empty(result.file))
-                .unwrap();
+            writer.serialize(CamTrapCSVDetection::new_empty(result.file))
         } else {
+            let mut row_result = Ok(());
             for detection in result.detections {
-                writer
-                    .serialize(CamTrapCSVDetection::new_detection(
-                        result.file.clone(),
-                        result.image_width.unwrap(),
-                        result.image_height.unwrap(),
-                        &detection,
-                    ))
-                    .unwrap();
+                if let Err(e) = writer.serialize(CamTrapCSVDetection::new_detection(
+                    result.file.clone(),
+                    result.image_width.unwrap_or(0),
+                    result.image_height.unwrap_or(0),
+                    &detection,
+                )) {
+                    row_result = Err(e);
+                    break;
+                }
             }
+            row_result
+        };
+
+        if let Err(e) = res {
+            return Err(format!("Failed to write CSV row: {}", e));
         }
     }
 
-    writer.flush().unwrap();
+    writer
+        .flush()
+        .map_err(|e| format!("Failed to flush CSV writer: {}", e))?;
 
     Ok(())
 }
@@ -81,12 +87,14 @@ fn export_json(
     results: Vec<structures::CamTrapImageDetections>,
     output_path: PathBuf,
 ) -> Result<(), String> {
-    let mut writer = std::fs::File::create(output_path).unwrap();
+    let mut writer = std::fs::File::create(&output_path)
+        .map_err(|e| format!("Failed to create JSON file: {}", e))?;
     let json_images: Vec<exports::json::CamTrapJSONImageDetections> =
         results.into_iter().map(|d| d.into()).collect();
     let json_container = exports::json::CamTrapJSONContainer::new(json_images);
 
-    serde_json::to_writer_pretty(&mut writer, &json_container).unwrap();
+    serde_json::to_writer_pretty(&mut writer, &json_container)
+        .map_err(|e| format!("Failed to write JSON: {}", e))?;
 
     Ok(())
 }
@@ -96,22 +104,14 @@ async fn export_image_set(
     state: tauri::State<'_, AppState>,
     output_path: PathBuf,
     filter_criteria: FilterCriteria,
-    draw_criteria: DrawCriteria,
-    window: Window,
-) -> Result<(), ()> {
+    draw_criteria: DrawCriteria
+) -> Result<String, String> {
     let results = state.0.lock().unwrap().results.clone();
     let base_dir = state.0.lock().unwrap().base_dir.clone();
 
     // Ensure it's not the same folder as the raw images
     if output_path == base_dir {
-        window
-            .dialog()
-            .message("The export folder cannot be the same as the raw images folder.")
-            .kind(MessageDialogKind::Error)
-            .title("Export Error")
-            .blocking_show();
-
-        return Err(());
+        return Err("The export folder cannot be the same as the raw images folder.".to_string());
     }
 
     export_image(
@@ -120,17 +120,9 @@ async fn export_image_set(
         output_path,
         filter_criteria,
         draw_criteria,
-    )
-    .unwrap();
+    ).map_err(|e| format!("Failed to export images: {}", e))?;
 
-    window
-        .dialog()
-        .message("The image export has completed.")
-        .kind(MessageDialogKind::Info)
-        .title("Image Export Complete")
-        .blocking_show();
-
-    Ok(())
+    Ok("The image export has completed.".to_string())
 }
 
 #[tauri::command]
@@ -171,6 +163,16 @@ async fn export(
         "json" => "JSON",
         _ => "Unknown",
     };
+
+    if let Err(err) = r {
+        window
+            .dialog()
+            .message(format!("Failed to export {}: {}", format_name, err))
+            .kind(MessageDialogKind::Error)
+            .title("Export Failed")
+            .blocking_show();
+        return Err(err);
+    }
 
     window
         .dialog()

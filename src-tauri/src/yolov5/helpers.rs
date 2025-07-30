@@ -2,25 +2,32 @@ use super::detections::YoloImageDetections;
 use image::{ImageError, Rgb};
 use imageproc::drawing::draw_hollow_rect_mut;
 use imageproc::rect::Rect;
+use std::collections::HashSet;
 use std::path::{Path, PathBuf};
+use once_cell::sync::Lazy;
 use walkdir::WalkDir;
 
-const IMAGE_EXTENTIONS: [&str; 3] = ["jpg", "jpeg", "png"];
+/// A set of known image file extensions
+static IMAGE_EXTENSIONS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+    ["jpg", "jpeg", "png"].iter().cloned().collect()
+});
 
-/// Check if path is a known image extention
+/// Check if path is a known image extension
 pub fn is_image_path(path: &Path) -> bool {
-    match path.extension() {
-        None => false,
-        Some(a) => IMAGE_EXTENTIONS.contains(&a.to_str().unwrap().to_lowercase().as_str()),
-    }
+    path.extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| IMAGE_EXTENSIONS.contains(&ext.to_lowercase().as_str()))
+        .unwrap_or(false)
 }
 
-/// Find all images beleived to be an image.
+/// Find all images in a directory
+/// If `recursive` is true, it will search all subdirectories.
+/// If `recursive` is false, it will only search the root directory.
 pub fn enumerate_images(root_dir: PathBuf, recursive: bool) -> Vec<PathBuf> {
     let mut images: Vec<PathBuf> = vec![];
 
     for entry in WalkDir::new(root_dir)
-        .max_depth(if recursive { ::std::usize::MAX } else { 1 })
+        .max_depth(if recursive { usize::MAX } else { 1 })
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| is_image_path(e.path()))
