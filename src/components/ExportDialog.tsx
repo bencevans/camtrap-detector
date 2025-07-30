@@ -19,7 +19,7 @@ interface Format {
   pathType: "file" | "dir";
   defaultPath: string;
   disabled: boolean;
-  desciption: string;
+  description: string;
   options?: {
     id: string;
     name: string;
@@ -38,7 +38,7 @@ const formatTypes: Format[] = [
     pathType: "file",
     defaultPath: "ct.5.1.0a.csv",
     disabled: false,
-    desciption:
+    description:
       "Comma Separated Values (CSV) file containing a row for each detection from each in the dataset. Recommended for use with Excel, R, etc.",
   },
   {
@@ -47,13 +47,13 @@ const formatTypes: Format[] = [
     pathType: "file",
     defaultPath: "ct.5.1.0a.json",
     disabled: false,
-    desciption:
+    description:
       "JavaScript Object Notation (JSON) file containing a row for each detection from each in the dataset. Recommended for use with Python, R, etc.",
   },
   {
     id: "image-dir",
     name: "Image Directory",
-    desciption:
+    description:
       "Directory containing images from the dataset, optionally including or excluding particular classes with detections drawn on.",
     pathType: "dir",
     defaultPath: "",
@@ -208,7 +208,7 @@ export default function ExportDialog({ onReset }: { onReset: () => void }) {
         >
           <div>
             <h3 style={{ color: "#00bfff", margin: 0 }}>{format.name}</h3>
-            <p style={{ fontSize: 12 }}>{format.desciption}</p>
+            <p style={{ fontSize: 12 }}>{format.description}</p>
             {format.id === "image-dir" && (
               <table style={{ width: "100%" }}>
                 <thead>

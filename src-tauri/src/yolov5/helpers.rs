@@ -20,7 +20,9 @@ pub fn is_image_path(path: &Path) -> bool {
         .unwrap_or(false)
 }
 
-/// Find all images beleived to be an image.
+/// Find all images in a directory
+/// If `recursive` is true, it will search all subdirectories.
+/// If `recursive` is false, it will only search the root directory.
 pub fn enumerate_images(root_dir: PathBuf, recursive: bool) -> Vec<PathBuf> {
     let mut images: Vec<PathBuf> = vec![];
 
