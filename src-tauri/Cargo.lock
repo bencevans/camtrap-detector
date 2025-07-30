@@ -122,6 +122,7 @@ dependencies = [
  "imageproc",
  "img-parts",
  "ndarray",
+ "once_cell",
  "ort",
  "pathdiff",
  "rayon",

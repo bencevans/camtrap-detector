@@ -8,7 +8,6 @@ import {
   createDrawCriteria,
   createExport,
   createFilterCriteria,
-  ExportFormat,
   exportImageSet,
   FilterCriteriaOption,
 } from "../api";
@@ -83,25 +82,118 @@ const formatTypes: Format[] = [
 export default function ExportDialog({ onReset }: { onReset: () => void }) {
   useEffect(() => {
     getCurrentWindow().setSize(new LogicalSize(600, 650)).catch(console.error);
-  });
+  }, []);
 
   const [imageExportAnimalFilter, setImageExportAnimalFilter] = useState(
-    "Include" as FilterCriteriaOption,
+    "Include" as FilterCriteriaOption
   );
   const [imageExportHumanFilter, setImageExportHumanFilter] = useState(
-    "Intersect" as FilterCriteriaOption,
+    "Intersect" as FilterCriteriaOption
   );
   const [imageExportVehicleFilter, setImageExportVehicleFilter] = useState(
-    "Intersect" as FilterCriteriaOption,
+    "Intersect" as FilterCriteriaOption
   );
   const [imageExportEmptyFilter, setImageExportEmptyFilter] = useState(
-    "Intersect" as FilterCriteriaOption,
+    "Intersect" as FilterCriteriaOption
   );
 
   const [exportInProgress, setExportInProgress] = useState([] as string[]);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [exportSuccess, setExportSuccess] = useState<string | null>(null);
+
+  // Helper to handle export errors
+  const handleExportError = (formatName: string, error: unknown) => {
+    let message = "";
+    if (error instanceof Error) {
+      message = error.message;
+    } else if (typeof error === "string") {
+      message = error;
+    } else {
+      message = JSON.stringify(error);
+    }
+    setExportError(`Failed to export ${formatName}: ${message}`);
+    setTimeout(() => setExportError(null), 6000);
+  };
+
+  // Helper to handle export success
+  const handleExportSuccess = (formatName: string) => {
+    setExportSuccess(`${formatName} export completed successfully.`);
+    setTimeout(() => setExportSuccess(null), 4000);
+  };
+
+  // Helper to start export
+  const startExport = (format: Format) => {
+    setExportError(null);
+    setExportSuccess(null);
+    if (exportInProgress.includes(format.id)) return;
+    setExportInProgress((prev) => [...prev, format.id]);
+    void (async () => {
+      try {
+        if (format.id === "image-dir") {
+          const outputPath = await open({ directory: true });
+          if (!outputPath || Array.isArray(outputPath)) {
+            setExportInProgress((prev) => prev.filter((id) => id !== format.id));
+            return;
+          }
+          await exportImageSet(
+            outputPath,
+            createFilterCriteria(
+              imageExportAnimalFilter,
+              imageExportHumanFilter,
+              imageExportVehicleFilter,
+              imageExportEmptyFilter
+            ),
+            createDrawCriteria(true, true, true)
+          );
+        } else {
+          const defaultFileName =
+            format.id === "json" ? "ct.0.1.0.json" : "ct.0.1.0.csv";
+          const outputPath = await save({ defaultPath: defaultFileName });
+          if (!outputPath || Array.isArray(outputPath)) {
+            setExportInProgress((prev) => prev.filter((id) => id !== format.id));
+            return;
+          }
+          await createExport(format.id, outputPath);
+        }
+        handleExportSuccess(format.name);
+      } catch (error) {
+        handleExportError(format.name, error);
+      } finally {
+        setExportInProgress((prev) => prev.filter((id) => id !== format.id));
+      }
+    })();
+  };
 
   return (
     <div>
+      {exportError && (
+        <div
+          className="export-error"
+          style={{
+            color: "#ff4d4f",
+            marginBottom: 10,
+            background: "#2a1a1a",
+            padding: 8,
+            borderRadius: 4,
+          }}
+        >
+          {exportError}
+        </div>
+      )}
+      {exportSuccess && (
+        <div
+          className="export-success"
+          style={{
+            color: "#00e676",
+            marginBottom: 10,
+            background: "#1a2a1a",
+            padding: 8,
+            borderRadius: 4,
+          }}
+        >
+          {exportSuccess}
+        </div>
+      )}
       {formatTypes.map((format) => (
         <div
           key={format.name}
@@ -115,28 +207,10 @@ export default function ExportDialog({ onReset }: { onReset: () => void }) {
           }}
         >
           <div>
-            <h3
-              style={{
-                color: "#00bfff",
-                margin: 0,
-              }}
-            >
-              {format.name}
-            </h3>
-            <p
-              style={{
-                fontSize: 12,
-              }}
-            >
-              {format.desciption}
-            </p>
-
+            <h3 style={{ color: "#00bfff", margin: 0 }}>{format.name}</h3>
+            <p style={{ fontSize: 12 }}>{format.desciption}</p>
             {format.id === "image-dir" && (
-              <table
-                style={{
-                  width: "100%",
-                }}
-              >
+              <table style={{ width: "100%" }}>
                 <thead>
                   <tr>
                     <th></th>
@@ -171,7 +245,6 @@ export default function ExportDialog({ onReset }: { onReset: () => void }) {
                         type="radio"
                         name="animals"
                         value="Exclude"
-                        disabled={imageExportAnimalFilter === "Exclude"}
                         checked={imageExportAnimalFilter === "Exclude"}
                         onChange={() => setImageExportAnimalFilter("Exclude")}
                       />
@@ -224,9 +297,7 @@ export default function ExportDialog({ onReset }: { onReset: () => void }) {
                         name="vehicles"
                         value="Intersect"
                         checked={imageExportVehicleFilter === "Intersect"}
-                        onChange={() =>
-                          setImageExportVehicleFilter("Intersect")
-                        }
+                        onChange={() => setImageExportVehicleFilter("Intersect")}
                       />
                     </td>
                     <td>
@@ -285,71 +356,8 @@ export default function ExportDialog({ onReset }: { onReset: () => void }) {
               <PulseLoader size={11} color={"#00bfff"} />
             ) : (
               <button
-                onClick={() => {
-                  if (format.id === "image-dir") {
-                    open({
-                      directory: true,
-                    })
-                      .then((outputPath) => {
-                        if (outputPath === null || Array.isArray(outputPath)) {
-                          return;
-                        }
-
-                        exportInProgress.push(format.id);
-                        setExportInProgress([...exportInProgress]);
-                        console.log("Exporting", format.id);
-
-                        exportImageSet(
-                          outputPath,
-                          createFilterCriteria(
-                            imageExportAnimalFilter,
-                            imageExportHumanFilter,
-                            imageExportVehicleFilter,
-                            imageExportEmptyFilter,
-                          ),
-                          createDrawCriteria(true, true, true),
-                        )
-                          .then(() => {
-                            console.log("Exported", format.id);
-                            exportInProgress.splice(
-                              exportInProgress.indexOf(format.id),
-                              1,
-                            );
-                            setExportInProgress([...exportInProgress]);
-                          })
-                          .catch(console.error);
-                      })
-                      .catch(console.error);
-                  } else {
-                    const defaultFileName =
-                      format.id === "json" ? "ct.0.1.0.json" : "ct.0.1.0.csv";
-
-                    save({
-                      defaultPath: defaultFileName,
-                    })
-                      .then((outputPath) => {
-                        if (outputPath === null || Array.isArray(outputPath)) {
-                          return;
-                        }
-
-                        exportInProgress.push(format.id);
-                        setExportInProgress([...exportInProgress]);
-                        console.log("Exporting", format.id);
-
-                        createExport(format.id as ExportFormat, outputPath)
-                          .then(() => {
-                            console.log("Exported", format.id);
-                            exportInProgress.splice(
-                              exportInProgress.indexOf(format.id),
-                              1,
-                            );
-                            setExportInProgress([...exportInProgress]);
-                          })
-                          .catch(console.error);
-                      })
-                      .catch(console.error);
-                  }
-                }}
+                disabled={format.disabled}
+                onClick={() => startExport(format)}
               >
                 Export
               </button>
@@ -357,7 +365,6 @@ export default function ExportDialog({ onReset }: { onReset: () => void }) {
           </div>
         </div>
       ))}
-
       {/* New Run Button */}
       <div
         style={{
