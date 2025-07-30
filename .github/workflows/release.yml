@@ -81,6 +81,8 @@ jobs:
           security default-keychain -s build.keychain
           echo "Unlocking Keychain"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          echo "Setting Keychain Settings"
+          security set-keychain-settings -t 3600 -u build.keychain
           echo "Importing Certificate"
           security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           echo "Setting Key Partition List"
