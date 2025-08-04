@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
-    "@tauri-apps/cli": "^2.1.0",
+    "@tauri-apps/cli": "^2.7.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
@@ -118,7 +118,7 @@
     ]
   },
   "optionalDependencies": {
-    "@tauri-apps/cli": "^2.5.0",
+    "@tauri-apps/cli": "^2.7.1",
     "vite": "^7.0.0"
   }
 }
