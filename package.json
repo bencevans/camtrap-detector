@@ -8,7 +8,7 @@
     "@tauri-apps/plugin-log": "^2.3.0",
     "@tauri-apps/plugin-notification": "^2.3.0",
     "@tauri-apps/plugin-updater": "^2.7.1",
-    "@testing-library/jest-dom": "6.6.4",
+    "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
     "cross-env": "^7.0.3",
