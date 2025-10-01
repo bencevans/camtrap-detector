@@ -27,7 +27,7 @@ image = { version = "0.25.6", features = ["rayon"] }
 imageproc = "0.25.0"
 rayon = "1.10.0"
 chug = "1.1.0"
-img-parts = "0.3.3"
+img-parts = "0.4.0"
 tracing = { version = "0.1.40", features = ["log"] }
 ndarray = "0.16.1"
 walkdir = "2.5.0"
