@@ -75,7 +75,7 @@ const formatTypes: Format[] = [
         ],
       },
     ],
-    disabled: true,
+    disabled: false,
   },
 ];
 
