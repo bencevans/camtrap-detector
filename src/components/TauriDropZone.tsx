@@ -1,8 +1,8 @@
-import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useEffect, useState } from "react";
 import { FaCog } from "react-icons/fa";
 import { isDir } from "../api";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 
 export default function TauriDropzone({
   onDrop,
@@ -14,46 +14,52 @@ export default function TauriDropzone({
   const [isDragActive, setIsDragActive] = useState(false);
 
   useEffect(() => {
-    listen("tauri://file-drop", (event) => {
-      const files = event.payload as string[];
-
-      if (files.length > 1) {
-        setIsDragActive(false);
-        return console.warn("Only one folder at a time is supported");
-      }
-
-      if (files.length === 0) {
-        setIsDragActive(false);
-        return console.warn("No files were dropped");
-      }
-
-      const file = files[0];
-
-      isDir(file)
-        .then((isDir) => {
-          if (isDir) {
-            console.log("Dropped (internal)", file);
-            onDrop(file);
-          } else {
-            alert("Only folders are supported");
+    const setupDragDropListener = async () => {
+      const unlisten = await getCurrentWebview().onDragDropEvent((event) => {
+        if (event.payload.type === "over") {
+          setIsDragActive(true);
+        } else if (event.payload.type === "drop") {
+          if (event.payload.paths.length > 1) {
+            setIsDragActive(false);
+            return console.warn("Only one folder at a time is supported");
           }
 
-          setIsDragActive(false);
-        })
-        .catch(() => {
-          setIsDragActive(false);
-        });
-    }).catch(console.error);
+          if (event.payload.paths.length === 0) {
+            setIsDragActive(false);
+            return console.warn("No files were dropped");
+          }
 
-    listen("tauri://file-drop-hover", () => {
-      setIsDragActive(true);
-    }).catch(console.error);
+          const file = event.payload.paths[0];
 
-    listen("tauri://file-drop-cancelled", (event) => {
-      console.log("canceled", event);
-      setIsDragActive(false);
-    }).catch(console.error);
-  });
+          isDir(file)
+            .then((isDir) => {
+              if (isDir) {
+                console.log("Dropped (internal)", file);
+                onDrop(file);
+              } else {
+                alert("Only folders are supported");
+              }
+              setIsDragActive(false);
+            })
+            .catch(() => {
+              setIsDragActive(false);
+            });
+        } else {
+          setIsDragActive(false);
+        }
+      });
+
+      return unlisten;
+    };
+
+    const cleanupPromise = setupDragDropListener();
+
+    return () => {
+      cleanupPromise
+        .then((unlisten) => unlisten())
+        .catch((err) => console.error("Error during cleanup:", err));
+    };
+  }, []);
 
   return (
     <div
