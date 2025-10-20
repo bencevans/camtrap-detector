@@ -1,6 +1,6 @@
 {
   "productName": "CamTrap Detector",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "identifier": "io.bluechimp.camtrap-detector",
   "build": {
     "beforeBuildCommand": "npm run build",
@@ -26,7 +26,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-
     "longDescription": "",
     "macOS": {
       "entitlements": null,
@@ -35,16 +34,24 @@
       "providerShortName": null,
       "signingIdentity": null
     },
-    "resources": ["../md_v5a.0.0-dynamic.onnx"],
+    "resources": [
+      "../md_v5a.0.0-dynamic.onnx"
+    ],
     "shortDescription": "",
-    "targets": "all",
+    "targets": [
+      "deb",
+      "appimage",
+      "msi",
+      "nsis",
+      "app",
+      "dmg"
+    ],
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
       "timestampUrl": ""
     }
   },
-
   "app": {
     "security": {
       "csp": null
