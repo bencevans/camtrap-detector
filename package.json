@@ -58,7 +58,7 @@
     "globals": "^16.4.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.1",
-    "vite": "^7.1.10"
+    "vite": "^7.1.11"
   },
   "jest": {
     "roots": [
@@ -118,6 +118,6 @@
   },
   "optionalDependencies": {
     "@tauri-apps/cli": "^2.8.4",
-    "vite": "^7.1.5"
+    "vite": "^7.1.11"
   }
 }
