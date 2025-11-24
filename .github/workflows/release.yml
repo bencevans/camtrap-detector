@@ -49,7 +49,7 @@ jobs:
         run: choco install -y wget
         if: runner.os == 'Windows'
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
