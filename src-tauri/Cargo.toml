@@ -28,7 +28,7 @@ imageproc = "0.25.0"
 rayon = "1.11.0"
 chug = "1.1.0"
 img-parts = "0.4.0"
-tracing = { version = "0.1.43", features = ["log"] }
+tracing = { version = "0.1.44", features = ["log"] }
 ndarray = "0.16.1"
 walkdir = "2.5.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
