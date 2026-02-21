@@ -6,7 +6,7 @@
     "@tauri-apps/api": "^2.9.1",
     "@tauri-apps/plugin-dialog": "^2.6.0",
     "@tauri-apps/plugin-log": "^2.8.0",
-    "@tauri-apps/plugin-notification": "^2.3.1",
+    "@tauri-apps/plugin-notification": "^2.3.3",
     "@tauri-apps/plugin-updater": "^2.9.0",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "^16.3.2",
