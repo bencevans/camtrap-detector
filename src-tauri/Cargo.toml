@@ -32,7 +32,7 @@ tracing = { version = "0.1.44", features = ["log"] }
 ndarray = "0.16.1"
 walkdir = "2.5.0"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
-tracing-test = { version = "0.2.5", feature = ["no-env-filter"] }
+tracing-test = { version = "0.2.5", features = ["no-env-filter"] }
 time = "0.3.47"
 tauri-plugin-dialog = "2"
 tauri-plugin-notification = "2"
@@ -46,7 +46,7 @@ features = ["download-binaries", "directml"]
 [target.'cfg(target_os = "linux")'.dependencies.ort]
 version = "2.0.0-rc.9"
 default-features = false
-features = ["download-binaries", "half", "ndarray", "xnnpack"]
+features = ["download-binaries", "half", "ndarray", "std", "tls-rustls", "xnnpack"]
 
 [target.'cfg(target_os = "macos")'.dependencies.ort]
 version = "2.0.0-rc.9"
