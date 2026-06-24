@@ -33,7 +33,7 @@ jobs:
           elif [ "$RUNNER_OS" = "Windows" ]; then
             choco install -y jq
           elif [ "$RUNNER_OS" = "macOS" ]; then
-            brew install jq pkg-config
+            brew install jq pkg-config cmake meson
             mkdir -p /Users/runner/lib
             ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib /Users/runner/lib/libclang.dylib
           fi
