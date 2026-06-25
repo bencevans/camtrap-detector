@@ -62,6 +62,10 @@ jobs:
         with:
           workspaces: "./src-tauri -> target"
 
+      - name: Clean macOS target cache
+        if: runner.os == 'macOS'
+        run: cd src-tauri && cargo clean
+
       - name: Download Model (dynamic)
         run: curl -L -o md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
 
