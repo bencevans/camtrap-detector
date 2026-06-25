@@ -1,11 +1,12 @@
 use image::imageops::FilterType;
 use image::{DynamicImage, GenericImageView};
-use ndarray::{s, Array, Axis};
+use ndarray::{s, Array, ArrayViewD, Axis, IxDyn};
 use ort::execution_providers::{
-    CUDAExecutionProvider, CoreMLExecutionProvider, DirectMLExecutionProvider, ExecutionProvider,
-    TensorRTExecutionProvider,
+    coreml::ComputeUnits, CUDAExecutionProvider, CoreMLExecutionProvider,
+    DirectMLExecutionProvider, ExecutionProvider, TensorRTExecutionProvider,
 };
 use ort::session::Session;
+use ort::value::Tensor;
 use serde::{Deserialize, Serialize};
 
 pub struct YoloModel {
@@ -46,8 +47,8 @@ impl YoloModel {
         println!("Loading model");
 
         let coreml = CoreMLExecutionProvider::default()
-            .with_ane_only()
-            .with_subgraphs();
+            .with_compute_units(ComputeUnits::CPUAndNeuralEngine)
+            .with_subgraphs(true);
         println!("CoreML available: {:?}", coreml.is_available().unwrap());
 
         let tensor_rt = TensorRTExecutionProvider::default();
@@ -95,7 +96,7 @@ impl YoloModel {
     }
 
     pub fn detect(
-        &self,
+        &mut self,
         original_img: &DynamicImage,
         conf_threshold: Option<f32>,
         nms_threshold: Option<f32>,
@@ -121,13 +122,18 @@ impl YoloModel {
             input[[0, 2, y, x]] = (b as f32) / 255.;
         }
 
-        let outputs = self.model.run(ort::inputs!["images" => input]?)?;
+        let (input_data, input_offset) = input.into_raw_vec_and_offset();
+        debug_assert!(input_offset.is_none() || input_offset == Some(0));
+        let input = Tensor::from_array((
+            [1, 3, target_size as usize, target_size as usize],
+            input_data,
+        ))?;
+        let outputs = self.model.run(ort::inputs!["images" => input])?;
 
         // Postprocessing
-        let output = outputs["output"]
-            .try_extract_tensor::<f32>()
-            .unwrap()
-            .view()
+        let (output_shape, output_data) = outputs["output"].try_extract_tensor::<f32>()?;
+        let output_shape: Vec<_> = output_shape.iter().map(|dim| *dim as usize).collect();
+        let output = ArrayViewD::from_shape(IxDyn(&output_shape), output_data)?
             .t()
             .into_owned();
 
@@ -240,7 +246,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_model() {
-        let model = YoloModel::new_from_file("../md_v5a.0.0-dynamic.onnx", (640, 640)).unwrap();
+        let mut model = YoloModel::new_from_file("../md_v5a.0.0-dynamic.onnx", (640, 640)).unwrap();
 
         let detections = model
             .detect(

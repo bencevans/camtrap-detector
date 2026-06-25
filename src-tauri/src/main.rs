@@ -212,7 +212,7 @@ async fn process(
         )
         .unwrap();
 
-    let model = YoloModel::new_from_file(
+    let mut model = YoloModel::new_from_file(
         handle
             .path()
             .resolve("../md_v5a.0.0-dynamic.onnx", BaseDirectory::Resource)
