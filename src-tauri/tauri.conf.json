@@ -35,7 +35,7 @@
       "signingIdentity": null
     },
     "resources": [
-      "../md_v5a.0.0-dynamic.onnx"
+      "../md_v1000.0.0-redwood-dynamic.onnx"
     ],
     "shortDescription": "",
     "targets": [

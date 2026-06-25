@@ -27,7 +27,7 @@ Install the npm dependencies, this should be repeated each time any of the `pack
 
 ### Download Model
 
-    wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
+    wget -O md_v1000.0.0-redwood-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.3.0/md_v1000.0.0-redwood-dynamic.onnx
 
 ## Development
 
@@ -57,4 +57,4 @@ To run the backend tests, run:
 
     cargo test
 
-Please note that the backend tests require the `md_v5a.0.0-dynamic.onnx` model to be present in the root of the repository.
+Please note that the backend tests require the `md_v1000.0.0-redwood-dynamic.onnx` model to be present in the root of the repository.
