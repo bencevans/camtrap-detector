@@ -13,7 +13,6 @@ export default tseslint.config(
           allowDefaultProject: ["*.js", "src/vite.config.js"],
         },
         tsconfigRootDir: import.meta.dirname,
-        project: "./tsconfig.json",
       },
     },
   },
