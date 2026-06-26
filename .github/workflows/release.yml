@@ -63,7 +63,7 @@ jobs:
           cache-workspaces: './src-tauri -> target'
 
       - name: Download Model (dynamic)
-        run: wget -O md_v5a.0.0-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.2.0/md_v5a.0.0-dynamic.onnx
+        run: wget -O md_v1000.0.0-redwood-dynamic.onnx https://github.com/bencevans/megadetector-onnx/releases/download/v0.3.0/md_v1000.0.0-redwood-dynamic.onnx
 
       - name: install frontend dependencies
         run: npm ci
