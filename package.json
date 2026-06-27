@@ -1,6 +1,6 @@
 {
   "name": "camtrap-detector",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "@tauri-apps/api": "^2.11.1",

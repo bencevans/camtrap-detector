@@ -20,7 +20,7 @@ jobs:
       matrix:
         include:
           # macOS Intel
-          - platform: macos-14-large
+          # - platform: macos-14-large
           # macOS Arm
           - platform: macos-14
           # Windows (x64)
