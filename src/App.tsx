@@ -13,7 +13,7 @@ function App() {
   const [processingStatus, setProcessingStatus] = useState(
     null as null | ProgressReport,
   );
-  const [confidenceThreshold, setConfidenceThreshold] = useState(0.1 as number);
+  const [confidenceThreshold, setConfidenceThreshold] = useState(0.3 as number);
 
   // Initial Load
   useEffect(() => {

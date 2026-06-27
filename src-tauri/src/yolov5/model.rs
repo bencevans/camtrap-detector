@@ -115,7 +115,7 @@ impl YoloModel {
         conf_threshold: Option<f32>,
         nms_threshold: Option<f32>,
     ) -> Result<Vec<Detection>, Box<dyn std::error::Error>> {
-        let conf_threshold = conf_threshold.unwrap_or(0.1);
+        let conf_threshold = conf_threshold.unwrap_or(0.3);
         println!("Confidence threshold: {:?}", conf_threshold);
         let nms_threshold = nms_threshold.unwrap_or(0.45);
         println!("NMS threshold: {:?}", nms_threshold);
