@@ -16,8 +16,9 @@ jobs:
       matrix:
         include:
           - platform: macos-latest
-          # M1
-          - platform: macos-14
+          # Pinned Apple Silicon and Intel coverage
+          - platform: macos-15
+          - platform: macos-15-intel
           - platform: windows-latest
           - platform: ubuntu-24.04
 
