@@ -2,7 +2,7 @@ use image::imageops::FilterType;
 use image::{DynamicImage, GenericImageView};
 use ndarray::{s, Array, ArrayViewD, Axis, IxDyn};
 use ort::execution_providers::{
-    CoreMLComputeUnits, CUDAExecutionProvider, CoreMLExecutionProvider,
+    coreml::CoreMLComputeUnits, CUDAExecutionProvider, CoreMLExecutionProvider,
     DirectMLExecutionProvider, ExecutionProvider, TensorRTExecutionProvider,
 };
 use ort::session::Session;
