@@ -2,7 +2,7 @@ use image::imageops::FilterType;
 use image::{DynamicImage, GenericImageView};
 use ndarray::{s, Array, ArrayViewD, Axis, IxDyn};
 use ort::execution_providers::{
-    coreml::ComputeUnits, CUDAExecutionProvider, CoreMLExecutionProvider,
+    CoreMLComputeUnits, CUDAExecutionProvider, CoreMLExecutionProvider,
     DirectMLExecutionProvider, ExecutionProvider, TensorRTExecutionProvider,
 };
 use ort::session::Session;
@@ -47,7 +47,7 @@ impl YoloModel {
         println!("Loading model");
 
         let coreml = CoreMLExecutionProvider::default()
-            .with_compute_units(ComputeUnits::CPUAndNeuralEngine)
+            .with_compute_units(CoreMLComputeUnits::CPUAndNeuralEngine)
             .with_subgraphs(true);
         println!("CoreML available: {:?}", coreml.is_available().unwrap());
 
