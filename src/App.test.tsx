@@ -4,7 +4,11 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import App from "./App";
+import { check, Update } from "@tauri-apps/plugin-updater";
 
+vi.mock("@tauri-apps/plugin-updater", () => ({
+  check: vi.fn().mockResolvedValue(null),
+}));
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 vi.mock("@tauri-apps/plugin-dialog", () => ({ open: vi.fn() }));
 vi.mock("@tauri-apps/api/event", () => ({
@@ -24,6 +28,7 @@ vi.mock("@tauri-apps/api/webview", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(check).mockResolvedValue(null);
   vi.mocked(invoke).mockResolvedValue(undefined);
   vi.mocked(open).mockResolvedValue("/camera-trap-images");
 });
@@ -63,5 +68,26 @@ test("does not start detection before a folder is selected or when selection is 
   await user.click(screen.getByRole("button", { name: "Select Folder" }));
 
   expect(open).toHaveBeenCalledOnce();
+  expect(invoke).not.toHaveBeenCalledWith("process", expect.anything());
+});
+
+
+test("does not allow an update to interrupt a selected detection run", async () => {
+  const user = userEvent.setup();
+  const downloadAndInstall = vi.fn();
+  vi.mocked(check).mockResolvedValue({ version: "1.0.5", downloadAndInstall, close: vi.fn().mockResolvedValue(undefined) } as unknown as Update);
+  render(<App />);
+  const updateButton = await screen.findByRole("button", { name: "Update and Restart" });
+  await user.click(screen.getByRole("button", { name: "Select Folder" }));
+  await user.click(updateButton);
+  expect(downloadAndInstall).not.toHaveBeenCalled();
+});
+
+test("prevents starting a detection run while an update is installing", async () => {
+  const user = userEvent.setup();
+  vi.mocked(check).mockResolvedValue({ version: "1.0.5", downloadAndInstall: vi.fn(() => new Promise<void>(() => {})), close: vi.fn().mockResolvedValue(undefined) } as unknown as Update);
+  render(<App />);
+  await user.click(await screen.findByRole("button", { name: "Update and Restart" }));
+  expect(screen.queryByRole("button", { name: "Select Folder" })).toBeNull();
   expect(invoke).not.toHaveBeenCalledWith("process", expect.anything());
 });

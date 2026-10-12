@@ -3,9 +3,11 @@ import "./App.css";
 import FolderSelectDialog from "./components/FolderSelectDialog";
 import ProgressDialog from "./components/ProgressDialog";
 import ExportDialog from "./components/ExportDialog";
+import UpdateNotice from "./components/UpdateNotice";
 import { listenProgress, process, ProgressReport, showWindow } from "./api";
 
 function App() {
+  const [installingUpdate, setInstallingUpdate] = useState(false);
   const [path, setPath] = useState(null as null | string);
   const [includeSubfolders, setIncludeSubfolders] = useState(
     null as null | boolean,
@@ -62,7 +64,8 @@ function App() {
         display: "flex",
       }}
     >
-      {processingStatus == null ? (
+      <UpdateNotice canInstall={path === null} onInstallingChange={setInstallingUpdate} />
+      {installingUpdate ? null : processingStatus == null ? (
         <FolderSelectDialog
           config={{
             confidenceThreshold: confidenceThreshold,
