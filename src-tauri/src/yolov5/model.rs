@@ -73,28 +73,14 @@ impl YoloModel {
             direct_ml: direct_ml.is_available().unwrap(),
         };
 
-        let accelerated_model: Result<Session, Box<dyn std::error::Error>> = (|| {
-            let builder = Session::builder()?;
-            let mut builder = builder
-                .with_execution_providers(vec![
-                    coreml.build(),
-                    tensor_rt.build(),
-                    cuda.build(),
-                    direct_ml.build(),
-                ])
-                .map_err(|err| std::io::Error::other(err.to_string()))?;
-            Ok(builder.commit_from_file(model_path)?)
-        })();
-
-        let model = match accelerated_model {
-            Ok(model) => model,
-            Err(err) => {
-                eprintln!(
-                    "Failed to load model with hardware acceleration, falling back to CPU: {err}"
-                );
-                Session::builder()?.commit_from_file(model_path)?
-            }
-        };
+        let model = Session::builder()?
+            .with_execution_providers(vec![
+                coreml.build(),
+                tensor_rt.build(),
+                cuda.build(),
+                direct_ml.build(),
+            ])?
+            .commit_from_file(model_path)?;
 
         println!("Model loaded");
 
@@ -115,7 +101,7 @@ impl YoloModel {
         conf_threshold: Option<f32>,
         nms_threshold: Option<f32>,
     ) -> Result<Vec<Detection>, Box<dyn std::error::Error>> {
-        let conf_threshold = conf_threshold.unwrap_or(0.3);
+        let conf_threshold = conf_threshold.unwrap_or(0.1);
         println!("Confidence threshold: {:?}", conf_threshold);
         let nms_threshold = nms_threshold.unwrap_or(0.45);
         println!("NMS threshold: {:?}", nms_threshold);
@@ -145,7 +131,7 @@ impl YoloModel {
         let outputs = self.model.run(ort::inputs!["images" => input])?;
 
         // Postprocessing
-        let (output_shape, output_data) = outputs[0].try_extract_tensor::<f32>()?;
+        let (output_shape, output_data) = outputs["output"].try_extract_tensor::<f32>()?;
         let output_shape: Vec<_> = output_shape.iter().map(|dim| *dim as usize).collect();
         let output = ArrayViewD::from_shape(IxDyn(&output_shape), output_data)?
             .t()
@@ -260,8 +246,7 @@ mod test {
     #[traced_test]
     #[test]
     fn test_model() {
-        let mut model =
-            YoloModel::new_from_file("../md_v1000.0.0-redwood-dynamic.onnx", (640, 640)).unwrap();
+        let mut model = YoloModel::new_from_file("../md_v5a.0.0-dynamic.onnx", (640, 640)).unwrap();
 
         let detections = model
             .detect(
