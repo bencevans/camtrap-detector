@@ -215,10 +215,7 @@ async fn process(
     let mut model = YoloModel::new_from_file(
         handle
             .path()
-            .resolve(
-                "../md_v1000.0.0-redwood-dynamic.onnx",
-                BaseDirectory::Resource,
-            )
+            .resolve("../md_v5a.0.0-dynamic.onnx", BaseDirectory::Resource)
             .unwrap()
             .to_str()
             .unwrap(),
