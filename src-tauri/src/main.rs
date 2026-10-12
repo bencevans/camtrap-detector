@@ -335,6 +335,7 @@ fn main() {
     let context = tauri::generate_context!();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_log::Builder::new().build())
         .plugin(
             tauri_plugin_log::Builder::new()

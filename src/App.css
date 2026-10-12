@@ -62,3 +62,20 @@ body {
 .card-header input {
   margin-right: 10px;
 }
+
+.update-notice {
+  flex-shrink: 0;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #666;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.update-notice p {
+  margin: 0 0 8px;
+}
+
+.update-notice button + button {
+  margin-left: 8px;
+}
