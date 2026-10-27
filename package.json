@@ -61,7 +61,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.62.0",
     "vite": "^8.3.4",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   },
   "optionalDependencies": {
     "@tauri-apps/cli": "^2.8.4",
